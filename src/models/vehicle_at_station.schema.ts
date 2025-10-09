@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { Vehicle } from './vehicle.schema';
 
 import { Station } from './station.schema';
-import { StatusVehicleAtStation } from 'src/common/enums/statusVehicleAtStation.enum';
+import { StatusVehicleAtStation } from 'src/common/enums/vehicle_at_station.enum';
 
 export type VehicleAtStationDocument = mongoose.HydratedDocument<VehicleAtStation>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })

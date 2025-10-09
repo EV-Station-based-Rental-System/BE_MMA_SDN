@@ -6,5 +6,5 @@ export enum SignatureEvent {
 export enum SignatureType {
   DRAWN = 'drawn',
   TYPED = 'typed',
-  DIGIAL_CERT = 'digital_cert',
+  DIGITAL_CERT = 'digital_cert',
 }

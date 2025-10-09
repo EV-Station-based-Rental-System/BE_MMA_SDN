@@ -3,7 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { Admin } from './admin.schema';
 import { Staff } from './staff.schema';
 import { Station } from './station.schema';
-import { StaffTransferStatus } from 'src/common/enums/staffTrasfer.enum';
+import { StaffTransferStatus } from 'src/common/enums/staff_trasfer.enum';
 
 export type StaffTransferDocument = HydratedDocument<StaffTransfer>;
 

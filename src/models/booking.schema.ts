@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Renter } from './renter.schema';
 import { VehicleAtStation } from './vehicle_at_station.schema';
-import { BookingStatus, BookingVerificationStatus } from 'src/common/enums/statusBooking.enum';
+import { BookingStatus, BookingVerificationStatus } from 'src/common/enums/booking.enum';
 import { Staff } from './staff.schema';
 
 export type BookingDocument = mongoose.HydratedDocument<Booking>;

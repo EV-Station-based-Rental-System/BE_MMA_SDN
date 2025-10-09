@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Renter } from './renter.schema';
-import { KycStatus, KycType } from 'src/common/enums/kycs.enum';
+import { KycStatus, KycType } from 'src/common/enums/kyc.enum';
 
 export type KycsDocument = HydratedDocument<Kycs>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })

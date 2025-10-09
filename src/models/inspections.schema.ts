@@ -3,7 +3,7 @@ import { Staff } from './staff.schema';
 import { Rental } from './rental.schema';
 import { SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { InspectionType } from 'src/common/enums/inspector.enum';
+import { InspectionType } from 'src/common/enums/inspection.enum';
 export type InspectionDocument = HydratedDocument<Inspection>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Inspection {
