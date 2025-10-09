@@ -9,7 +9,7 @@ pull_request_rules:
       merge:
         method: rebase
 
-  - name: delete head branch after merge but not if other PRs depend on it
+  - name: Delete head branch after merge but not if other PRs depend on it
     conditions:
       - merged
     actions:
