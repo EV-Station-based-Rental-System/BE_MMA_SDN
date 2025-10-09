@@ -1,25 +1,31 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Renter } from './renter.schema';
-import { KycsStatus, KycsType } from 'src/common/enums/kycs.enum';
+import { KycStatus, KycType } from 'src/common/enums/kycs.enum';
 
 export type KycsDocument = HydratedDocument<Kycs>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Kycs {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Renter' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Renter', index: true })
   renter_id: Renter;
 
-  @Prop({ required: true, enum: KycsType, default: KycsType.DRIVER_LICENSE, type: String })
-  type: KycsType;
+  @Prop({ required: true, enum: KycType, default: KycType.DRIVER_LICENSE, type: String })
+  type: KycType;
 
-  @Prop({ required: true, enum: KycsStatus, default: KycsStatus.SUBMITTED, type: String })
-  status: KycsStatus;
+  @Prop({ required: true, type: String })
+  document_number: string;
+
+  @Prop({ type: Date })
+  expiry_date?: Date;
+
+  @Prop({ required: true, enum: KycStatus, default: KycStatus.SUBMITTED, type: String })
+  status: KycStatus;
 
   @Prop({ required: true, type: Date, default: Date.now })
   submitted_at: Date;
 
-  @Prop({ required: false, type: Date })
-  verified_at: Date;
+  @Prop({ type: Date })
+  verified_at?: Date;
 }
 
 export const KycsSchema = SchemaFactory.createForClass(Kycs);

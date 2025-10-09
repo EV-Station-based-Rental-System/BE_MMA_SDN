@@ -6,19 +6,20 @@ export type BaseJwtUserPayload = {
 };
 
 export type RenterJwtUserPayload = BaseJwtUserPayload & {
-  driver_license: string;
-  address: string;
-  date_of_birth: Date;
-  risk_score: number;
+  driver_license_no?: string;
+  address?: string;
+  date_of_birth?: Date;
+  risk_score?: number;
 };
 
 export type StaffJwtUserPayload = BaseJwtUserPayload & {
-  employeeCode: string;
+  employee_code: string;
   position: string;
   hire_date: Date;
 };
 
 export type AdminJwtUserPayload = BaseJwtUserPayload & {
-  title: string;
+  title?: string;
+  notes?: string;
   hire_date: Date;
 };
