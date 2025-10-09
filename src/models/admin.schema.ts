@@ -5,16 +5,16 @@ import { User } from './user.schema';
 export type AdminDocument = HydratedDocument<Admin>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Admin {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true })
   user_id: User;
 
-  @Prop({ required: true, type: String })
-  title: string;
+  @Prop({ type: String })
+  title?: string;
 
-  @Prop({ required: true, type: String })
-  notes: string;
+  @Prop({ type: String })
+  notes?: string;
 
-  @Prop({ required: true, type: Date })
+  @Prop({ required: true, type: Date, default: Date.now })
   hire_date: Date;
 }
 

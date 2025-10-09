@@ -5,16 +5,16 @@ import { User } from './user.schema';
 export type StaffDocument = HydratedDocument<Staff>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Staff {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true })
   user_id: User;
 
   @Prop({ required: true, unique: true, type: String })
-  employeeCode: string;
+  employee_code: string;
 
   @Prop({ required: true, type: String })
   position: string;
 
-  @Prop({ required: true, type: Date })
+  @Prop({ required: true, type: Date, default: Date.now })
   hire_date: Date;
 }
 export const StaffSchema = SchemaFactory.createForClass(Staff);

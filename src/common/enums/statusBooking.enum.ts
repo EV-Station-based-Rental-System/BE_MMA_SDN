@@ -1,9 +1,10 @@
-export enum StatusBooking {
+export enum BookingStatus {
   PENDING_VERIFICATION = 'pending_verification',
   VERIFIED = 'verified',
   CANCELLED = 'cancelled',
 }
-export enum VerificationStatus {
+
+export enum BookingVerificationStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED_MISMATCH = 'rejected_mismatch',
