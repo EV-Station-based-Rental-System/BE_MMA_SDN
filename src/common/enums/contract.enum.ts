@@ -6,7 +6,7 @@ export enum ContractStatus {
   EXPIRED = 'expired',
 }
 
-export enum ContractProvider {
+export enum EsignProvider {
   NATIVE = 'native',
   DOCUSIGN = 'docusign',
   ADOBESIGN = 'adobesign',
