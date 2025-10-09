@@ -1,21 +1,30 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Schema } from '@nestjs/mongoose/dist/decorators/schema.decorator';
-import { HydratedDocument } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 
 export type StationDocument = HydratedDocument<Station>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Station {
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+    required: true,
+    unique: true,
+  })
+  station_id: mongoose.Types.ObjectId;
+
   @Prop({ required: true, type: String })
   name: string;
 
   @Prop({ required: true, type: String })
   address: string;
 
-  @Prop({ required: true, type: String })
-  latitude: string;
+  @Prop({ type: Number })
+  latitude?: number;
 
-  @Prop({ required: true, type: String })
-  longitude: string;
+  @Prop({ type: Number })
+  longitude?: number;
 }
 
 export const StationSchema = SchemaFactory.createForClass(Station);
+
+StationSchema.index({ station_id: 1 }, { unique: true });

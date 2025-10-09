@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { User } from './user.schema';
 export type RenterDocument = HydratedDocument<Renter>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Renter {
@@ -11,7 +10,7 @@ export class Renter {
     unique: true,
     index: true,
   })
-  user_id: User;
+  user_id: mongoose.Types.ObjectId;
 
   @Prop({ type: String })
   driver_license_no?: string;
@@ -26,3 +25,5 @@ export class Renter {
   risk_score?: number;
 }
 export const RenterSchema = SchemaFactory.createForClass(Renter);
+
+RenterSchema.index({ user_id: 1 }, { unique: true });
