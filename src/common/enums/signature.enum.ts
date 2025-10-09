@@ -1,3 +1,9 @@
+export enum SignaturePartyRole {
+  RENTER = 'renter',
+  STAFF = 'staff',
+  OTHER = 'other',
+}
+
 export enum SignatureEvent {
   PICKUP = 'pickup',
   DROPOFF = 'dropoff',

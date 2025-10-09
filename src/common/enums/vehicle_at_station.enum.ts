@@ -1,5 +1,5 @@
 export enum StatusVehicleAtStation {
-  MAINTENANCE = 'maintenance',
+  MAINTAIN = 'maintain',
   AVAILABLE = 'available',
   BOOKED = 'booked',
 }
