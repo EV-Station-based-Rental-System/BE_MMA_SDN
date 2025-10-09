@@ -1,5 +1,5 @@
 export default () => ({
   database: {
-    url: process.env.MONGODB_URI,
+    url: process.env.MONGO_URI,
   },
 });
