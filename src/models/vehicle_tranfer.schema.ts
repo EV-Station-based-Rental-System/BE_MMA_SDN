@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Vehicle } from './vehicle.schema';
 import { Station } from './station.schema';
-import { VehicleTransferStatus } from 'src/common/enums/vehicleTransfer.enum';
+import { VehicleTransferStatus } from 'src/common/enums/vehicle_transfer.enum';
 import mongoose from 'mongoose';
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
