@@ -5,12 +5,13 @@ on:
     types: [synchronize, opened, reopened, edited]
 
 permissions:
-  id-token: read
-  contents: read
-  actions: read
-  deployments: read
-  pages: read
-  pull-requests: read
+  id-token: write
+  contents: write
+  actions: write
+  deployments: write
+  pages: write
+  pull-requests: write
+  packages: write
 
 jobs:
   main-ci:
