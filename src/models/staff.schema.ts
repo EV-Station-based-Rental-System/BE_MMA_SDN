@@ -14,7 +14,7 @@ export class Staff {
   @Prop({ required: true, type: String })
   position: string;
 
-  @Prop({ required: true, type: String })
-  hire_date: string;
+  @Prop({ required: true, type: Date })
+  hire_date: Date;
 }
 export const StaffSchema = SchemaFactory.createForClass(Staff);
