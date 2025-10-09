@@ -1,0 +1,3035 @@
+{
+  "source": "codebase",
+  "generatedAt": "2025-10-09T19:19:17.108Z",
+  "enums": {
+    "ContractProvider": {
+      "name": "ContractProvider",
+      "values": [
+        "native",
+        "docusign",
+        "adobesign",
+        "signnow",
+        "other"
+      ]
+    },
+    "ContractStatus": {
+      "name": "ContractStatus",
+      "values": [
+        "issued",
+        "partially_signed",
+        "signed",
+        "voided",
+        "expired"
+      ]
+    },
+    "FeeType": {
+      "name": "FeeType",
+      "values": [
+        "deposit",
+        "rental_charge",
+        "surcharge",
+        "damage",
+        "other"
+      ]
+    },
+    "InspectorType": {
+      "name": "InspectorType",
+      "values": [
+        "pre_rental",
+        "post_rental"
+      ]
+    },
+    "KycsStatus": {
+      "name": "KycsStatus",
+      "values": [
+        "submitted",
+        "approved",
+        "rejected",
+        "expired"
+      ]
+    },
+    "KycsType": {
+      "name": "KycsType",
+      "values": [
+        "national_id",
+        "passport",
+        "driver_license",
+        "other"
+      ]
+    },
+    "PaymentMethod": {
+      "name": "PaymentMethod",
+      "values": [
+        "unknown",
+        "cash",
+        "card",
+        "ewallet",
+        "bank_transfer"
+      ]
+    },
+    "PaymentStatus": {
+      "name": "PaymentStatus",
+      "values": [
+        "paid",
+        "refunded"
+      ]
+    },
+    "RetalStatus": {
+      "name": "RetalStatus",
+      "values": [
+        "reserved",
+        "in_progress",
+        "completed",
+        "late",
+        "cancelled"
+      ]
+    },
+    "Role": {
+      "name": "Role",
+      "values": [
+        "unknown",
+        "renter",
+        "staff",
+        "admin"
+      ]
+    },
+    "SignatureEvent": {
+      "name": "SignatureEvent",
+      "values": [
+        "pickup",
+        "dropoff"
+      ]
+    },
+    "SignatureType": {
+      "name": "SignatureType",
+      "values": [
+        "drawn",
+        "typed",
+        "digital_cert"
+      ]
+    },
+    "StaffTransferStatus": {
+      "name": "StaffTransferStatus",
+      "values": [
+        "draft",
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    },
+    "StatusBooking": {
+      "name": "StatusBooking",
+      "values": [
+        "pending_verification",
+        "verified",
+        "cancelled"
+      ]
+    },
+    "StatusVehicleAtStation": {
+      "name": "StatusVehicleAtStation",
+      "values": [
+        "maintenance",
+        "available",
+        "booked"
+      ]
+    },
+    "VehicleTransferStatus": {
+      "name": "VehicleTransferStatus",
+      "values": [
+        "draft",
+        "approved",
+        "in_transit",
+        "completed",
+        "cancelled"
+      ]
+    },
+    "VerificationStatus": {
+      "name": "VerificationStatus",
+      "values": [
+        "pending",
+        "approved",
+        "rejected_mismatch",
+        "rejected_other"
+      ]
+    }
+  },
+  "collections": {
+    "admins": {
+      "name": "Admin",
+      "filePath": "src/models/admin.schema.ts",
+      "collectionName": "admins",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "user_id",
+          "tsType": "User",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "User",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "User",
+            "required": true
+          }
+        },
+        {
+          "name": "title",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "notes",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "hire_date",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "User",
+          "sourceFields": [
+            "user_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "bookings": {
+      "name": "Booking",
+      "filePath": "src/models/booking.schema.ts",
+      "collectionName": "bookings",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "renter_id",
+          "tsType": "Renter",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Renter",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Renter",
+            "required": true
+          }
+        },
+        {
+          "name": "vehicle_at_station_id",
+          "tsType": "VehicleAtStation",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "VehicleAtStation",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "VehicleAtStation",
+            "required": true
+          }
+        },
+        {
+          "name": "booking_create_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "expected_return_datetime",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "StatusBooking",
+          "mongooseType": null,
+          "required": true,
+          "unique": false,
+          "default": "StatusBooking.PENDING_VERIFICATION",
+          "ref": null,
+          "enum": "StatusBooking",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "StatusBooking",
+            "default": "StatusBooking.PENDING_VERIFICATION"
+          }
+        },
+        {
+          "name": "verification_status",
+          "tsType": "VerificationStatus",
+          "mongooseType": null,
+          "required": true,
+          "unique": false,
+          "default": "VerificationStatus.PENDING",
+          "ref": null,
+          "enum": "VerificationStatus",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "VerificationStatus",
+            "default": "VerificationStatus.PENDING"
+          }
+        },
+        {
+          "name": "verified_by_staff_id",
+          "tsType": "Staff",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "User",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "User",
+            "required": true
+          }
+        },
+        {
+          "name": "verified_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "Date"
+          }
+        },
+        {
+          "name": "cancel_reason",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Renter",
+          "sourceFields": [
+            "renter_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "VehicleAtStation",
+          "sourceFields": [
+            "vehicle_at_station_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "User",
+          "sourceFields": [
+            "verified_by_staff_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "contracts": {
+      "name": "Contract",
+      "filePath": "src/models/contract.schema.ts",
+      "collectionName": "contracts",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": "updated_at"
+        }
+      },
+      "fields": [
+        {
+          "name": "rental_id",
+          "tsType": "Rental",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Rental",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Rental"
+          }
+        },
+        {
+          "name": "version",
+          "tsType": "number",
+          "mongooseType": null,
+          "required": true,
+          "unique": false,
+          "default": 1,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "default": 1
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "ContractStatus",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "ContractStatus",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "ContractStatus",
+            "type": "String"
+          }
+        },
+        {
+          "name": "issued_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "completed_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "provider",
+          "tsType": "ContractProvider",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "ContractProvider",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "ContractProvider",
+            "type": "String"
+          }
+        },
+        {
+          "name": "provider_envelope_id",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "document_url",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "document_hash",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "ltv_enabled",
+          "tsType": "boolean",
+          "mongooseType": "Boolean",
+          "required": true,
+          "unique": false,
+          "default": false,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Boolean",
+            "default": false
+          }
+        },
+        {
+          "name": "audit_trail_url",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Rental",
+          "sourceFields": [
+            "rental_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "fees": {
+      "name": "Fee",
+      "filePath": "src/models/fee.schema.ts",
+      "collectionName": "fees",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "booking_id",
+          "tsType": "Booking",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Booking",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Booking",
+            "required": true
+          }
+        },
+        {
+          "name": "type",
+          "tsType": "FeeType",
+          "mongooseType": null,
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "FeeType",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "FeeType"
+          }
+        },
+        {
+          "name": "description",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "amount",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "currency",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Booking",
+          "sourceFields": [
+            "booking_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "inspections": {
+      "name": "Inspection",
+      "filePath": "src/models/inspections.schema.ts",
+      "collectionName": "inspections",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "rental_id",
+          "tsType": "Rental",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Rental",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Rental"
+          }
+        },
+        {
+          "name": "type",
+          "tsType": "InspectorType",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "InspectorType",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "InspectorType",
+            "type": "String"
+          }
+        },
+        {
+          "name": "inspection_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "inspector_staff_id",
+          "tsType": "Staff",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Staff",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Staff"
+          }
+        },
+        {
+          "name": "current_battery_capacity_kwh",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "current_mileage",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Rental",
+          "sourceFields": [
+            "rental_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Staff",
+          "sourceFields": [
+            "inspector_staff_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "kycs": {
+      "name": "Kycs",
+      "filePath": "src/models/kycs.schema.ts",
+      "collectionName": "kycs",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "renter_id",
+          "tsType": "Renter",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Renter",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Renter"
+          }
+        },
+        {
+          "name": "type",
+          "tsType": "KycsType",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": "KycsType.DRIVER_LICENSE",
+          "ref": null,
+          "enum": "KycsType",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "KycsType",
+            "default": "KycsType.DRIVER_LICENSE",
+            "type": "String"
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "KycsStatus",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": "KycsStatus.SUBMITTED",
+          "ref": null,
+          "enum": "KycsStatus",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "KycsStatus",
+            "default": "KycsStatus.SUBMITTED",
+            "type": "String"
+          }
+        },
+        {
+          "name": "submitted_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": "Date.now",
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date",
+            "default": "Date.now"
+          }
+        },
+        {
+          "name": "verified_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Date"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Renter",
+          "sourceFields": [
+            "renter_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "payments": {
+      "name": "Payment",
+      "filePath": "src/models/payment.schema.ts",
+      "collectionName": "payments",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "method",
+          "tsType": "PaymentMethod",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "PaymentMethod",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "PaymentMethod",
+            "type": "String"
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "PaymentStatus",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "PaymentStatus",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "PaymentStatus",
+            "type": "String"
+          }
+        },
+        {
+          "name": "amount_paid",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "paid_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "provider_reference",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": []
+    },
+    "pricings": {
+      "name": "Pricing",
+      "filePath": "src/models/pricings.schema.ts",
+      "collectionName": "pricings",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "vehicle_id",
+          "tsType": "Vehicle",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Vehicle",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Vehicle",
+            "required": true
+          }
+        },
+        {
+          "name": "price_per_hour",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "price_per_day",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "effective_from",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "effective_to",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "deposit_amount",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": 0,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number",
+            "default": 0
+          }
+        },
+        {
+          "name": "late_return_fee_per_hour",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "mileage_limit_per_day",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "excess_mileage_fee",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Number"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Vehicle",
+          "sourceFields": [
+            "vehicle_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "rentals": {
+      "name": "Rental",
+      "filePath": "src/models/rental.schema.ts",
+      "collectionName": "rentals",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "booking_id",
+          "tsType": "Booking",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Booking",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Booking",
+            "required": true
+          }
+        },
+        {
+          "name": "vehicle_id",
+          "tsType": "Vehicle",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Vehicle",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Vehicle"
+          }
+        },
+        {
+          "name": "pickup_date",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "expected_return_datetime",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "actual_return_datetime",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "Date"
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "RetalStatus",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "RetalStatus",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "enum": "RetalStatus",
+            "type": "String"
+          }
+        },
+        {
+          "name": "score",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": false,
+          "unique": false,
+          "default": 0,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "Number",
+            "default": 0
+          }
+        },
+        {
+          "name": "comment",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "String"
+          }
+        },
+        {
+          "name": "rated_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": "Date.now",
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date",
+            "default": "Date.now"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Booking",
+          "sourceFields": [
+            "booking_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Vehicle",
+          "sourceFields": [
+            "vehicle_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "renters": {
+      "name": "Renter",
+      "filePath": "src/models/renter.schema.ts",
+      "collectionName": "renters",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "user_id",
+          "tsType": "User",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "User",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "User",
+            "required": true
+          }
+        },
+        {
+          "name": "driver_license",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "address",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "date_of_birth",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "risk_score",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": 0,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number",
+            "default": 0,
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "User",
+          "sourceFields": [
+            "user_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "reports": {
+      "name": "Report",
+      "filePath": "src/models/report.schema.ts",
+      "collectionName": "reports",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "inspector_id",
+          "tsType": "Inspection",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Inspection",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Inspection"
+          }
+        },
+        {
+          "name": "notes",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "damage_found",
+          "tsType": "boolean",
+          "mongooseType": "Boolean",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Boolean"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Inspection",
+          "sourceFields": [
+            "inspector_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "reports_photos": {
+      "name": "ReportsPhoto",
+      "filePath": "src/models/reports_photo.schema.ts",
+      "collectionName": "reports_photos",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "report_id",
+          "tsType": "Report",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Report",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Report"
+          }
+        },
+        {
+          "name": "inspection_id",
+          "tsType": "Inspection",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Inspection",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Inspection"
+          }
+        },
+        {
+          "name": "url",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "label",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Report",
+          "sourceFields": [
+            "report_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Inspection",
+          "sourceFields": [
+            "inspection_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "signatures": {
+      "name": "Signature",
+      "filePath": "src/models/signature.schema.ts",
+      "collectionName": "signatures",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "contract_id",
+          "tsType": "string",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Contract",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Contract",
+            "required": true
+          }
+        },
+        {
+          "name": "role",
+          "tsType": "Role",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "Role",
+          "isArray": false,
+          "rawOptions": {
+            "type": "String",
+            "enum": "Role",
+            "required": true
+          }
+        },
+        {
+          "name": "signature_event",
+          "tsType": "SignatureEvent",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "SignatureEvent",
+          "isArray": false,
+          "rawOptions": {
+            "type": "String",
+            "enum": "SignatureEvent",
+            "required": true
+          }
+        },
+        {
+          "name": "type",
+          "tsType": "SignatureType",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "SignatureType",
+          "isArray": false,
+          "rawOptions": {
+            "type": "String",
+            "enum": "SignatureType",
+            "required": true
+          }
+        },
+        {
+          "name": "signed_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "signer_ip_address",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "user_agent",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "provider_signature_id",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "signature_image_url",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "cert_subject",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "cert_issuer",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "cert_serial",
+          "tsType": "string",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "cert_fingerprint_sha256",
+          "tsType": "string",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "signature_hash",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "evidence_url",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Contract",
+          "sourceFields": [
+            "contract_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "staff_at_stations": {
+      "name": "StaffAtStation",
+      "filePath": "src/models/staff_at_station.schema.ts",
+      "collectionName": "staff_at_stations",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "staff_id",
+          "tsType": "Staff",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Staff",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Staff",
+            "required": true
+          }
+        },
+        {
+          "name": "station_id",
+          "tsType": "Station",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Station",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Station",
+            "required": true
+          }
+        },
+        {
+          "name": "start_time",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "end_time",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "Date"
+          }
+        },
+        {
+          "name": "role_at_station",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Staff",
+          "sourceFields": [
+            "staff_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Station",
+          "sourceFields": [
+            "station_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "staff_transfers": {
+      "name": "StaffTransfer",
+      "filePath": "src/models/staff_transfer.schema.ts",
+      "collectionName": "staff_transfers",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "staff_id",
+          "tsType": "Staff",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Staff",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Staff",
+            "required": true
+          }
+        },
+        {
+          "name": "from_station_id",
+          "tsType": "Station",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Station",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Station",
+            "required": true
+          }
+        },
+        {
+          "name": "to_station_id",
+          "tsType": "Station",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Station",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Station",
+            "required": true
+          }
+        },
+        {
+          "name": "approved_by_admin_id",
+          "tsType": "Admin",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": "Admin",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Admin"
+          }
+        },
+        {
+          "name": "created_by_admin_id",
+          "tsType": "Admin",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Admin",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Admin",
+            "required": true
+          }
+        },
+        {
+          "name": "created_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": "Date.now",
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "Date",
+            "required": true,
+            "default": "Date.now"
+          }
+        },
+        {
+          "name": "approved_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "Date"
+          }
+        },
+        {
+          "name": "effective_from",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "Date",
+            "required": true
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "StaffTransferStatus",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": "StaffTransferStatus.DRAFT",
+          "ref": null,
+          "enum": "StaffTransferStatus",
+          "isArray": false,
+          "rawOptions": {
+            "type": "String",
+            "enum": "StaffTransferStatus",
+            "default": "StaffTransferStatus.DRAFT",
+            "required": true
+          }
+        },
+        {
+          "name": "notes",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Staff",
+          "sourceFields": [
+            "staff_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Station",
+          "sourceFields": [
+            "from_station_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Station",
+          "sourceFields": [
+            "to_station_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Admin",
+          "sourceFields": [
+            "approved_by_admin_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Admin",
+          "sourceFields": [
+            "created_by_admin_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "staffs": {
+      "name": "Staff",
+      "filePath": "src/models/staff.schema.ts",
+      "collectionName": "staffs",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "user_id",
+          "tsType": "User",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "User",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "User",
+            "required": true
+          }
+        },
+        {
+          "name": "employeeCode",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": true,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "unique": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "position",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "hire_date",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "User",
+          "sourceFields": [
+            "user_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "stations": {
+      "name": "Station",
+      "filePath": "src/models/station.schema.ts",
+      "collectionName": "stations",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "name",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "address",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "latitude",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "longitude",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": []
+    },
+    "users": {
+      "name": "User",
+      "filePath": "src/models/user.schema.ts",
+      "collectionName": "users",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "email",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "password_hash",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "full_name",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "role",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "Role",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String",
+            "enum": "Role"
+          }
+        },
+        {
+          "name": "is_active",
+          "tsType": "boolean",
+          "mongooseType": "Boolean",
+          "required": true,
+          "unique": false,
+          "default": true,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Boolean",
+            "default": true
+          }
+        },
+        {
+          "name": "phone",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": []
+    },
+    "vehicle_at_stations": {
+      "name": "VehicleAtStation",
+      "filePath": "src/models/vehicle_at_station.schema.ts",
+      "collectionName": "vehicle_at_stations",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "vehicle_id",
+          "tsType": "Vehicle",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Vehicle",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Vehicle",
+            "required": true
+          }
+        },
+        {
+          "name": "station_id",
+          "tsType": "Station",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Station",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Station",
+            "required": true
+          }
+        },
+        {
+          "name": "start_time",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "end_time",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "current_battery_capacity_kwh",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "current_mileage",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "StatusVehicleAtStation",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": "StatusVehicleAtStation",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String",
+            "enum": "StatusVehicleAtStation"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Vehicle",
+          "sourceFields": [
+            "vehicle_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Station",
+          "sourceFields": [
+            "station_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "vehicle_transfers": {
+      "name": "VehicleTransfer",
+      "filePath": "src/models/vehicle_tranfer.schema.ts",
+      "collectionName": "vehicle_transfers",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "vehicle_id",
+          "tsType": "Vehicle",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Vehicle",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Vehicle"
+          }
+        },
+        {
+          "name": "from_station_id",
+          "tsType": "Station",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Station",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Station"
+          }
+        },
+        {
+          "name": "to_station_id",
+          "tsType": "Station",
+          "mongooseType": "mongoose.Schema.Types.ObjectId",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": "Station",
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "mongoose.Schema.Types.ObjectId",
+            "ref": "Station"
+          }
+        },
+        {
+          "name": "picked_up_by_staff_id",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "picked_up_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "dropped_off_by_staff_id",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "dropped_off_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "pickup_notes",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "String"
+          }
+        },
+        {
+          "name": "dropoff_notes",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "String"
+          }
+        },
+        {
+          "name": "approved_by_admin_id",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "String"
+          }
+        },
+        {
+          "name": "created_by_admin_id",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "created_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": "Date.now",
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date",
+            "default": "Date.now"
+          }
+        },
+        {
+          "name": "approved_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "scheduled_pickup_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "scheduled_dropoff_at",
+          "tsType": "Date",
+          "mongooseType": "Date",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Date"
+          }
+        },
+        {
+          "name": "status",
+          "tsType": "VehicleTransferStatus",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": "VehicleTransferStatus.DRAFT",
+          "ref": null,
+          "enum": "VehicleTransferStatus",
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String",
+            "enum": "VehicleTransferStatus",
+            "default": "VehicleTransferStatus.DRAFT"
+          }
+        },
+        {
+          "name": "notes",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": false,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": false,
+            "type": "String"
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": [
+        {
+          "type": "referencesOne",
+          "targetCollection": "Vehicle",
+          "sourceFields": [
+            "vehicle_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Station",
+          "sourceFields": [
+            "from_station_id"
+          ],
+          "targetFields": []
+        },
+        {
+          "type": "referencesOne",
+          "targetCollection": "Station",
+          "sourceFields": [
+            "to_station_id"
+          ],
+          "targetFields": []
+        }
+      ]
+    },
+    "vehicles": {
+      "name": "Vehicle",
+      "filePath": "src/models/vehicle.schema.ts",
+      "collectionName": "vehicles",
+      "schemaDecorator": {
+        "timestamps": {
+          "createdAt": "created_at",
+          "updatedAt": false
+        }
+      },
+      "fields": [
+        {
+          "name": "make",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "model",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "model_year",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "category",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String"
+          }
+        },
+        {
+          "name": "battery_capacity_kwh",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "range_km",
+          "tsType": "number",
+          "mongooseType": "Number",
+          "required": true,
+          "unique": false,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "Number"
+          }
+        },
+        {
+          "name": "vin_number",
+          "tsType": "string",
+          "mongooseType": "String",
+          "required": true,
+          "unique": true,
+          "default": null,
+          "ref": null,
+          "enum": null,
+          "isArray": false,
+          "rawOptions": {
+            "required": true,
+            "type": "String",
+            "unique": true
+          }
+        }
+      ],
+      "indexes": [],
+      "relations": []
+    }
+  }
+}
