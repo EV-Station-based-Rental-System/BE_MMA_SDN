@@ -21,7 +21,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "sync-indexes": "ts-node --project tsconfig.json tools/sync-indexes.ts",
-    "dbml:generate-spec": "ts-node --project tsconfig.json tools/dbml-to-spec.ts"
+    "dbml:generate-spec": "ts-node --project tsconfig.json tools/dbml-to-spec.ts",
+    "code:current-model-map": "ts-node --project tsconfig.json tools/current-model-map.ts"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
