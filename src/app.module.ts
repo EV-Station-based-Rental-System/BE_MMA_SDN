@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './common/config/config';
 import { index } from './models';
+import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,6 +20,7 @@ import { index } from './models';
     }),
 
     MongooseModule.forFeature(index),
+    AuthModule,
   ],
 })
 export class AppModule {}
