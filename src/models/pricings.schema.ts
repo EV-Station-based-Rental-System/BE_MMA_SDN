@@ -1,35 +1,47 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 
 export type PricingDocument = HydratedDocument<Pricing>;
-import mongoose, { HydratedDocument } from 'mongoose';
-import { Vehicle } from './vehicle.schema';
+
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Pricing {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true })
-  vehicle_id: Vehicle;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+    required: true,
+    unique: true,
+  })
+  pricing_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: Number })
-  price_per_hour: number;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true, index: true })
+  vehicle_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: Number })
-  price_per_day: number;
+  @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })
+  price_per_hour: mongoose.Types.Decimal128;
 
-  @Prop({ required: false, type: Date })
+  @Prop({ type: mongoose.Schema.Types.Decimal128 })
+  price_per_day?: mongoose.Types.Decimal128;
+
+  @Prop({ required: true, type: Date })
   effective_from: Date;
 
-  @Prop({ required: false, type: Date })
-  effective_to: Date;
+  @Prop({ type: Date })
+  effective_to?: Date;
 
-  @Prop({ required: true, type: Number, default: 0 })
-  deposit_amount: number;
+  @Prop({ required: true, type: mongoose.Schema.Types.Decimal128, default: 0 })
+  deposit_amount: mongoose.Types.Decimal128;
 
-  @Prop({ required: false, type: Number })
-  late_return_fee_per_hour: number;
+  @Prop({ type: mongoose.Schema.Types.Decimal128 })
+  late_return_fee_per_hour?: mongoose.Types.Decimal128;
 
-  @Prop({ required: false, type: Number })
-  mileage_limit_per_day: number;
+  @Prop({ type: Number })
+  mileage_limit_per_day?: number;
 
-  @Prop({ required: false, type: Number })
-  excess_mileage_fee: number;
+  @Prop({ type: mongoose.Schema.Types.Decimal128 })
+  excess_mileage_fee?: mongoose.Types.Decimal128;
 }
 export const PricingSchema = SchemaFactory.createForClass(Pricing);
+
+PricingSchema.index({ pricing_id: 1 }, { unique: true });
+PricingSchema.index({ vehicle_id: 1 });
+PricingSchema.index({ effective_from: 1 });

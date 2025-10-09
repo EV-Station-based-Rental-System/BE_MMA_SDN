@@ -1,28 +1,34 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Vehicle } from './vehicle.schema';
-import { Station } from './station.schema';
-import { VehicleTransferStatus } from 'src/common/enums/vehicle_transfer.enum';
 import mongoose from 'mongoose';
+import { VehicleTransferStatus } from 'src/common/enums/vehicle_transfer.enum';
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class VehicleTransfer {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' })
-  vehicle_id: Vehicle;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+    required: true,
+    unique: true,
+  })
+  vehicle_transfer_id: mongoose.Types.ObjectId;
+
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', index: true })
+  vehicle_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Station' })
-  from_station_id: Station;
+  from_station_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Station' })
-  to_station_id: Station;
+  to_station_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: false, type: Number })
-  picked_up_by_staff_id: number;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Staff' })
+  picked_up_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ required: false, type: Date })
   picked_up_at: Date;
 
-  @Prop({ required: false, type: Number })
-  dropped_off_by_staff_id: number;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Staff' })
+  dropped_off_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ required: false, type: Date })
   dropped_off_at: Date;
@@ -33,11 +39,11 @@ export class VehicleTransfer {
   @Prop({ required: false, type: String })
   dropoff_notes: string;
 
-  @Prop({ required: false, type: String })
-  approved_by_admin_id: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
+  approved_by_admin_id?: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: String })
-  created_by_admin_id: string;
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
+  created_by_admin_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, type: Date, default: Date.now })
   created_at: Date;
@@ -45,13 +51,18 @@ export class VehicleTransfer {
   @Prop({ required: false, type: Date })
   approved_at: Date;
 
-  @Prop({ required: true, type: Date })
-  scheduled_pickup_at: Date;
+  @Prop({ type: Date })
+  scheduled_pickup_at?: Date;
 
-  @Prop({ required: true, type: Date })
-  scheduled_dropoff_at: Date;
+  @Prop({ type: Date })
+  scheduled_dropoff_at?: Date;
 
-  @Prop({ required: true, type: String, enum: VehicleTransferStatus, default: VehicleTransferStatus.DRAFT })
+  @Prop({
+    required: true,
+    type: String,
+    enum: Object.values(VehicleTransferStatus),
+    default: VehicleTransferStatus.DRAFT,
+  })
   status: VehicleTransferStatus;
 
   @Prop({ required: false, type: String })
@@ -59,3 +70,8 @@ export class VehicleTransfer {
 }
 
 export const VehicleTransferSchema = SchemaFactory.createForClass(VehicleTransfer);
+
+VehicleTransferSchema.index({ vehicle_transfer_id: 1 }, { unique: true });
+VehicleTransferSchema.index({ vehicle_id: 1 });
+VehicleTransferSchema.index({ status: 1, from_station_id: 1 });
+VehicleTransferSchema.index({ status: 1, to_station_id: 1 });

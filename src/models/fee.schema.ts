@@ -1,15 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { Booking } from './booking.schema';
 import { FeeType } from 'src/common/enums/fee.enum';
 
 export type FeeDocument = mongoose.HydratedDocument<Fee>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Fee {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true, index: true })
-  booking_id: Booking;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+    required: true,
+    unique: true,
+  })
+  fee_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, enum: FeeType, default: FeeType.DEPOSIT, type: String })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true, index: true })
+  booking_id: mongoose.Types.ObjectId;
+
+  @Prop({
+    required: true,
+    enum: Object.values(FeeType),
+    default: FeeType.DEPOSIT,
+    type: String,
+  })
   type: FeeType;
 
   @Prop({ required: true, type: String })
@@ -24,3 +36,4 @@ export class Fee {
 export const feeSchema = SchemaFactory.createForClass(Fee);
 
 feeSchema.index({ booking_id: 1 }, { unique: true, name: 'ux_fees_deposit_per_booking' });
+feeSchema.index({ fee_id: 1 }, { unique: true });

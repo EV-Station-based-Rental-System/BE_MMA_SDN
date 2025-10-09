@@ -1,12 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { User } from './user.schema';
 
 export type StaffDocument = HydratedDocument<Staff>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Staff {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true })
-  user_id: User;
+  user_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, unique: true, type: String })
   employee_code: string;
@@ -18,3 +17,6 @@ export class Staff {
   hire_date: Date;
 }
 export const StaffSchema = SchemaFactory.createForClass(Staff);
+
+StaffSchema.index({ user_id: 1 }, { unique: true });
+StaffSchema.index({ employee_code: 1 }, { unique: true });
