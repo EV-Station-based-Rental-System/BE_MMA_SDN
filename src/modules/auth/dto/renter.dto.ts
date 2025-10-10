@@ -2,7 +2,6 @@ import { IsString, IsDateString, IsOptional } from 'class-validator';
 import { UserDto } from './user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-
 export class RenterDto extends UserDto {
   @ApiProperty({
     description: 'Driver license number',

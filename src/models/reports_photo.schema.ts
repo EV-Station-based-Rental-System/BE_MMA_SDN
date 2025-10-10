@@ -32,4 +32,3 @@ export class ReportsPhoto {
 }
 
 export const ReportsPhotoSchema = SchemaFactory.createForClass(ReportsPhoto);
-

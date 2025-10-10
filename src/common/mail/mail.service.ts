@@ -1,16 +1,10 @@
-import { MailerService } from "@nestjs-modules/mailer";
-import { Injectable } from "@nestjs/common";
-import { InternalServerErrorException } from "../exceptions/internal-server-error.exception";
-import e from "express";
+import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable } from '@nestjs/common';
+import { InternalServerErrorException } from '../exceptions/internal-server-error.exception';
 
-
-
-
-
-
-@Injectable() export class MailService {
-  constructor(private mailerService: MailerService) { }
-
+@Injectable()
+export class MailService {
+  constructor(private mailerService: MailerService) {}
 
   async sendOtp(email: string, code: string) {
     try {
@@ -23,12 +17,10 @@ import e from "express";
           code: code,
           year: new Date().getFullYear(),
         },
-      })
+      });
     } catch (error) {
-
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new InternalServerErrorException(error.message);
     }
   }
-
 }

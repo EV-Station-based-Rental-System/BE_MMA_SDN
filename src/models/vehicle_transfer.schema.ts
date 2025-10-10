@@ -70,5 +70,3 @@ export class VehicleTransfer {
 }
 
 export const VehicleTransferSchema = SchemaFactory.createForClass(VehicleTransfer);
-
-

@@ -17,4 +17,3 @@ export class Staff {
   hire_date: Date;
 }
 export const StaffSchema = SchemaFactory.createForClass(Staff);
-

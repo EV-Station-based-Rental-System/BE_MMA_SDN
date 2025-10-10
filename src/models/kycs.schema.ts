@@ -46,5 +46,3 @@ export class Kycs {
 }
 
 export const KycsSchema = SchemaFactory.createForClass(Kycs);
-
-

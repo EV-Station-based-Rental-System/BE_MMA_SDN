@@ -7,7 +7,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './common/mail/mail.module';
 import { RedisModule } from './common/redis/redis.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,11 +23,8 @@ import { RedisModule } from './common/redis/redis.module';
     MongooseModule.forFeature(index),
     AuthModule,
 
-
-
-
     MailModule,
     RedisModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

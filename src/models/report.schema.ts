@@ -23,5 +23,3 @@ export class Report {
   damage_found: boolean;
 }
 export const ReportSchema = SchemaFactory.createForClass(Report);
-
-

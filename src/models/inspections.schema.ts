@@ -37,5 +37,3 @@ export class Inspection {
   current_mileage: number;
 }
 export const InspectionSchema = SchemaFactory.createForClass(Inspection);
-
-

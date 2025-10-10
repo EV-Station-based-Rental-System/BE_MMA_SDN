@@ -22,5 +22,3 @@ export class StaffAtStation {
 }
 
 export const StaffAtStationSchema = SchemaFactory.createForClass(StaffAtStation);
-
-

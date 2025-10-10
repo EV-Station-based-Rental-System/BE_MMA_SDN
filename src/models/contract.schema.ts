@@ -57,5 +57,3 @@ export class Contract {
   audit_trail_url?: string;
 }
 export const ContractSchema = SchemaFactory.createForClass(Contract);
-
-

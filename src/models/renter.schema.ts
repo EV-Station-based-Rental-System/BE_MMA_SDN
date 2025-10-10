@@ -25,5 +25,3 @@ export class Renter {
   risk_score?: number;
 }
 export const RenterSchema = SchemaFactory.createForClass(Renter);
-
-

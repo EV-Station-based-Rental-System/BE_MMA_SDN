@@ -13,7 +13,7 @@ import { ResetPasswordDto } from './dto/resetPassword.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalGuard)
   @ApiBody({ type: LoginDto })
@@ -57,5 +57,4 @@ export class AuthController {
   async resetPassword(@Body() body: ResetPasswordDto) {
     return this.authService.resetPassword(body);
   }
-
 }

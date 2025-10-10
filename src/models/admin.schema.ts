@@ -18,5 +18,3 @@ export class Admin {
 }
 
 export const AdminSchema = SchemaFactory.createForClass(Admin);
-
-

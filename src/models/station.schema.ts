@@ -26,4 +26,3 @@ export class Station {
 }
 
 export const StationSchema = SchemaFactory.createForClass(Station);
-

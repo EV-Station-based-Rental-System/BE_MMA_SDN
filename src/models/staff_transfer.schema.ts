@@ -51,5 +51,3 @@ export class StaffTransfer {
 }
 
 export const StaffTransferSchema = SchemaFactory.createForClass(StaffTransfer);
-
-

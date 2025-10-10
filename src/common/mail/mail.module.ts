@@ -7,30 +7,32 @@ import { MailService } from './mail.service';
 
 @Global()
 @Module({
-  imports: [MailerModule.forRootAsync({
-    imports: [ConfigModule],
-    useFactory: (configService: ConfigService) => ({
-      transport: {
-        host: configService.get('gmail.host'),
-        port: configService.get<number>('gmail.port'),
-        secure: false,
-        auth: {
-          user: configService.get('gmail.user'),
-          pass: configService.get('gmail.pass'),
+  imports: [
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          host: configService.get('gmail.host'),
+          port: configService.get<number>('gmail.port'),
+          secure: false,
+          auth: {
+            user: configService.get('gmail.user'),
+            pass: configService.get('gmail.pass'),
+          },
         },
-      },
-      defaults: {
-        from: '"EV Station-based Rental System" <noreply@ev-station.com>',
-      },
-      template: {
-        dir: join(__dirname, 'templates'),
-        adapter: new HandlebarsAdapter(),
-        options: { strict: true },
-      },
+        defaults: {
+          from: '"EV Station-based Rental System" <noreply@ev-station.com>',
+        },
+        template: {
+          dir: join(__dirname, 'templates'),
+          adapter: new HandlebarsAdapter(),
+          options: { strict: true },
+        },
+      }),
+      inject: [ConfigService],
     }),
-    inject: [ConfigService],
-  }),],
+  ],
   providers: [MailService],
   exports: [MailService],
 })
-export class MailModule { }
+export class MailModule {}

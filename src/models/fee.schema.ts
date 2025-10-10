@@ -34,4 +34,3 @@ export class Fee {
   currency: string;
 }
 export const feeSchema = SchemaFactory.createForClass(Fee);
-

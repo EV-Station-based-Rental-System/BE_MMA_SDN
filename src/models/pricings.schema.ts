@@ -41,4 +41,3 @@ export class Pricing {
   excess_mileage_fee?: mongoose.Types.Decimal128;
 }
 export const PricingSchema = SchemaFactory.createForClass(Pricing);
-

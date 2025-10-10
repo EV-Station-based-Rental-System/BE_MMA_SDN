@@ -36,5 +36,3 @@ export class Vehicle {
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);
-
-
