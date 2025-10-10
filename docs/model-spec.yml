@@ -62,8 +62,7 @@ collections:
     collectionName: admins
     note: null
     fields:
-      -
-        name: user_id
+      - name: user_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -73,8 +72,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: title
+      - name: title
         dbmlType: "VARCHAR(100)"
         tsType: string
         required: false
@@ -84,8 +82,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: notes
+      - name: notes
         dbmlType: "VARCHAR(500)"
         tsType: string
         required: false
@@ -95,8 +92,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: hire_date
+      - name: hire_date
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -108,32 +104,27 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: users
         sourceFields: [user_id]
         targetFields: [user_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: vehicle_transfers
         sourceFields: [user_id]
         targetFields: [created_by_admin_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: vehicle_transfers
         sourceFields: [user_id]
         targetFields: [approved_by_admin_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff_transfers
         sourceFields: [user_id]
         targetFields: [created_by_admin_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff_transfers
         sourceFields: [user_id]
         targetFields: [approved_by_admin_id]
@@ -143,8 +134,7 @@ collections:
     collectionName: bookings
     note: null
     fields:
-      -
-        name: booking_id
+      - name: booking_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -154,8 +144,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: renter_id
+      - name: renter_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -165,8 +154,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: vehicle_at_station_id
+      - name: vehicle_at_station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -176,8 +164,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: booking_created_at
+      - name: booking_created_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -187,8 +174,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: expected_return_datetime
+      - name: expected_return_datetime
         dbmlType: datetime
         tsType: Date
         required: false
@@ -198,8 +184,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: status
+      - name: status
         dbmlType: booking_status
         tsType: "enum:booking_status"
         required: true
@@ -209,8 +194,7 @@ collections:
         default: pending_verification
         note: null
         enumName: booking_status
-      -
-        name: verification_status
+      - name: verification_status
         dbmlType: booking_verification_status
         tsType: "enum:booking_verification_status"
         required: true
@@ -220,8 +204,7 @@ collections:
         default: pending
         note: null
         enumName: booking_verification_status
-      -
-        name: verified_by_staff_id
+      - name: verified_by_staff_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: false
@@ -231,8 +214,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: verified_at
+      - name: verified_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -242,8 +224,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: cancel_reason
+      - name: cancel_reason
         dbmlType: "VARCHAR(1000)"
         tsType: string
         required: false
@@ -254,47 +235,40 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ix_bookings_renter
+      - name: ix_bookings_renter
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [renter_id]
-      -
-        name: ix_bookings_vehicle_at_station
+      - name: ix_bookings_vehicle_at_station
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [vehicle_at_station_id]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: renters
         sourceFields: [renter_id]
         targetFields: [user_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: vehicle_at_stations
         sourceFields: [vehicle_at_station_id]
         targetFields: [vehicle_at_station_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: staff
         sourceFields: [verified_by_staff_id]
         targetFields: [user_id]
         onDelete: "set null"
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: fees
         sourceFields: [booking_id]
         targetFields: [booking_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: rentals
         sourceFields: [booking_id]
         targetFields: [booking_id]
@@ -304,8 +278,7 @@ collections:
     collectionName: contracts
     note: null
     fields:
-      -
-        name: contract_id
+      - name: contract_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -315,8 +288,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: rental_id
+      - name: rental_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -326,8 +298,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: version
+      - name: version
         dbmlType: INT
         tsType: number
         required: true
@@ -337,8 +308,7 @@ collections:
         default: 1
         note: null
         enumName: null
-      -
-        name: status
+      - name: status
         dbmlType: contract_status
         tsType: "enum:contract_status"
         required: true
@@ -348,8 +318,7 @@ collections:
         default: issued
         note: null
         enumName: contract_status
-      -
-        name: issued_at
+      - name: issued_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -359,8 +328,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: completed_at
+      - name: completed_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -370,8 +338,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: provider
+      - name: provider
         dbmlType: esign_provider
         tsType: "enum:esign_provider"
         required: true
@@ -381,8 +348,7 @@ collections:
         default: native
         note: null
         enumName: esign_provider
-      -
-        name: provider_envelope_id
+      - name: provider_envelope_id
         dbmlType: TEXT
         tsType: string
         required: false
@@ -392,8 +358,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: document_url
+      - name: document_url
         dbmlType: TEXT
         tsType: string
         required: true
@@ -403,8 +368,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: document_hash
+      - name: document_hash
         dbmlType: TEXT
         tsType: string
         required: true
@@ -414,8 +378,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: ltv_enabled
+      - name: ltv_enabled
         dbmlType: BOOLEAN
         tsType: boolean
         required: true
@@ -425,8 +388,7 @@ collections:
         default: false
         note: null
         enumName: null
-      -
-        name: audit_trail_url
+      - name: audit_trail_url
         dbmlType: TEXT
         tsType: string
         required: false
@@ -436,8 +398,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: updated_at
+      - name: updated_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -449,14 +410,12 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: hasOne
+      - type: hasOne
         targetCollection: rentals
         sourceFields: [rental_id]
         targetFields: [rental_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: signatures
         sourceFields: [contract_id]
         targetFields: [contract_id]
@@ -466,8 +425,7 @@ collections:
     collectionName: fees
     note: null
     fields:
-      -
-        name: fee_id
+      - name: fee_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -477,8 +435,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: booking_id
+      - name: booking_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -488,8 +445,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: type
+      - name: type
         dbmlType: fee_type
         tsType: "enum:fee_type"
         required: true
@@ -499,8 +455,7 @@ collections:
         default: deposit
         note: null
         enumName: fee_type
-      -
-        name: description
+      - name: description
         dbmlType: "VARCHAR(200)"
         tsType: string
         required: true
@@ -510,8 +465,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: amount
+      - name: amount
         dbmlType: "NUMERIC(18,2)"
         tsType: Decimal128
         required: true
@@ -521,8 +475,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: currency
+      - name: currency
         dbmlType: "VARCHAR(10)"
         tsType: string
         required: true
@@ -532,8 +485,7 @@ collections:
         default: USD
         note: null
         enumName: null
-      -
-        name: created_at
+      - name: created_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -544,22 +496,19 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ux_fees_deposit_per_booking
+      - name: ux_fees_deposit_per_booking
         type: null
         unique: true
         primaryKey: false
         note: null
         columns: [booking_id]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: bookings
         sourceFields: [booking_id]
         targetFields: [booking_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: payments
         sourceFields: [fee_id]
         targetFields: [payment_id]
@@ -569,8 +518,7 @@ collections:
     collectionName: inspections
     note: null
     fields:
-      -
-        name: inspection_id
+      - name: inspection_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -580,8 +528,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: rental_id
+      - name: rental_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -591,8 +538,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: type
+      - name: type
         dbmlType: inspection_type
         tsType: "enum:inspection_type"
         required: true
@@ -602,8 +548,7 @@ collections:
         default: pre_rental
         note: null
         enumName: inspection_type
-      -
-        name: inspected_at
+      - name: inspected_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -613,8 +558,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: inspector_staff_id
+      - name: inspector_staff_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: false
@@ -624,8 +568,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: current_battery_capacity_kwh
+      - name: current_battery_capacity_kwh
         dbmlType: DOUBLEPRECISION
         tsType: number
         required: false
@@ -635,8 +578,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: current_mileage
+      - name: current_mileage
         dbmlType: integer
         tsType: number
         required: true
@@ -647,28 +589,24 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ux_inspections_rental_type
+      - name: ux_inspections_rental_type
         type: null
         unique: true
         primaryKey: false
         note: null
         columns: [rental_id, type]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: rentals
         sourceFields: [rental_id]
         targetFields: [rental_id]
         onDelete: cascade
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: staff
         sourceFields: [inspector_staff_id]
         targetFields: [user_id]
         onDelete: "set null"
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: reports
         sourceFields: [inspection_id]
         targetFields: [inspection_id]
@@ -678,8 +616,7 @@ collections:
     collectionName: kycs
     note: null
     fields:
-      -
-        name: kyc_id
+      - name: kyc_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -689,8 +626,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: renter_id
+      - name: renter_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -700,8 +636,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: type
+      - name: type
         dbmlType: kyc_type
         tsType: "enum:kyc_type"
         required: true
@@ -711,8 +646,7 @@ collections:
         default: driver_license
         note: null
         enumName: kyc_type
-      -
-        name: document_number
+      - name: document_number
         dbmlType: "VARCHAR(100)"
         tsType: string
         required: true
@@ -722,8 +656,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: expiry_date
+      - name: expiry_date
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -733,8 +666,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: status
+      - name: status
         dbmlType: kyc_status
         tsType: "enum:kyc_status"
         required: true
@@ -744,8 +676,7 @@ collections:
         default: submitted
         note: null
         enumName: kyc_status
-      -
-        name: submitted_at
+      - name: submitted_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -755,8 +686,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: verified_at
+      - name: verified_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -767,16 +697,14 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ix_kycs_renter
+      - name: ix_kycs_renter
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [renter_id]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: renters
         sourceFields: [renter_id]
         targetFields: [user_id]
@@ -786,8 +714,7 @@ collections:
     collectionName: payments
     note: null
     fields:
-      -
-        name: payment_id
+      - name: payment_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -797,8 +724,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: method
+      - name: method
         dbmlType: payment_method
         tsType: "enum:payment_method"
         required: true
@@ -808,8 +734,7 @@ collections:
         default: unknown
         note: null
         enumName: payment_method
-      -
-        name: status
+      - name: status
         dbmlType: payment_status
         tsType: "enum:payment_status"
         required: true
@@ -819,8 +744,7 @@ collections:
         default: paid
         note: null
         enumName: payment_status
-      -
-        name: amount_paid
+      - name: amount_paid
         dbmlType: "NUMERIC(18,2)"
         tsType: Decimal128
         required: true
@@ -830,8 +754,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: paid_at
+      - name: paid_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -841,8 +764,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: provider_reference
+      - name: provider_reference
         dbmlType: "VARCHAR(200)"
         tsType: string
         required: false
@@ -854,8 +776,7 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: fees
         sourceFields: [payment_id]
         targetFields: [fee_id]
@@ -865,8 +786,7 @@ collections:
     collectionName: pricings
     note: null
     fields:
-      -
-        name: pricing_id
+      - name: pricing_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -876,8 +796,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: vehicle_id
+      - name: vehicle_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -887,8 +806,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: price_per_hour
+      - name: price_per_hour
         dbmlType: "NUMERIC(18,2)"
         tsType: Decimal128
         required: true
@@ -898,8 +816,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: price_per_day
+      - name: price_per_day
         dbmlType: "NUMERIC(18,2)"
         tsType: Decimal128
         required: false
@@ -909,8 +826,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: effective_from
+      - name: effective_from
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -920,8 +836,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: effective_to
+      - name: effective_to
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -931,8 +846,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: deposit_amount
+      - name: deposit_amount
         dbmlType: "decimal(10,2)"
         tsType: Decimal128
         required: true
@@ -942,8 +856,7 @@ collections:
         default: 0
         note: null
         enumName: null
-      -
-        name: late_return_fee_per_hour
+      - name: late_return_fee_per_hour
         dbmlType: "decimal(10,2)"
         tsType: Decimal128
         required: false
@@ -953,8 +866,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: mileage_limit_per_day
+      - name: mileage_limit_per_day
         dbmlType: integer
         tsType: number
         required: false
@@ -964,8 +876,7 @@ collections:
         default: null
         note: "km per day included"
         enumName: null
-      -
-        name: excess_mileage_fee
+      - name: excess_mileage_fee
         dbmlType: "decimal(10,2)"
         tsType: Decimal128
         required: false
@@ -976,16 +887,14 @@ collections:
         note: "fee per km over limit"
         enumName: null
     indexes:
-      -
-        name: ux_pricings_vehicle_effective_from
+      - name: ux_pricings_vehicle_effective_from
         type: null
         unique: true
         primaryKey: false
         note: null
         columns: [vehicle_id, effective_from]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: vehicles
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]
@@ -995,8 +904,7 @@ collections:
     collectionName: rentals
     note: null
     fields:
-      -
-        name: rental_id
+      - name: rental_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1006,8 +914,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: booking_id
+      - name: booking_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1017,8 +924,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: vehicle_id
+      - name: vehicle_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1028,8 +934,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: pickup_datetime
+      - name: pickup_datetime
         dbmlType: datetime
         tsType: Date
         required: true
@@ -1039,8 +944,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: expected_return_datetime
+      - name: expected_return_datetime
         dbmlType: datetime
         tsType: Date
         required: false
@@ -1050,8 +954,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: actual_return_datetime
+      - name: actual_return_datetime
         dbmlType: datetime
         tsType: Date
         required: false
@@ -1061,8 +964,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: status
+      - name: status
         dbmlType: rental_status
         tsType: "enum:rental_status"
         required: true
@@ -1072,8 +974,7 @@ collections:
         default: reserved
         note: null
         enumName: rental_status
-      -
-        name: score
+      - name: score
         dbmlType: INT
         tsType: number
         required: true
@@ -1083,8 +984,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: comment
+      - name: comment
         dbmlType: "VARCHAR(2000)"
         tsType: string
         required: false
@@ -1094,8 +994,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: rated_at
+      - name: rated_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -1106,34 +1005,29 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ix_rentals_vehicle
+      - name: ix_rentals_vehicle
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [vehicle_id]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: bookings
         sourceFields: [booking_id]
         targetFields: [booking_id]
         onDelete: cascade
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: vehicles
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]
         onDelete: null
-      -
-        type: hasOne
+      - type: hasOne
         targetCollection: contracts
         sourceFields: [rental_id]
         targetFields: [rental_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: inspections
         sourceFields: [rental_id]
         targetFields: [rental_id]
@@ -1143,8 +1037,7 @@ collections:
     collectionName: renters
     note: null
     fields:
-      -
-        name: user_id
+      - name: user_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1154,8 +1047,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: driver_license_no
+      - name: driver_license_no
         dbmlType: "VARCHAR(64)"
         tsType: string
         required: false
@@ -1165,8 +1057,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: date_of_birth
+      - name: date_of_birth
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -1176,8 +1067,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: address
+      - name: address
         dbmlType: "VARCHAR(500)"
         tsType: string
         required: false
@@ -1187,8 +1077,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: risk_score
+      - name: risk_score
         dbmlType: integer
         tsType: number
         required: false
@@ -1200,20 +1089,17 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: users
         sourceFields: [user_id]
         targetFields: [user_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: bookings
         sourceFields: [user_id]
         targetFields: [renter_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: kycs
         sourceFields: [user_id]
         targetFields: [renter_id]
@@ -1223,8 +1109,7 @@ collections:
     collectionName: reports
     note: null
     fields:
-      -
-        name: report_id
+      - name: report_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1234,8 +1119,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: inspection_id
+      - name: inspection_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1245,8 +1129,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: notes
+      - name: notes
         dbmlType: "VARCHAR(2000)"
         tsType: string
         required: false
@@ -1256,8 +1139,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: damage_found
+      - name: damage_found
         dbmlType: BOOLEAN
         tsType: boolean
         required: true
@@ -1268,22 +1150,19 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ix_reports_inspection
+      - name: ix_reports_inspection
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [inspection_id]
     relations:
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: reports_photo
         sourceFields: [report_id]
         targetFields: [report_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: inspections
         sourceFields: [inspection_id]
         targetFields: [inspection_id]
@@ -1293,8 +1172,7 @@ collections:
     collectionName: reports_photo
     note: null
     fields:
-      -
-        name: reports_photo_id
+      - name: reports_photo_id
         dbmlType: UNIQUEIDENTIFIER
         tsType: Types.ObjectId
         required: true
@@ -1304,8 +1182,7 @@ collections:
         default: "NEWSEQUENTIALID()"
         note: null
         enumName: null
-      -
-        name: report_id
+      - name: report_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: false
@@ -1315,8 +1192,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: inspection_id
+      - name: inspection_id
         dbmlType: UNIQUEIDENTIFIER
         tsType: Types.ObjectId
         required: true
@@ -1326,8 +1202,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: url
+      - name: url
         dbmlType: "NVARCHAR(500)"
         tsType: string
         required: true
@@ -1337,8 +1212,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: label
+      - name: label
         dbmlType: "NVARCHAR(200)"
         tsType: string
         required: false
@@ -1348,8 +1222,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: created_at
+      - name: created_at
         dbmlType: "datetime2(3)"
         tsType: Date
         required: true
@@ -1361,8 +1234,7 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: reports
         sourceFields: [report_id]
         targetFields: [report_id]
@@ -1372,8 +1244,7 @@ collections:
     collectionName: signatures
     note: null
     fields:
-      -
-        name: signature_id
+      - name: signature_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1383,8 +1254,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: contract_id
+      - name: contract_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1394,8 +1264,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: role
+      - name: role
         dbmlType: party_role
         tsType: "enum:party_role"
         required: true
@@ -1405,8 +1274,7 @@ collections:
         default: null
         note: null
         enumName: party_role
-      -
-        name: signature_event
+      - name: signature_event
         dbmlType: signature_event_type
         tsType: "enum:signature_event_type"
         required: false
@@ -1416,8 +1284,7 @@ collections:
         default: null
         note: null
         enumName: signature_event_type
-      -
-        name: type
+      - name: type
         dbmlType: signature_type
         tsType: "enum:signature_type"
         required: true
@@ -1427,8 +1294,7 @@ collections:
         default: digital_cert
         note: null
         enumName: signature_type
-      -
-        name: signed_at
+      - name: signed_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -1438,8 +1304,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: signer_ip
+      - name: signer_ip
         dbmlType: INET
         tsType: string
         required: false
@@ -1449,8 +1314,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: user_agent
+      - name: user_agent
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1460,8 +1324,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: provider_signature_id
+      - name: provider_signature_id
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1471,8 +1334,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: signature_image_url
+      - name: signature_image_url
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1482,8 +1344,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: cert_subject
+      - name: cert_subject
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1493,8 +1354,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: cert_issuer
+      - name: cert_issuer
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1504,8 +1364,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: cert_serial
+      - name: cert_serial
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1515,8 +1374,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: cert_fingerprint_sha256
+      - name: cert_fingerprint_sha256
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1526,8 +1384,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: signature_hash
+      - name: signature_hash
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1537,8 +1394,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: evidence_url
+      - name: evidence_url
         dbmlType: TEXT
         tsType: string
         required: false
@@ -1549,16 +1405,14 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ix_signatures_contract
+      - name: ix_signatures_contract
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [contract_id]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: contracts
         sourceFields: [contract_id]
         targetFields: [contract_id]
@@ -1568,8 +1422,7 @@ collections:
     collectionName: staff
     note: null
     fields:
-      -
-        name: user_id
+      - name: user_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1579,8 +1432,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: employee_code
+      - name: employee_code
         dbmlType: "VARCHAR(50)"
         tsType: string
         required: true
@@ -1590,8 +1442,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: position
+      - name: position
         dbmlType: "VARCHAR(100)"
         tsType: string
         required: true
@@ -1601,8 +1452,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: hire_date
+      - name: hire_date
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -1614,32 +1464,27 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: users
         sourceFields: [user_id]
         targetFields: [user_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff_at_stations
         sourceFields: [user_id]
         targetFields: [staff_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: bookings
         sourceFields: [user_id]
         targetFields: [verified_by_staff_id]
         onDelete: "set null"
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: inspections
         sourceFields: [user_id]
         targetFields: [inspector_staff_id]
         onDelete: "set null"
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff_transfers
         sourceFields: [user_id]
         targetFields: [staff_id]
@@ -1649,8 +1494,7 @@ collections:
     collectionName: staff_at_stations
     note: null
     fields:
-      -
-        name: staff_id
+      - name: staff_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1660,8 +1504,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: start_time
+      - name: start_time
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -1671,8 +1514,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: station_id
+      - name: station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1682,8 +1524,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: end_time
+      - name: end_time
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -1693,8 +1534,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: role_at_station
+      - name: role_at_station
         dbmlType: "VARCHAR(100)"
         tsType: string
         required: false
@@ -1705,36 +1545,31 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: null
+      - name: null
         type: null
         unique: true
         primaryKey: true
         note: null
         columns: [staff_id, start_time]
-      -
-        name: ix_staff_at_stations_staff_endtime
+      - name: ix_staff_at_stations_staff_endtime
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [staff_id, end_time]
-      -
-        name: ix_staff_at_stations_station_endtime
+      - name: ix_staff_at_stations_station_endtime
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [station_id, end_time]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: staff
         sourceFields: [staff_id]
         targetFields: [user_id]
         onDelete: cascade
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: stations
         sourceFields: [station_id]
         targetFields: [station_id]
@@ -1744,8 +1579,7 @@ collections:
     collectionName: staff_transfers
     note: null
     fields:
-      -
-        name: staff_transfer_id
+      - name: staff_transfer_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1755,8 +1589,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: staff_id
+      - name: staff_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1766,8 +1599,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: from_station_id
+      - name: from_station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1777,8 +1609,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: to_station_id
+      - name: to_station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1788,8 +1619,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: approved_by_admin_id
+      - name: approved_by_admin_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: false
@@ -1799,8 +1629,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: created_by_admin_id
+      - name: created_by_admin_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1810,8 +1639,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: created_at
+      - name: created_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -1821,8 +1649,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: approved_at
+      - name: approved_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -1832,8 +1659,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: effective_from
+      - name: effective_from
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -1843,8 +1669,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: status
+      - name: status
         dbmlType: transfer_status
         tsType: "enum:transfer_status"
         required: true
@@ -1854,8 +1679,7 @@ collections:
         default: draft
         note: null
         enumName: transfer_status
-      -
-        name: notes
+      - name: notes
         dbmlType: "VARCHAR(1000)"
         tsType: string
         required: false
@@ -1866,47 +1690,40 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ix_staff_transfers_staff_status
+      - name: ix_staff_transfers_staff_status
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [staff_id, status]
-      -
-        name: ix_staff_transfers_to_station
+      - name: ix_staff_transfers_to_station
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [to_station_id]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: staff
         sourceFields: [staff_id]
         targetFields: [user_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: stations
         sourceFields: [from_station_id]
         targetFields: [station_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: stations
         sourceFields: [to_station_id]
         targetFields: [station_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: admins
         sourceFields: [created_by_admin_id]
         targetFields: [user_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: admins
         sourceFields: [approved_by_admin_id]
         targetFields: [user_id]
@@ -1916,8 +1733,7 @@ collections:
     collectionName: stations
     note: null
     fields:
-      -
-        name: station_id
+      - name: station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -1927,8 +1743,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: name
+      - name: name
         dbmlType: "VARCHAR(150)"
         tsType: string
         required: true
@@ -1938,8 +1753,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: address
+      - name: address
         dbmlType: "VARCHAR(500)"
         tsType: string
         required: true
@@ -1949,8 +1763,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: latitude
+      - name: latitude
         dbmlType: DOUBLEPRECISION
         tsType: number
         required: false
@@ -1960,8 +1773,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: longitude
+      - name: longitude
         dbmlType: DOUBLEPRECISION
         tsType: number
         required: false
@@ -1973,38 +1785,32 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff_at_stations
         sourceFields: [station_id]
         targetFields: [station_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: vehicle_at_stations
         sourceFields: [station_id]
         targetFields: [station_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: vehicle_transfers
         sourceFields: [station_id]
         targetFields: [from_station_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: vehicle_transfers
         sourceFields: [station_id]
         targetFields: [to_station_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff_transfers
         sourceFields: [station_id]
         targetFields: [from_station_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff_transfers
         sourceFields: [station_id]
         targetFields: [to_station_id]
@@ -2014,8 +1820,7 @@ collections:
     collectionName: users
     note: null
     fields:
-      -
-        name: user_id
+      - name: user_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2025,8 +1830,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: role
+      - name: role
         dbmlType: user_role
         tsType: "enum:user_role"
         required: true
@@ -2036,8 +1840,7 @@ collections:
         default: unknown
         note: null
         enumName: user_role
-      -
-        name: email
+      - name: email
         dbmlType: "VARCHAR(255)"
         tsType: string
         required: true
@@ -2047,8 +1850,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: password_hash
+      - name: password_hash
         dbmlType: "VARCHAR(255)"
         tsType: string
         required: true
@@ -2058,8 +1860,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: full_name
+      - name: full_name
         dbmlType: "VARCHAR(200)"
         tsType: string
         required: true
@@ -2069,8 +1870,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: phone
+      - name: phone
         dbmlType: "VARCHAR(50)"
         tsType: string
         required: false
@@ -2080,8 +1880,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: created_at
+      - name: created_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -2093,20 +1892,17 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: renters
         sourceFields: [user_id]
         targetFields: [user_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: staff
         sourceFields: [user_id]
         targetFields: [user_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: admins
         sourceFields: [user_id]
         targetFields: [user_id]
@@ -2116,8 +1912,7 @@ collections:
     collectionName: vehicle_at_stations
     note: null
     fields:
-      -
-        name: vehicle_at_station_id
+      - name: vehicle_at_station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2127,8 +1922,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: vehicle_id
+      - name: vehicle_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2138,8 +1932,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: station_id
+      - name: station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2149,8 +1942,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: start_time
+      - name: start_time
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -2160,8 +1952,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: end_time
+      - name: end_time
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -2171,8 +1962,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: current_battery_capacity_kwh
+      - name: current_battery_capacity_kwh
         dbmlType: DOUBLEPRECISION
         tsType: number
         required: false
@@ -2182,8 +1972,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: current_mileage
+      - name: current_mileage
         dbmlType: integer
         tsType: number
         required: true
@@ -2193,8 +1982,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: status
+      - name: status
         dbmlType: vehicle_at_stations_status_t
         tsType: "enum:vehicle_at_stations_status_t"
         required: false
@@ -2205,42 +1993,36 @@ collections:
         note: null
         enumName: vehicle_at_stations_status_t
     indexes:
-      -
-        name: ux_vehicle_at_stations_vehicle_start
+      - name: ux_vehicle_at_stations_vehicle_start
         type: null
         unique: true
         primaryKey: false
         note: null
         columns: [vehicle_id, start_time]
-      -
-        name: ix_vehicle_at_stations_vehicle_end
+      - name: ix_vehicle_at_stations_vehicle_end
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [vehicle_id, end_time]
-      -
-        name: ix_vehicle_at_stations_station_end
+      - name: ix_vehicle_at_stations_station_end
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [station_id, end_time]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: vehicles
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]
         onDelete: cascade
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: stations
         sourceFields: [station_id]
         targetFields: [station_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: bookings
         sourceFields: [vehicle_at_station_id]
         targetFields: [vehicle_at_station_id]
@@ -2250,8 +2032,7 @@ collections:
     collectionName: vehicle_transfers
     note: null
     fields:
-      -
-        name: vehicle_transfer_id
+      - name: vehicle_transfer_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2261,8 +2042,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: vehicle_id
+      - name: vehicle_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2272,8 +2052,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: from_station_id
+      - name: from_station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2283,8 +2062,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: to_station_id
+      - name: to_station_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2294,8 +2072,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: picked_up_by_staff_id
+      - name: picked_up_by_staff_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: false
@@ -2305,8 +2082,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: picked_up_at
+      - name: picked_up_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -2316,8 +2092,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: dropped_off_by_staff_id
+      - name: dropped_off_by_staff_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: false
@@ -2327,8 +2102,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: dropped_off_at
+      - name: dropped_off_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -2338,8 +2112,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: pickup_notes
+      - name: pickup_notes
         dbmlType: "VARCHAR(1000)"
         tsType: string
         required: false
@@ -2349,8 +2122,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: dropoff_notes
+      - name: dropoff_notes
         dbmlType: "VARCHAR(1000)"
         tsType: string
         required: false
@@ -2360,8 +2132,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: approved_by_admin_id
+      - name: approved_by_admin_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: false
@@ -2371,8 +2142,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: created_by_admin_id
+      - name: created_by_admin_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2382,8 +2152,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: created_at
+      - name: created_at
         dbmlType: timestamptz
         tsType: Date
         required: true
@@ -2393,8 +2162,7 @@ collections:
         default: Date.now
         note: null
         enumName: null
-      -
-        name: approved_at
+      - name: approved_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -2404,8 +2172,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: scheduled_pickup_at
+      - name: scheduled_pickup_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -2415,8 +2182,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: scheduled_dropoff_at
+      - name: scheduled_dropoff_at
         dbmlType: timestamptz
         tsType: Date
         required: false
@@ -2426,8 +2192,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: status
+      - name: status
         dbmlType: transfer_status
         tsType: "enum:transfer_status"
         required: true
@@ -2437,8 +2202,7 @@ collections:
         default: draft
         note: null
         enumName: transfer_status
-      -
-        name: notes
+      - name: notes
         dbmlType: "VARCHAR(1000)"
         tsType: string
         required: false
@@ -2449,47 +2213,40 @@ collections:
         note: null
         enumName: null
     indexes:
-      -
-        name: ix_vehicle_transfers_status
+      - name: ix_vehicle_transfers_status
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [status]
-      -
-        name: ix_vehicle_transfers_from_to
+      - name: ix_vehicle_transfers_from_to
         type: null
         unique: false
         primaryKey: false
         note: null
         columns: [from_station_id, to_station_id]
     relations:
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: stations
         sourceFields: [from_station_id]
         targetFields: [station_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: stations
         sourceFields: [to_station_id]
         targetFields: [station_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: admins
         sourceFields: [created_by_admin_id]
         targetFields: [user_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: admins
         sourceFields: [approved_by_admin_id]
         targetFields: [user_id]
         onDelete: null
-      -
-        type: belongsTo
+      - type: belongsTo
         targetCollection: vehicles
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]
@@ -2499,8 +2256,7 @@ collections:
     collectionName: vehicles
     note: null
     fields:
-      -
-        name: vehicle_id
+      - name: vehicle_id
         dbmlType: INT
         tsType: Types.ObjectId
         required: true
@@ -2510,8 +2266,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: make
+      - name: make
         dbmlType: "VARCHAR(100)"
         tsType: string
         required: true
@@ -2521,8 +2276,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: model
+      - name: model
         dbmlType: "VARCHAR(100)"
         tsType: string
         required: true
@@ -2532,8 +2286,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: model_year
+      - name: model_year
         dbmlType: INT
         tsType: number
         required: true
@@ -2543,8 +2296,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: category
+      - name: category
         dbmlType: "VARCHAR(50)"
         tsType: string
         required: true
@@ -2554,8 +2306,7 @@ collections:
         default: EV
         note: null
         enumName: null
-      -
-        name: battery_capacity_kwh
+      - name: battery_capacity_kwh
         dbmlType: DOUBLEPRECISION
         tsType: number
         required: false
@@ -2565,8 +2316,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: range_km
+      - name: range_km
         dbmlType: DOUBLEPRECISION
         tsType: number
         required: false
@@ -2576,8 +2326,7 @@ collections:
         default: null
         note: null
         enumName: null
-      -
-        name: vin_number
+      - name: vin_number
         dbmlType: "varchar(50)"
         tsType: string
         required: false
@@ -2589,26 +2338,22 @@ collections:
         enumName: null
     indexes: []
     relations:
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: vehicle_at_stations
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: rentals
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]
         onDelete: null
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: pricings
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]
         onDelete: cascade
-      -
-        type: hasMany
+      - type: hasMany
         targetCollection: vehicle_transfers
         sourceFields: [vehicle_id]
         targetFields: [vehicle_id]

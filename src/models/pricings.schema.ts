@@ -1,9 +1,9 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 
 export type PricingDocument = HydratedDocument<Pricing>;
 
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Pricing {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -13,7 +13,7 @@ export class Pricing {
   })
   pricing_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true, index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Vehicle", required: true, index: true })
   vehicle_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })

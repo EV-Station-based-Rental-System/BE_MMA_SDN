@@ -1,8 +1,8 @@
 #!/usr/bin/env ts-node
-import { Parser } from '@dbml/core';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-import process from 'node:process';
+import { Parser } from "@dbml/core";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
 
 type Primitive = string | number | boolean | null;
 type JsonValue = Primitive | JsonValue[] | { [key: string]: JsonValue };
@@ -53,19 +53,14 @@ type SchemaLike = {
 const SCALAR_SAFE_PATTERN = /^[A-Za-z0-9_\-.]+$/;
 
 function isPrimitive(value: JsonValue): value is Primitive {
-  return (
-    value === null ||
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
-  );
+  return value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean";
 }
 
 function formatScalar(value: Primitive): string {
   if (value === null) {
-    return 'null';
+    return "null";
   }
-  if (typeof value === 'number' || typeof value === 'boolean') {
+  if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
   }
   if (value.length === 0) {
@@ -78,7 +73,7 @@ function formatScalar(value: Primitive): string {
 }
 
 function toYaml(value: JsonValue, indent = 0): string {
-  const pad = '  '.repeat(indent);
+  const pad = "  ".repeat(indent);
   if (Array.isArray(value)) {
     if (value.length === 0) {
       return `${pad}[]`;
@@ -91,9 +86,9 @@ function toYaml(value: JsonValue, indent = 0): string {
         const child = toYaml(entry, indent + 1);
         return `${pad}-\n${child}`;
       })
-      .join('\n');
+      .join("\n");
   }
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     const entries = Object.entries(value);
     if (entries.length === 0) {
       return `${pad}{}`;
@@ -112,7 +107,7 @@ function toYaml(value: JsonValue, indent = 0): string {
             return `${keyLine} []`;
           }
           if (entry.every(isPrimitive)) {
-            const serialized = entry.map((item) => formatScalar(item)).join(', ');
+            const serialized = entry.map((item) => formatScalar(item)).join(", ");
             return `${keyLine} [${serialized}]`;
           }
           const child = toYaml(entry, indent + 1);
@@ -125,13 +120,13 @@ function toYaml(value: JsonValue, indent = 0): string {
         const child = toYaml(entry, indent + 1);
         return `${keyLine}\n${child}`;
       })
-      .join('\n');
+      .join("\n");
   }
   return `${pad}${formatScalar(value)}`;
 }
 
 function normalizeDbmlType(field: FieldLike): string {
-  return field.type?.type_name ?? 'unknown';
+  return field.type?.type_name ?? "unknown";
 }
 
 function mapDefaultValue(field: FieldLike): Primitive {
@@ -141,28 +136,28 @@ function mapDefaultValue(field: FieldLike): Primitive {
   }
 
   const { type, value } = defaultInfo;
-  if (type === 'number' && typeof value === 'number') {
+  if (type === "number" && typeof value === "number") {
     return value;
   }
-  if (type === 'boolean') {
-    if (typeof value === 'boolean') {
+  if (type === "boolean") {
+    if (typeof value === "boolean") {
       return value;
     }
-    if (typeof value === 'string') {
-      return value.toLowerCase() === 'true';
+    if (typeof value === "string") {
+      return value.toLowerCase() === "true";
     }
   }
-  if (type === 'string' && typeof value === 'string') {
+  if (type === "string" && typeof value === "string") {
     return value;
   }
-  if (type === 'expression' && typeof value === 'string') {
+  if (type === "expression" && typeof value === "string") {
     const normalized = value.trim().toLowerCase();
-    if (normalized === 'now()' || normalized === 'current_timestamp') {
-      return 'Date.now';
+    if (normalized === "now()" || normalized === "current_timestamp") {
+      return "Date.now";
     }
     return value;
   }
-  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'string') {
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "string") {
     return value;
   }
   return JSON.stringify(value) ?? null;
@@ -173,39 +168,34 @@ function mapTsType(field: FieldLike): string {
     return `enum:${field._enum.name}`;
   }
   const raw = normalizeDbmlType(field).toLowerCase();
-  if (!raw || raw === 'unknown') {
-    return 'unknown';
+  if (!raw || raw === "unknown") {
+    return "unknown";
   }
-  if (raw.includes('int')) {
-    if (field.name.endsWith('_id')) {
-      return 'Types.ObjectId';
+  if (raw.includes("int")) {
+    if (field.name.endsWith("_id")) {
+      return "Types.ObjectId";
     }
-    return 'number';
+    return "number";
   }
-  if (raw.includes('numeric') || raw.includes('decimal')) {
-    return 'Decimal128';
+  if (raw.includes("numeric") || raw.includes("decimal")) {
+    return "Decimal128";
   }
-  if (raw.includes('double') || raw.includes('float')) {
-    return 'number';
+  if (raw.includes("double") || raw.includes("float")) {
+    return "number";
   }
-  if (raw.includes('char') || raw.includes('text') || raw.includes('inet')) {
-    return 'string';
+  if (raw.includes("char") || raw.includes("text") || raw.includes("inet")) {
+    return "string";
   }
-  if (
-    raw.includes('time') ||
-    raw.includes('date') ||
-    raw.includes('timestamp') ||
-    raw === 'timestamptz'
-  ) {
-    return 'Date';
+  if (raw.includes("time") || raw.includes("date") || raw.includes("timestamp") || raw === "timestamptz") {
+    return "Date";
   }
-  if (raw === 'boolean') {
-    return 'boolean';
+  if (raw === "boolean") {
+    return "boolean";
   }
-  if (raw === 'uuid' || raw === 'uniqueidentifier') {
-    return 'Types.ObjectId';
+  if (raw === "uuid" || raw === "uniqueidentifier") {
+    return "Types.ObjectId";
   }
-  return 'string';
+  return "string";
 }
 
 function makeFieldSpec(field: FieldLike) {
@@ -223,7 +213,7 @@ function makeFieldSpec(field: FieldLike) {
   };
 }
 
-function makeIndexSpec(index: TableLike['indexes'][number]) {
+function makeIndexSpec(index: TableLike["indexes"][number]) {
   return {
     name: index.name ?? null,
     type: index.type ?? null,
@@ -234,27 +224,30 @@ function makeIndexSpec(index: TableLike['indexes'][number]) {
   };
 }
 
-function relationTypeForEndpoint(relation: string, otherRelation: string): 'hasMany' | 'belongsTo' | 'hasOne' | 'manyToMany' {
-  if (relation === '*' && otherRelation === '*') {
-    return 'manyToMany';
+function relationTypeForEndpoint(relation: string, otherRelation: string): "hasMany" | "belongsTo" | "hasOne" | "manyToMany" {
+  if (relation === "*" && otherRelation === "*") {
+    return "manyToMany";
   }
-  if (relation === '*' && otherRelation === '1') {
-    return 'belongsTo';
+  if (relation === "*" && otherRelation === "1") {
+    return "belongsTo";
   }
-  if (relation === '1' && otherRelation === '*') {
-    return 'hasMany';
+  if (relation === "1" && otherRelation === "*") {
+    return "hasMany";
   }
-  return 'hasOne';
+  return "hasOne";
 }
 
 function buildRelations(schema: SchemaLike) {
-  const relationMap = new Map<string, Array<{
-    type: string;
-    targetCollection: string;
-    sourceFields: string[];
-    targetFields: string[];
-    onDelete: string | null;
-  }>>();
+  const relationMap = new Map<
+    string,
+    Array<{
+      type: string;
+      targetCollection: string;
+      sourceFields: string[];
+      targetFields: string[];
+      onDelete: string | null;
+    }>
+  >();
 
   const ensure = (key: string) => {
     if (!relationMap.has(key)) {
@@ -290,15 +283,15 @@ function buildRelations(schema: SchemaLike) {
 }
 
 async function main() {
-  const dbmlPathArg = process.argv[2] ?? process.env.DBML_PATH ?? 'DB.dbml';
+  const dbmlPathArg = process.argv[2] ?? process.env.DBML_PATH ?? "DB.dbml";
   const dbmlPath = path.resolve(process.cwd(), dbmlPathArg);
   const parser = new Parser();
-  const content = await readFile(dbmlPath, 'utf8');
-  const database = parser.parse(content, 'dbml');
+  const content = await readFile(dbmlPath, "utf8");
+  const database = parser.parse(content, "dbml");
   const rawSchema = database.schemas?.[0];
 
   if (!rawSchema) {
-    throw new Error('No schema found in DBML file.');
+    throw new Error("No schema found in DBML file.");
   }
 
   const schema = rawSchema as unknown as SchemaLike;
@@ -328,13 +321,16 @@ async function main() {
   const enums = schema.enums
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map((enumDef) => [
-      enumDef.name,
-      {
-        name: enumDef.name,
-        values: enumDef.values.map((value) => value.name),
-      },
-    ] as const);
+    .map(
+      (enumDef) =>
+        [
+          enumDef.name,
+          {
+            name: enumDef.name,
+            values: enumDef.values.map((value) => value.name),
+          },
+        ] as const,
+    );
 
   const spec: JsonValue = {
     source: path.relative(process.cwd(), dbmlPath),
@@ -344,11 +340,11 @@ async function main() {
     collections: Object.fromEntries(collections),
   };
 
-  const docsDir = path.resolve(process.cwd(), 'docs');
+  const docsDir = path.resolve(process.cwd(), "docs");
   await mkdir(docsDir, { recursive: true });
 
-  const jsonPath = path.join(docsDir, 'model-spec.json');
-  const yamlPath = path.join(docsDir, 'model-spec.yml');
+  const jsonPath = path.join(docsDir, "model-spec.json");
+  const yamlPath = path.join(docsDir, "model-spec.yml");
 
   await writeFile(jsonPath, `${JSON.stringify(spec, null, 2)}\n`);
   await writeFile(yamlPath, `${toYaml(spec)}\n`);

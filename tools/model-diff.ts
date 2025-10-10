@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 type SpecField = {
   name: string;
@@ -95,40 +95,43 @@ type CurrentModelMap = {
   collections: Record<string, CurrentCollection>;
 };
 
-const projectRoot = path.resolve(__dirname, '..');
-const docsDir = path.join(projectRoot, 'docs');
-const specPath = path.join(docsDir, 'model-spec.json');
-const currentPath = path.join(docsDir, 'current-model-map.json');
-const diffPath = path.join(docsDir, 'model-diff.md');
+const projectRoot = path.resolve(__dirname, "..");
+const docsDir = path.join(projectRoot, "docs");
+const specPath = path.join(docsDir, "model-spec.json");
+const currentPath = path.join(docsDir, "current-model-map.json");
+const diffPath = path.join(docsDir, "model-diff.md");
 
 function readJson<T>(filePath: string): T {
   if (!fs.existsSync(filePath)) {
     throw new Error(`Missing required file: ${filePath}`);
   }
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, "utf8");
   return JSON.parse(content) as T;
 }
 
 function stringifyValue(value: unknown): string {
   if (value === undefined) {
-    return 'undefined';
+    return "undefined";
   }
   if (value === null) {
-    return 'null';
+    return "null";
   }
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return value;
   }
   return JSON.stringify(value);
 }
 
 function normalizeColumns(columns: string[]): string {
-  return columns.map((column) => column.trim()).sort().join(', ');
+  return columns
+    .map((column) => column.trim())
+    .sort()
+    .join(", ");
 }
 
 function normalizeRelationKey(sourceFields: string[], targetCollection: string | null): string {
-  const sourceKey = sourceFields.slice().sort().join(',');
-  const targetKey = targetCollection ? targetCollection.toLowerCase() : 'null';
+  const sourceKey = sourceFields.slice().sort().join(",");
+  const targetKey = targetCollection ? targetCollection.toLowerCase() : "null";
   return `${sourceKey}->${targetKey}`;
 }
 
@@ -149,10 +152,10 @@ function compareFields(specFields: SpecField[], currentFields: CurrentField[]): 
   const extraFields = Array.from(currentFieldMap.keys()).filter((name) => !specFieldMap.has(name));
 
   if (missingFields.length) {
-    messages.push(`- Missing fields: ${missingFields.join(', ')}`);
+    messages.push(`- Missing fields: ${missingFields.join(", ")}`);
   }
   if (extraFields.length) {
-    messages.push(`- Extra fields: ${extraFields.join(', ')}`);
+    messages.push(`- Extra fields: ${extraFields.join(", ")}`);
   }
 
   const sharedNames = Array.from(specFieldMap.keys()).filter((name) => currentFieldMap.has(name));
@@ -173,23 +176,23 @@ function compareFields(specFields: SpecField[], currentFields: CurrentField[]): 
     }
     const specDefault = stringifyValue(specField.default);
     const currentDefault = stringifyValue(currentField.default);
-    if (specDefault !== 'undefined' && specDefault !== currentDefault) {
+    if (specDefault !== "undefined" && specDefault !== currentDefault) {
       fieldMessages.push(`default spec=${specDefault} current=${currentDefault}`);
     }
     if (specField.enumName) {
-      const enumValues = Array.isArray(currentField.enum) ? currentField.enum.join(', ') : stringifyValue(currentField.enum);
-      if (!enumValues || enumValues === 'undefined') {
+      const enumValues = Array.isArray(currentField.enum) ? currentField.enum.join(", ") : stringifyValue(currentField.enum);
+      if (!enumValues || enumValues === "undefined") {
         fieldMessages.push(`enum spec=${specField.enumName} current=missing`);
       }
     }
 
     if (fieldMessages.length) {
-      messages.push(`- Field \`${name}\`: ${fieldMessages.join('; ')}`);
+      messages.push(`- Field \`${name}\`: ${fieldMessages.join("; ")}`);
     }
   });
 
   if (!messages.length) {
-    messages.push('- Fields: ✅ Matches spec');
+    messages.push("- Fields: ✅ Matches spec");
   }
 
   return messages;
@@ -210,10 +213,10 @@ function compareIndexes(specIndexes: SpecIndex[], currentIndexes: CurrentIndex[]
   const extra = Array.from(currentMap.keys()).filter((key) => !specMap.has(key));
 
   if (missing.length) {
-    messages.push(`- Missing indexes: ${missing.join(' | ')}`);
+    messages.push(`- Missing indexes: ${missing.join(" | ")}`);
   }
   if (extra.length) {
-    messages.push(`- Extra indexes: ${extra.join(' | ')}`);
+    messages.push(`- Extra indexes: ${extra.join(" | ")}`);
   }
 
   const shared = Array.from(specMap.keys()).filter((key) => currentMap.has(key));
@@ -230,15 +233,15 @@ function compareIndexes(specIndexes: SpecIndex[], currentIndexes: CurrentIndex[]
       diffs.push(`type spec=${specIndex.type} current=${currentIndex.options?.type}`);
     }
     if (specIndex.primaryKey && !currentUnique) {
-      diffs.push('primary key missing');
+      diffs.push("primary key missing");
     }
     if (diffs.length) {
-      messages.push(`- Index [${key}]: ${diffs.join('; ')}`);
+      messages.push(`- Index [${key}]: ${diffs.join("; ")}`);
     }
   });
 
   if (!messages.length) {
-    messages.push('- Indexes: ✅ Matches spec');
+    messages.push("- Indexes: ✅ Matches spec");
   }
 
   return messages;
@@ -261,10 +264,10 @@ function compareRelations(specRelations: SpecRelation[], currentRelations: Curre
   const extra = Array.from(currentMap.keys()).filter((key) => !specMap.has(key));
 
   if (missing.length) {
-    messages.push(`- Missing relations: ${missing.join(' | ')}`);
+    messages.push(`- Missing relations: ${missing.join(" | ")}`);
   }
   if (extra.length) {
-    messages.push(`- Extra relations: ${extra.join(' | ')}`);
+    messages.push(`- Extra relations: ${extra.join(" | ")}`);
   }
 
   const shared = Array.from(specMap.keys()).filter((key) => currentMap.has(key));
@@ -280,18 +283,18 @@ function compareRelations(specRelations: SpecRelation[], currentRelations: Curre
     const specTarget = specRelation.targetCollection ? specRelation.targetCollection.toLowerCase() : null;
     const currentTarget = currentRelation.targetCollection ? currentRelation.targetCollection.toLowerCase() : null;
     if (specTarget !== currentTarget) {
-      diffs.push(`target spec=${specTarget ?? 'null'} current=${currentTarget ?? 'null'}`);
+      diffs.push(`target spec=${specTarget ?? "null"} current=${currentTarget ?? "null"}`);
     }
-    if (specRelation.onDelete && specRelation.onDelete !== 'NO ACTION') {
+    if (specRelation.onDelete && specRelation.onDelete !== "NO ACTION") {
       diffs.push(`onDelete=${specRelation.onDelete}`);
     }
     if (diffs.length) {
-      messages.push(`- Relation [${key}]: ${diffs.join('; ')}`);
+      messages.push(`- Relation [${key}]: ${diffs.join("; ")}`);
     }
   });
 
   if (!messages.length) {
-    messages.push('- Relations: ✅ Matches spec');
+    messages.push("- Relations: ✅ Matches spec");
   }
 
   return messages;
@@ -306,10 +309,10 @@ function compareEnums(specEnums: Record<string, SpecEnum>, currentEnums: Record<
   const extra = currentNames.filter((name) => !specEnums[name]);
 
   if (missing.length) {
-    messages.push(`- Missing enums: ${missing.join(', ')}`);
+    messages.push(`- Missing enums: ${missing.join(", ")}`);
   }
   if (extra.length) {
-    messages.push(`- Extra enums: ${extra.join(', ')}`);
+    messages.push(`- Extra enums: ${extra.join(", ")}`);
   }
 
   const shared = specNames.filter((name) => currentEnums[name]);
@@ -321,17 +324,17 @@ function compareEnums(specEnums: Record<string, SpecEnum>, currentEnums: Record<
     if (missingValues.length || extraValues.length) {
       const parts: string[] = [];
       if (missingValues.length) {
-        parts.push(`missing: ${missingValues.join(', ')}`);
+        parts.push(`missing: ${missingValues.join(", ")}`);
       }
       if (extraValues.length) {
-        parts.push(`extra: ${extraValues.join(', ')}`);
+        parts.push(`extra: ${extraValues.join(", ")}`);
       }
-      messages.push(`- Enum \`${name}\`: ${parts.join('; ')}`);
+      messages.push(`- Enum \`${name}\`: ${parts.join("; ")}`);
     }
   });
 
   if (!messages.length) {
-    messages.push('- Enums: ✅ Matches spec');
+    messages.push("- Enums: ✅ Matches spec");
   }
 
   return messages;
@@ -346,11 +349,11 @@ function generateCollectionDiff(
   lines.push(`### ${name}`);
 
   if (!specCollection) {
-    lines.push('- Status: ⚠️ Only present in codebase (not defined in DBML)');
+    lines.push("- Status: ⚠️ Only present in codebase (not defined in DBML)");
     return lines;
   }
   if (!currentCollection) {
-    lines.push('- Status: ❌ Missing from codebase');
+    lines.push("- Status: ❌ Missing from codebase");
     return lines;
   }
 
@@ -365,44 +368,41 @@ function generateCollectionDiff(
   return lines;
 }
 
-function buildOverview(
-  spec: ModelSpec,
-  current: CurrentModelMap,
-): { header: string[]; collectionSections: string[] } {
+function buildOverview(spec: ModelSpec, current: CurrentModelMap): { header: string[]; collectionSections: string[] } {
   const lines: string[] = [];
-  lines.push('# Model Diff');
-  lines.push('');
+  lines.push("# Model Diff");
+  lines.push("");
   lines.push(`- Generated at: ${new Date().toISOString()}`);
   lines.push(`- DBML spec: ${path.relative(projectRoot, specPath)}`);
   lines.push(`- Code map: ${path.relative(projectRoot, currentPath)}`);
-  lines.push('');
+  lines.push("");
 
-  lines.push('## Enum Overview');
+  lines.push("## Enum Overview");
   lines.push(...compareEnums(spec.enums, current.enums));
-  lines.push('');
+  lines.push("");
 
   const specCollections = Object.keys(spec.collections);
   const currentCollections = Object.keys(current.collections);
   const missingCollections = specCollections.filter((name) => !current.collections[name]);
   const extraCollections = currentCollections.filter((name) => !spec.collections[name]);
 
-  lines.push('## Collections Overview');
+  lines.push("## Collections Overview");
   if (missingCollections.length) {
-    lines.push(`- Missing collections: ${missingCollections.join(', ')}`);
+    lines.push(`- Missing collections: ${missingCollections.join(", ")}`);
   }
   if (extraCollections.length) {
-    lines.push(`- Extra collections: ${extraCollections.join(', ')}`);
+    lines.push(`- Extra collections: ${extraCollections.join(", ")}`);
   }
   if (!missingCollections.length && !extraCollections.length) {
-    lines.push('- Collections: ✅ All collections accounted for');
+    lines.push("- Collections: ✅ All collections accounted for");
   }
-  lines.push('');
+  lines.push("");
 
   const allCollectionNames = Array.from(new Set([...specCollections, ...currentCollections])).sort();
   const collectionSections: string[] = [];
   allCollectionNames.forEach((name) => {
     const section = generateCollectionDiff(name, spec.collections[name], current.collections[name]);
-    collectionSections.push(...section, '');
+    collectionSections.push(...section, "");
   });
 
   return { header: lines, collectionSections };
@@ -413,8 +413,8 @@ function main(): void {
   const current = readJson<CurrentModelMap>(currentPath);
 
   const { header, collectionSections } = buildOverview(spec, current);
-  const contents = [...header, ...collectionSections].join('\n');
-  fs.writeFileSync(diffPath, contents, 'utf8');
+  const contents = [...header, ...collectionSections].join("\n");
+  fs.writeFileSync(diffPath, contents, "utf8");
   // eslint-disable-next-line no-console
   console.log(`Model diff written to ${diffPath}`);
 }

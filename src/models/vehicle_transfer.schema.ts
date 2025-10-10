@@ -1,8 +1,8 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { VehicleTransferStatus } from 'src/common/enums/vehicle_transfer.enum';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose from "mongoose";
+import { VehicleTransferStatus } from "src/common/enums/vehicle_transfer.enum";
 
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class VehicleTransfer {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -12,22 +12,22 @@ export class VehicleTransfer {
   })
   vehicle_transfer_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', index: true })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Vehicle", index: true })
   vehicle_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Station' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Station" })
   from_station_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Station' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Station" })
   to_station_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Staff' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Staff" })
   picked_up_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ required: false, type: Date })
   picked_up_at: Date;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Staff' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Staff" })
   dropped_off_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ required: false, type: Date })
@@ -39,10 +39,10 @@ export class VehicleTransfer {
   @Prop({ required: false, type: String })
   dropoff_notes: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Admin" })
   approved_by_admin_id?: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Admin" })
   created_by_admin_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, type: Date, default: Date.now })

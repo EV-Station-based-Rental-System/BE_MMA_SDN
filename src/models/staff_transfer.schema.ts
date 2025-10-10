@@ -1,10 +1,10 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { StaffTransferStatus } from 'src/common/enums/staff_trasfer.enum';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
+import { StaffTransferStatus } from "src/common/enums/staff_trasfer.enum";
 
 export type StaffTransferDocument = HydratedDocument<StaffTransfer>;
 
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class StaffTransfer {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -14,19 +14,19 @@ export class StaffTransfer {
   })
   staff_transfer_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Staff', required: true, index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Staff", required: true, index: true })
   staff_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Station', required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Station", required: true })
   from_station_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Station', required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Station", required: true })
   to_station_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Admin" })
   approved_by_admin_id?: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Admin", required: true })
   created_by_admin_id: mongoose.Types.ObjectId;
 
   @Prop({ type: Date, required: true, default: Date.now })

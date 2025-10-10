@@ -1,11 +1,11 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from './common/config/config';
-import { index } from './models';
-import { AuthModule } from './modules/auth/auth.module';
-import { MailModule } from './common/mail/mail.module';
-import { RedisModule } from './common/redis/redis.module';
+import { Module } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import configuration from "./common/config/config";
+import { index } from "./models";
+import { AuthModule } from "./modules/auth/auth.module";
+import { MailModule } from "./common/mail/mail.module";
+import { RedisModule } from "./common/redis/redis.module";
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { RedisModule } from './common/redis/redis.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('database.url'),
+        uri: configService.get<string>("database.url"),
       }),
       inject: [ConfigService],
     }),

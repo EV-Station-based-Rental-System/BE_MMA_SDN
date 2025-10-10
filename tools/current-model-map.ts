@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import ts from 'typescript';
+import fs from "fs";
+import path from "path";
+import ts from "typescript";
 
 type ParsedValue = string | number | boolean | null | ParsedValue[] | { [key: string]: ParsedValue };
 
@@ -46,11 +46,11 @@ interface ParsedEnum {
   values: ParsedValue[];
 }
 
-const projectRoot = path.resolve(__dirname, '..');
-const srcDir = path.join(projectRoot, 'src');
-const modelsDir = path.join(srcDir, 'models');
-const enumsDir = path.join(srcDir, 'common', 'enums');
-const outputPath = path.join(projectRoot, 'docs', 'current-model-map.json');
+const projectRoot = path.resolve(__dirname, "..");
+const srcDir = path.join(projectRoot, "src");
+const modelsDir = path.join(srcDir, "models");
+const enumsDir = path.join(srcDir, "common", "enums");
+const outputPath = path.join(projectRoot, "docs", "current-model-map.json");
 
 const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
@@ -62,7 +62,7 @@ function ensureDocsDir(): void {
 }
 
 function readFile(filePath: string): string {
-  return fs.readFileSync(filePath, 'utf8');
+  return fs.readFileSync(filePath, "utf8");
 }
 
 function createSourceFile(filePath: string, content: string): ts.SourceFile {
@@ -93,15 +93,16 @@ function parseExpression(source: ts.SourceFile, expression: ts.Expression): Pars
     case ts.SyntaxKind.ObjectLiteralExpression:
       return parseObjectLiteral(source, expression as ts.ObjectLiteralExpression);
     case ts.SyntaxKind.ArrayLiteralExpression:
-      return (expression as ts.ArrayLiteralExpression).elements.map((el) =>
-        parseExpression(source, el as ts.Expression),
-      );
+      return (expression as ts.ArrayLiteralExpression).elements.map((el) => parseExpression(source, el as ts.Expression));
     default:
       return getNodeText(source, expression);
   }
 }
 
-function parseObjectLiteral(source: ts.SourceFile, literal: ts.ObjectLiteralExpression): {
+function parseObjectLiteral(
+  source: ts.SourceFile,
+  literal: ts.ObjectLiteralExpression,
+): {
   [key: string]: ParsedValue;
 } {
   const result: { [key: string]: ParsedValue } = {};
@@ -150,11 +151,7 @@ function getDecorators(node: ts.Node): DecoratorList {
   return undefined;
 }
 
-function getDecoratorByName(
-  decorators: DecoratorList,
-  name: string,
-  source: ts.SourceFile,
-): ts.CallExpression | null {
+function getDecoratorByName(decorators: DecoratorList, name: string, source: ts.SourceFile): ts.CallExpression | null {
   if (!decorators) {
     return null;
   }
@@ -173,11 +170,8 @@ function getDecoratorByName(
   return null;
 }
 
-function parseSchemaDecorator(
-  source: ts.SourceFile,
-  decorators: DecoratorList,
-): { [key: string]: ParsedValue } | null {
-  const decoratorCall = getDecoratorByName(decorators, 'Schema', source);
+function parseSchemaDecorator(source: ts.SourceFile, decorators: DecoratorList): { [key: string]: ParsedValue } | null {
+  const decoratorCall = getDecoratorByName(decorators, "Schema", source);
   if (!decoratorCall) {
     return null;
   }
@@ -193,11 +187,8 @@ function parseSchemaDecorator(
   return parseObjectLiteral(source, arg);
 }
 
-function parsePropDecorator(
-  source: ts.SourceFile,
-  decorators: DecoratorList,
-): { [key: string]: ParsedValue } | null {
-  const decoratorCall = getDecoratorByName(decorators, 'Prop', source);
+function parsePropDecorator(source: ts.SourceFile, decorators: DecoratorList): { [key: string]: ParsedValue } | null {
+  const decoratorCall = getDecoratorByName(decorators, "Prop", source);
   if (!decoratorCall) {
     return null;
   }
@@ -215,8 +206,8 @@ function parsePropDecorator(
 
 function toSnakeCase(value: string): string {
   return value
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
-    .replace(/([A-Z])([A-Z][a-z])/g, '$1_$2')
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2")
     .toLowerCase();
 }
 
@@ -225,7 +216,7 @@ function defaultCollectionName(className: string): string {
   if (!snake) {
     return className.toLowerCase();
   }
-  if (snake.endsWith('s')) {
+  if (snake.endsWith("s")) {
     return snake;
   }
   return `${snake}s`;
@@ -243,12 +234,12 @@ function parseFields(source: ts.SourceFile, classNode: ts.ClassDeclaration): Par
     }
     const propOptions = parsePropDecorator(source, getDecorators(member));
     const tsType = member.type ? getNodeText(source, member.type) : null;
-    const mongooseType = propOptions && 'type' in propOptions ? propOptions.type : null;
+    const mongooseType = propOptions && "type" in propOptions ? propOptions.type : null;
     const required = Boolean(propOptions && propOptions.required === true);
     const unique = Boolean(propOptions && propOptions.unique === true);
-    const defaultValue = propOptions && 'default' in propOptions ? propOptions.default : null;
-    const ref = propOptions && typeof propOptions.ref === 'string' ? propOptions.ref : null;
-    const enumValue = propOptions && 'enum' in propOptions ? propOptions.enum : null;
+    const defaultValue = propOptions && "default" in propOptions ? propOptions.default : null;
+    const ref = propOptions && typeof propOptions.ref === "string" ? propOptions.ref : null;
+    const enumValue = propOptions && "enum" in propOptions ? propOptions.enum : null;
     const hasArrayTsType = !!member.type && ts.isArrayTypeNode(member.type);
     const isArray = Array.isArray(mongooseType) || hasArrayTsType;
     fields.push({
@@ -267,11 +258,7 @@ function parseFields(source: ts.SourceFile, classNode: ts.ClassDeclaration): Par
   return fields;
 }
 
-function parseIndexes(
-  source: ts.SourceFile,
-  schemaIdentifier: string,
-  schemaName: string,
-): ParsedIndex[] {
+function parseIndexes(source: ts.SourceFile, schemaIdentifier: string, schemaName: string): ParsedIndex[] {
   const indexes: ParsedIndex[] = [];
   source.forEachChild((node) => {
     if (!ts.isExpressionStatement(node)) {
@@ -288,7 +275,7 @@ function parseIndexes(
     if (!ts.isIdentifier(propertyAccess.expression)) {
       return;
     }
-    if (propertyAccess.expression.text !== schemaIdentifier || propertyAccess.name.text !== 'index') {
+    if (propertyAccess.expression.text !== schemaIdentifier || propertyAccess.name.text !== "index") {
       return;
     }
     const [fieldsArg, optionsArg] = call.arguments;
@@ -324,7 +311,7 @@ function buildRelations(fields: ParsedField[]): ParsedRelation[] {
   fields.forEach((field) => {
     if (field.ref) {
       relations.push({
-        type: field.isArray ? 'referencesMany' : 'referencesOne',
+        type: field.isArray ? "referencesMany" : "referencesOne",
         targetCollection: field.ref,
         sourceFields: [field.name],
         targetFields: [],
@@ -337,7 +324,7 @@ function buildRelations(fields: ParsedField[]): ParsedRelation[] {
 function parseSchemaFile(filePath: string): ParsedCollection[] {
   const content = readFile(filePath);
   const source = createSourceFile(filePath, content);
-  const relativePath = path.relative(projectRoot, filePath).replace(/\\/g, '/');
+  const relativePath = path.relative(projectRoot, filePath).replace(/\\/g, "/");
   const collections: ParsedCollection[] = [];
   const schemaVariableToClass = new Map<string, string>();
 
@@ -358,11 +345,9 @@ function parseSchemaFile(filePath: string): ParsedCollection[] {
         let isSchemaFactoryCall = false;
         if (ts.isPropertyAccessExpression(expression)) {
           isSchemaFactoryCall =
-            ts.isIdentifier(expression.expression) &&
-            expression.expression.text === 'SchemaFactory' &&
-            expression.name.text === 'createForClass';
+            ts.isIdentifier(expression.expression) && expression.expression.text === "SchemaFactory" && expression.name.text === "createForClass";
         } else if (ts.isIdentifier(expression)) {
-          isSchemaFactoryCall = expression.text === 'SchemaFactory';
+          isSchemaFactoryCall = expression.text === "SchemaFactory";
         }
         if (!isSchemaFactoryCall) {
           return;
@@ -394,9 +379,10 @@ function parseSchemaFile(filePath: string): ParsedCollection[] {
       }
     });
     const indexes = schemaIdentifier ? parseIndexes(source, schemaIdentifier, className) : [];
-    const collectionName = schemaDecorator && typeof schemaDecorator['collection'] === 'string'
-      ? (schemaDecorator['collection'] as string)
-      : defaultCollectionName(className);
+    const collectionName =
+      schemaDecorator && typeof schemaDecorator["collection"] === "string"
+        ? (schemaDecorator["collection"] as string)
+        : defaultCollectionName(className);
     collections.push({
       name: className,
       filePath: relativePath,
@@ -430,7 +416,7 @@ function parseEnums(): Record<string, ParsedEnum> {
   if (!fs.existsSync(enumsDir)) {
     return result;
   }
-  const enumFiles = walkDir(enumsDir, (file) => file.endsWith('.ts'));
+  const enumFiles = walkDir(enumsDir, (file) => file.endsWith(".ts"));
   enumFiles.forEach((file) => {
     const content = readFile(file);
     const source = createSourceFile(file, content);
@@ -473,7 +459,7 @@ function sortObjectKeys<T>(obj: Record<string, T>): Record<string, T> {
 
 function main(): void {
   ensureDocsDir();
-  const schemaFiles = walkDir(modelsDir, (file) => file.endsWith('.schema.ts'));
+  const schemaFiles = walkDir(modelsDir, (file) => file.endsWith(".schema.ts"));
   const collections: Record<string, ParsedCollection> = {};
   schemaFiles.forEach((file) => {
     const parsedCollections = parseSchemaFile(file);
@@ -486,13 +472,13 @@ function main(): void {
   const enums = parseEnums();
 
   const output = {
-    source: 'codebase',
+    source: "codebase",
     generatedAt: new Date().toISOString(),
     enums: sortObjectKeys(enums),
     collections: sortObjectKeys(collections),
   };
 
-  fs.writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
 }
 
 main();

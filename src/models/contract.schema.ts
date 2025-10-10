@@ -1,9 +1,9 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { ContractStatus, EsignProvider } from 'src/common/enums/contract.enum';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
+import { ContractStatus, EsignProvider } from "src/common/enums/contract.enum";
 
 export type ContractDocument = HydratedDocument<Contract>;
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: "updated_at" } })
 export class Contract {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -13,7 +13,7 @@ export class Contract {
   })
   contract_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Rental', unique: true })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Rental", unique: true })
   rental_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, type: Number, default: 1 })

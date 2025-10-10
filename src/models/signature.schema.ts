@@ -1,9 +1,9 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { SignatureEvent, SignaturePartyRole, SignatureType } from 'src/common/enums/signature.enum';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
+import { SignatureEvent, SignaturePartyRole, SignatureType } from "src/common/enums/signature.enum";
 
 export type SignatureDocument = HydratedDocument<Signature>;
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Signature {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -13,7 +13,7 @@ export class Signature {
   })
   signature_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Contract', required: true, index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Contract", required: true, index: true })
   contract_id: mongoose.Types.ObjectId;
 
   @Prop({
