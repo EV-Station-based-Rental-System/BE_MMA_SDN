@@ -23,7 +23,4 @@ export class StaffAtStation {
 
 export const StaffAtStationSchema = SchemaFactory.createForClass(StaffAtStation);
 
-StaffAtStationSchema.index({ staff_id: 1 });
-StaffAtStationSchema.index({ station_id: 1 });
-StaffAtStationSchema.index({ start_time: 1, end_time: 1 });
-StaffAtStationSchema.index({ staff_id: 1, end_time: 1 });
+

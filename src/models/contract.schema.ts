@@ -58,5 +58,4 @@ export class Contract {
 }
 export const ContractSchema = SchemaFactory.createForClass(Contract);
 
-ContractSchema.index({ contract_id: 1 }, { unique: true });
-ContractSchema.index({ rental_id: 1 }, { unique: true });
+

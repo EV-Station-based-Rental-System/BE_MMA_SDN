@@ -1,4 +1,4 @@
-export enum RetalStatus {
+export enum RentalStatus {
   RESERVED = 'reserved',
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',

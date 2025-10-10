@@ -37,5 +37,4 @@ export class Vehicle {
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);
 
-VehicleSchema.index({ vehicle_id: 1 }, { unique: true });
-VehicleSchema.index({ vin_number: 1 }, { unique: true, sparse: true });
+

@@ -42,6 +42,3 @@ export class Pricing {
 }
 export const PricingSchema = SchemaFactory.createForClass(Pricing);
 
-PricingSchema.index({ pricing_id: 1 }, { unique: true });
-PricingSchema.index({ vehicle_id: 1 });
-PricingSchema.index({ effective_from: 1 });

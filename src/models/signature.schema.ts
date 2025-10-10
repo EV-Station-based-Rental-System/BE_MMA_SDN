@@ -74,5 +74,4 @@ export class Signature {
 
 export const SignatureSchema = SchemaFactory.createForClass(Signature);
 
-SignatureSchema.index({ signature_id: 1 }, { unique: true });
-SignatureSchema.index({ contract_id: 1 });
+

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { RetalStatus } from 'src/common/enums/retal.enum';
+import { RentalStatus } from 'src/common/enums/rental.enum';
+
 
 export type RentalDocument = HydratedDocument<Rental>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
@@ -30,11 +31,11 @@ export class Rental {
 
   @Prop({
     required: true,
-    enum: Object.values(RetalStatus),
+    enum: Object.values(RentalStatus),
     type: String,
-    default: RetalStatus.RESERVED,
+    default: RentalStatus.RESERVED,
   })
-  status: RetalStatus;
+  status: RentalStatus;
 
   @Prop({ required: true, type: Number, default: null })
   score: number | null;
@@ -46,7 +47,3 @@ export class Rental {
   rated_at: Date;
 }
 export const RentalSchema = SchemaFactory.createForClass(Rental);
-
-RentalSchema.index({ rental_id: 1 }, { unique: true });
-RentalSchema.index({ booking_id: 1 }, { unique: true });
-RentalSchema.index({ vehicle_id: 1 });

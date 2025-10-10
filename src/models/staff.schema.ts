@@ -18,5 +18,3 @@ export class Staff {
 }
 export const StaffSchema = SchemaFactory.createForClass(Staff);
 
-StaffSchema.index({ user_id: 1 }, { unique: true });
-StaffSchema.index({ employee_code: 1 }, { unique: true });

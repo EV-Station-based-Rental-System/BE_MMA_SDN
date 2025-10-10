@@ -35,5 +35,3 @@ export class Fee {
 }
 export const feeSchema = SchemaFactory.createForClass(Fee);
 
-feeSchema.index({ booking_id: 1 }, { unique: true, name: 'ux_fees_deposit_per_booking' });
-feeSchema.index({ fee_id: 1 }, { unique: true });

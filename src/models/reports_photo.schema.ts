@@ -33,6 +33,3 @@ export class ReportsPhoto {
 
 export const ReportsPhotoSchema = SchemaFactory.createForClass(ReportsPhoto);
 
-ReportsPhotoSchema.index({ reports_photo_id: 1 }, { unique: true });
-ReportsPhotoSchema.index({ inspection_id: 1 });
-ReportsPhotoSchema.index({ report_id: 1 });

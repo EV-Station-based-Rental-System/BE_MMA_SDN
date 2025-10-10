@@ -41,4 +41,4 @@ export class Payment {
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
 
-PaymentSchema.index({ payment_id: 1 }, { unique: true });
+

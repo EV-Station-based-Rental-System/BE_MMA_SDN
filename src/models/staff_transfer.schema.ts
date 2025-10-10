@@ -52,6 +52,4 @@ export class StaffTransfer {
 
 export const StaffTransferSchema = SchemaFactory.createForClass(StaffTransfer);
 
-StaffTransferSchema.index({ staff_transfer_id: 1 }, { unique: true });
-StaffTransferSchema.index({ staff_id: 1 });
-StaffTransferSchema.index({ status: 1, to_station_id: 1 });
+

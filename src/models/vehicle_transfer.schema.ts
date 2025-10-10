@@ -71,7 +71,4 @@ export class VehicleTransfer {
 
 export const VehicleTransferSchema = SchemaFactory.createForClass(VehicleTransfer);
 
-VehicleTransferSchema.index({ vehicle_transfer_id: 1 }, { unique: true });
-VehicleTransferSchema.index({ vehicle_id: 1 });
-VehicleTransferSchema.index({ status: 1, from_station_id: 1 });
-VehicleTransferSchema.index({ status: 1, to_station_id: 1 });
+
