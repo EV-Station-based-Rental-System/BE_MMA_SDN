@@ -36,3 +36,7 @@ This is a NestJS + MongoDB backend for an electric vehicle rental platform with 
 - Because global validation strips unknown properties, add explicit DTO fields (and `@IsOptional()` where appropriate) before touching request bodies.
 - Reuse custom exceptions (e.g., `NotFoundException`, `ForbiddenException`) instead of Nest defaults so the global interceptor can normalize responses.
 - Absolute imports (`import ... from 'src/...';`) rely on the project’s `baseUrl` config—keep files under `src/` to preserve resolution.
+- Swagger response docs should follow the auth module precedent:
+  - Use the shared `{ msg: string }` contract via `MessageResponseDto` whenever a handler returns a confirmation message.
+  - Document token payloads with `LoginResponseDto` (or a sibling DTO) rather than anonymous object schemas.
+  - Error responses must describe the normalized `{ statusCode, message, errorCode? }` shape exposed by `BaseException`; keep the `errorCode` example `null` unless a specific code is emitted.

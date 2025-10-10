@@ -21,13 +21,14 @@ import { MessageResponseDto } from './dto/message-response.dto';
 const buildErrorResponse = (statusCode: number, messageExample: string) => ({
   schema: {
     type: 'object',
+    required: ['statusCode', 'message'],
     properties: {
       statusCode: { type: 'integer', example: statusCode },
       message: { type: 'string', example: messageExample },
       errorCode: {
         type: 'string',
         nullable: true,
-        example: 'AUTH_ERROR_CODE',
+        example: null,
       },
     },
   },
