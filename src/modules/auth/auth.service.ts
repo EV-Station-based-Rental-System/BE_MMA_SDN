@@ -25,7 +25,7 @@ export class AuthService {
 
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async validateUser(data: LoginDto): Promise<BaseJwtUserPayload | RenterJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload> {
     const checkUser = (await this.userRepository.findOne({ email: data.email })) as User & { _id: string };
@@ -64,7 +64,7 @@ export class AuthService {
         if (staff) {
           userPayload = {
             ...userPayload,
-            employeeCode: staff.employeeCode,
+            employee_code: staff.employee_code,
             position: staff.position,
             hire_date: staff.hire_date,
           } as StaffJwtUserPayload;
@@ -78,7 +78,7 @@ export class AuthService {
           userPayload = {
             ...userPayload,
             address: renter.address,
-            driver_license: renter.driver_license,
+            driver_license_no: renter.driver_license_no,
             date_of_birth: renter.date_of_birth,
             risk_score: renter.risk_score,
           } as RenterJwtUserPayload;
@@ -126,7 +126,7 @@ export class AuthService {
     const newRenter = new this.renterRepository({
       user_id: newUser._id,
       address: data.address,
-      driver_license: data.driver_license,
+      driver_license_no: data.driver_license_no,
       date_of_birth: data.date_of_birth,
     });
 

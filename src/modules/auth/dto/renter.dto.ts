@@ -1,27 +1,33 @@
-import { IsString, IsDateString } from 'class-validator';
+import { IsString, IsDateString, IsOptional } from 'class-validator';
 import { UserDto } from './user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-// DTO để tạo người thuê (Renter) mới
+
 export class RenterDto extends UserDto {
   @ApiProperty({
-    description: 'Số giấy phép lái xe của người thuê',
+    description: 'Driver license number',
     example: '123456789',
+    required: false,
   })
-  @IsString({ message: 'Số giấy phép lái xe phải là chuỗi' })
-  driver_license: string;
+  @IsOptional()
+  @IsString({ message: 'Driver license number must be a string' })
+  driver_license_no?: string;
 
   @ApiProperty({
-    description: 'Địa chỉ của người thuê',
-    example: '123 Đường Láng, Hà Nội',
+    description: 'Address of the renter',
+    example: '123 FPT',
+    required: false,
   })
-  @IsString({ message: 'Địa chỉ phải là chuỗi' })
-  address: string;
+  @IsOptional()
+  @IsString({ message: 'Address must be a string' })
+  address?: string;
 
   @ApiProperty({
-    description: 'Ngày sinh của người thuê (định dạng ISO 8601)',
+    description: 'Date of birth of the renter (ISO 8601 format)',
     example: '1990-01-01',
+    required: false,
   })
-  @IsDateString({}, { message: 'Ngày sinh phải có định dạng hợp lệ (ISO 8601)' })
-  date_of_birth: string;
+  @IsOptional()
+  @IsDateString({}, { message: 'Date of birth must be a valid date (ISO 8601)' })
+  date_of_birth?: string;
 }

@@ -4,17 +4,35 @@ import { Inspection } from './inspections.schema';
 import { Report } from './report.schema';
 
 export type ReportsPhotoDocument = HydratedDocument<ReportsPhoto>;
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+
+@Schema({
+  collection: 'reports_photo',
+  timestamps: { createdAt: 'created_at', updatedAt: false },
+})
 export class ReportsPhoto {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Report' })
-  report_id: Report;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+    unique: true,
+    required: true,
+  })
+  reports_photo_id: mongoose.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Report' })
+  report_id?: Report;
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Inspection' })
   inspection_id: Inspection;
+
   @Prop({ required: true, type: String })
   url: string;
 
-  @Prop({ required: true, type: String })
-  label: string;
+  @Prop({ type: String })
+  label?: string;
 }
+
 export const ReportsPhotoSchema = SchemaFactory.createForClass(ReportsPhoto);
+
+ReportsPhotoSchema.index({ reports_photo_id: 1 }, { unique: true });
+ReportsPhotoSchema.index({ inspection_id: 1 });
+ReportsPhotoSchema.index({ report_id: 1 });
