@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
 
 export type VehicleDocument = HydratedDocument<Vehicle>;
 
@@ -11,18 +11,18 @@ export class Vehicle {
     required: true,
     unique: true,
   })
-  vehicle_id: mongoose.Types.ObjectId;
+  vehicle_id: Types.ObjectId;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true, type: String, trim: true })
   make: string;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true, type: String, trim: true })
   model: string;
 
   @Prop({ required: true, type: Number })
   model_year: number;
 
-  @Prop({ required: true, type: String, default: "EV" })
+  @Prop({ required: true, type: String, default: "EV", trim: true })
   category: string;
 
   @Prop({ type: Number })
@@ -31,7 +31,7 @@ export class Vehicle {
   @Prop({ type: Number })
   range_km?: number;
 
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String, unique: true, trim: true })
   vin_number?: string;
 }
 

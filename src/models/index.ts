@@ -16,8 +16,8 @@ import { Signature, SignatureSchema } from "./signature.schema";
 import { StaffAtStation, StaffAtStationSchema } from "./staff_at_station.schema";
 import { StaffTransfer, StaffTransferSchema } from "./staff_transfer.schema";
 import { Station, StationSchema } from "./station.schema";
-import { VehicleAtStation, VehicleAtStationSchema } from "./vehicle_at_station.schema";
 import { Vehicle, VehicleSchema } from "./vehicle.schema";
+import { VehicleAtStation, VehicleAtStationSchema } from "./vehicle_at_station.schema";
 import { VehicleTransfer, VehicleTransferSchema } from "./vehicle_transfer.schema";
 
 export const index = [
@@ -39,7 +39,7 @@ export const index = [
   { name: StaffAtStation.name, schema: StaffAtStationSchema },
   { name: StaffTransfer.name, schema: StaffTransferSchema },
   { name: Station.name, schema: StationSchema },
+  { name: Vehicle.name, schema: VehicleSchema },
   { name: VehicleAtStation.name, schema: VehicleAtStationSchema },
   { name: VehicleTransfer.name, schema: VehicleTransferSchema },
-  { name: Vehicle.name, schema: VehicleSchema },
 ];

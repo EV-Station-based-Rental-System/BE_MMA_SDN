@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
 
 export type StationDocument = HydratedDocument<Station>;
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
@@ -10,12 +10,12 @@ export class Station {
     required: true,
     unique: true,
   })
-  station_id: mongoose.Types.ObjectId;
+  station_id: Types.ObjectId;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true, type: String, trim: true })
   name: string;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true, type: String, trim: true })
   address: string;
 
   @Prop({ type: Number })

@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./common/config/config";
 import { index } from "./models";
 import { AuthModule } from "./modules/auth/auth.module";
+import { StationsModule } from "./modules/stations/stations.module";
+import { VehiclesModule } from "./modules/vehicles/vehicles.module";
 import { MailModule } from "./common/mail/mail.module";
 import { RedisModule } from "./common/redis/redis.module";
 
@@ -22,6 +24,8 @@ import { RedisModule } from "./common/redis/redis.module";
     }),
     MongooseModule.forFeature(index),
     AuthModule,
+    StationsModule,
+    VehiclesModule,
 
     MailModule,
     RedisModule,
