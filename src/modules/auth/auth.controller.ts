@@ -2,12 +2,7 @@ import { Controller, Post, UseGuards, Request, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalGuard } from 'src/common/guards/local.guard';
 import { StaffJwtUserPayload, AdminJwtUserPayload, RenterJwtUserPayload } from 'src/common/utils/type';
-import {
-  ApiBody,
-  ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
-} from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiForbiddenResponse, ApiNotFoundResponse } from '@nestjs/swagger';
 import { RenterDto } from './dto/renter.dto';
 import { LoginDto } from './dto/login.dto';
 import { StaffDto } from './dto/staff.dto';

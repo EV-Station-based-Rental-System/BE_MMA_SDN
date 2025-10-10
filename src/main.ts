@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpErrorInterceptor } from './common/interceptors/http-error.interceptor';
+import { ErrorResponseDto } from './common/dto/error-response.dto';
+import { addBadRequestByPrefix } from './common/utils/helper';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,7 +35,10 @@ async function bootstrap() {
 
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [ErrorResponseDto],
+  });
+  addBadRequestByPrefix(document, '/auth');
   SwaggerModule.setup('api', app, document);
 
   await app.listen(3001, () => console.log('Server is running on port http://localhost:3001/api'));
