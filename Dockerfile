@@ -10,7 +10,7 @@ EXPOSE 3000
 
 # Bring runtime deps + built app
 COPY ./node_modules ./node_modules
-COPY ./dist ./
+COPY ./dist/src ./
 
 USER node
 CMD ["node", "main.js"]
