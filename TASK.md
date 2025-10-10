@@ -1,111 +1,140 @@
-Task
-Detect the return type of every HTTP route and add the correct OpenAPI response decorators (@nestjs/swagger) so the generated docs are accurate (including primitives like string, arrays, DTOs, unions, streams/files, and known error shapes). Do not change runtime logic.
-Scope & Files
-•	Controllers: src/**/*.controller.ts
-•	DTOs: src/modules/**/dto/**/*.ts
-•	Services called by controllers: src/**/*.service.ts
-•	Enums: src/common/enums/**/*
-•	Guards/interceptors/filters (for status codes/errors): src/common/**/* and src/**/*.{guard,interceptor,filter}.ts
-Rules
-1.	Add success response decorators that match the actual status code:
-o	200 → @ApiOkResponse
-o	201 (resource created) → @ApiCreatedResponse
-o	204 (no body) → @ApiNoContentResponse
-o	Respect @HttpCode(...) if present, and any custom response handling with @Res().
-2.	Map return shape to schema:
-o	DTO class → type: MyDto.
-o	Array of DTOs → type: MyDto, isArray: true.
-o	Primitive (e.g., string | number | boolean) → schema: { type: 'string' | 'number' | 'boolean' }.
-If the controller returns raw text (not JSON), add @ApiProduces('text/plain').
-o	Array of primitives → schema: { type: 'array', items: { type: 'string' | 'number' | 'boolean' } }.
-o	Object literal (no DTO) → explicit schema: { type: 'object', properties: { ... }, example: { ... } }.
-o	Unions/conditional → schema: { oneOf: [...] } using $ref: getSchemaPath(...) for DTOs. Import getSchemaPath and add @ApiExtraModels(...) as needed.
-o	Streams/files/buffers → @ApiProduces('application/octet-stream') and document format: 'binary' where applicable.
-3.	Add error response decorators for known exceptions thrown by the controller/service or global filters:
-o	@ApiBadRequestResponse, @ApiUnauthorizedResponse, @ApiForbiddenResponse,
-@ApiNotFoundResponse, @ApiConflictResponse, @ApiUnprocessableEntityResponse,
-@ApiInternalServerErrorResponse
-o	Use a consistent error schema (statusCode/message/error), matching the project’s normalized JSON error shape.
-4.	Inference order for return types:
-o	Prefer explicit TypeScript return type.
-o	Otherwise, trace return this.someService.method(...) into the service to infer.
-o	Use DTOs/enums and obvious return literals to deduce the shape.
-o	If @Res() is used and body is constructed manually, document minimally and add a TODO.
-5.	Do not change business logic. Only add/adjust decorators and related imports. Keep Prettier/ESLint happy.
-Repository conventions to respect
-•	DTOs already use @ApiProperty (keep/extend).
-•	ValidationPipe strips unknown props; keep schemas aligned with DTOs.
-•	Swagger UI path is /api; JSON/YAML endpoints should exist at /api-json and /api-yaml unless already customized. 
-Concrete example (apply pattern across controllers)
-If an endpoint returns a plain string (e.g., createAdmin() in AuthController returns "created"):
-import { ApiCreatedResponse, ApiProduces } from '@nestjs/swagger';
+EV Station Rental System — CRUD Roadmap (NestJS + MongoDB)
+This document provides:
+a commit-by-commit prompt for OpenAI Codex to scaffold and implement CRUD APIs using Nest CLI, reusing repo conventions from AGENTS.md and existing models under src/models.
 
-@Post('register/admin')
-@ApiProduces('text/plain') // only if response is raw text, not JSON
-@ApiCreatedResponse({
-  description: 'Admin created (plain string)',
-  schema: { type: 'string', example: 'created' },
-})
-async createAdmin(@Body() body: AdminDto) {
-  return this.authService.createAdmin(body);
-}
-If login returns a JWT payload DTO (e.g., LoginResponseDto):
-import { ApiOkResponse } from '@nestjs/swagger';
-
-@Post('login')
-@ApiOkResponse({ description: 'JWT token', type: LoginResponseDto })
-login(@Request() req) {
-  return this.authService.login(req.user);
-}
-If an endpoint can return one of two DTOs:
-import { ApiOkResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
-
-@ApiExtraModels(SuccessDto, ErrorDto)
-@ApiOkResponse({
-  schema: {
-    oneOf: [
-      { $ref: getSchemaPath(SuccessDto) },
-      { $ref: getSchemaPath(ErrorDto) },
-    ],
-  },
-})
-Add representative error decorators if code throws specific Nest exceptions:
-import { ApiBadRequestResponse, ApiUnauthorizedResponse, ApiNotFoundResponse } from '@nestjs/swagger';
-
-@ApiBadRequestResponse({
-  description: 'Validation error',
-  schema: {
-    type: 'object',
-    properties: {
-      statusCode: { type: 'integer', example: 400 },
-      message: { type: 'string', example: 'email must be an email' },
-      error: { type: 'string', example: 'Bad Request' },
-    },
-  },
-})
-@ApiUnauthorizedResponse({ description: 'Invalid credentials' })
-@ApiNotFoundResponse({ description: 'Resource not found' })
-Implementation steps
-1.	For each src/**/*.controller.ts method with @Get/@Post/@Put/@Patch/@Delete (etc.):
-o	Infer status code and return type; add the matching success decorator.
-o	If primitive raw text → add @ApiProduces('text/plain').
-o	Add error decorators that reflect thrown exceptions or global filters.
-2.	Ensure needed imports from @nestjs/swagger are added at file top:
-o	ApiOkResponse, ApiCreatedResponse, ApiNoContentResponse,
-ApiBadRequestResponse, ApiUnauthorizedResponse, ApiForbiddenResponse,
-ApiNotFoundResponse, ApiConflictResponse, ApiUnprocessableEntityResponse,
-ApiInternalServerErrorResponse, ApiProduces, ApiExtraModels, getSchemaPath.
-3.	Do not modify business logic or DTO fields beyond documentation.
-4.	Provide unified diffs for each changed file with commit-sized edits, e.g.:
-o	docs(swagger): annotate AuthController responses
-o	docs(swagger): document error responses for BookingController
-5.	If any return type cannot be confidently inferred, add:
-o	Minimal @ApiOkResponse({ description: 'Undocumented shape' })
-o	A // TODO: comment stating the uncertainty and the suspected type.
-Acceptance criteria
-•	Every controller method has at least one accurate success response decorator.
-•	Known error cases are documented with appropriate error decorators.
-•	Primitive/string endpoints are correctly shown (and marked text/plain when applicable).
-•	Arrays, unions, and file/stream responses are correctly documented.
-•	Build passes and Swagger UI at /api renders accurate schemas.
+2) Commit-by-Commit Prompt for Codex (Nest CLI + CRUD)
+Context: NestJS + MongoDB. Follow AGENTS.md (guards, DTO validation, Swagger, error handling).
+If a schema already exists in src/models, reuse it and only create module/controller/service.
+All new feature modules live under src/modules/*.
+________________________________________
+Commit 1 — Bootstrap feature modules & shared utilities
+Message: chore: scaffold feature modules and shared dto/utils
+Actions:
+npx nest g module modules/stations && npx nest g controller modules/stations --flat && npx nest g service modules/stations --flat
+npx nest g module modules/vehicles && npx nest g controller modules/vehicles --flat && npx nest g service modules/vehicles --flat
+npx nest g module modules/vehicle-at-stations && npx nest g controller modules/vehicle-at-stations --flat && npx nest g service modules/vehicle-at-stations --flat
+npx nest g module modules/vehicle-status-logs && npx nest g controller modules/vehicle-status-logs --flat && npx nest g service modules/vehicle-status-logs --flat
+npx nest g module modules/staff-station-assignments && npx nest g controller modules/staff-station-assignments --flat && npx nest g service modules/staff-station-assignments --flat
+npx nest g module modules/contracts && npx nest g controller modules/contracts --flat && npx nest g service modules/contracts --flat
+npx nest g module modules/inspections && npx nest g controller modules/inspections --flat && npx nest g service modules/inspections --flat
+npx nest g module modules/issue-reports && npx nest g controller modules/issue-reports --flat && npx nest g service modules/issue-reports --flat
+npx nest g module modules/pricing-rules && npx nest g controller modules/pricing-rules --flat && npx nest g service modules/pricing-rules --flat
+npx nest g module modules/peak-hour-windows && npx nest g controller modules/peak-hour-windows --flat && npx nest g service modules/peak-hour-windows --flat
+npx nest g module modules/analytics && npx nest g controller modules/analytics --flat && npx nest g service modules/analytics --flat
+Create shared pagination helpers:
+src/common/dto/pagination.dto.ts, src/common/utils/pagination.ts.
+Check: project builds.
+________________________________________
+Commit 2 — Schemas: Station & Vehicle
+Message: feat(models): add Station and Vehicle schemas with enums and timestamps
+Files: src/models/station.schema.ts, src/models/vehicle.schema.ts, update src/models/index.ts.
+Notes: add @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }).
+________________________________________
+Commit 3 — Schemas: VehicleAtStation & VehicleStatusLog
+Message: feat(models): add VehicleAtStation and VehicleStatusLog schemas
+Files: src/models/vehicle-at-station.schema.ts, src/models/vehicle-status-log.schema.ts
+Relations: refs to Station, Vehicle, User (for by_staff).
+________________________________________
+Commit 4 — Schemas: StaffStationAssignment, Contract, Inspection
+Message: feat(models): add StaffStationAssignment, Contract, and Inspection schemas
+Files: src/models/staff-station-assignment.schema.ts, src/models/contract.schema.ts, src/models/inspection.schema.ts
+Notes: include enums for status, type, money/time fields.
+________________________________________
+Commit 5 — Schemas: IssueReport, PricingRule, PeakHourWindow
+Message: feat(models): add IssueReport, PricingRule, and PeakHourWindow schemas
+Files: src/models/issue-report.schema.ts, src/models/pricing-rule.schema.ts, src/models/peak-hour-window.schema.ts.
+________________________________________
+Commit 6 — Register schemas in feature modules
+Message: chore(modules): register mongoose schemas via forFeature
+Action: In each modules/*/*.module.ts, register schemas with MongooseModule.forFeature([...]).
+Ensure modules are imported in AppModule. Build should succeed.
+________________________________________
+Commit 7 — CRUD: Station
+Message: feat(stations): CRUD endpoints with pagination, guards, and swagger
+Endpoints: POST /stations, GET /stations, GET /stations/:id, PATCH /stations/:id, DELETE /stations/:id
+Access: Admin-only (Jwt + Roles).
+DTOs: create-station.dto.ts, update-station.dto.ts.
+________________________________________
+Commit 8 — CRUD: Vehicle (with filters)
+Message: feat(vehicles): CRUD with filters (q, status, type) and pagination
+Access: Admin + Staff write, Renter read (follow AGENTS.md).
+Query: ?q, ?status, ?type, ?page, ?limit.
+________________________________________
+Commit 9 — CRUD: VehicleAtStation
+Message: feat(vehicle-at-stations): CRUD to manage vehicles assigned to stations
+Validation: ensure vehicle and station exist; keep active pair uniqueness; support ?stationId/?vehicleId filters.
+________________________________________
+Commit 10 — CRUD: VehicleStatusLog + status update helper
+Message: feat(vehicle-status-logs): CRUD and /vehicles/:id/status helper
+Add endpoint: POST /vehicles/:id/status with { to_status, note? } → update Vehicle.status and create a VehicleStatusLog.
+List history: GET /vehicle-status-logs?vehicleId=.
+________________________________________
+Commit 11 — CRUD: StaffStationAssignment (Assign Staff to Station)
+Message: feat(staff-station-assignments): CRUD and date-window validations
+Rules: start_date < end_date (if provided); is_primary unique per staff; Admin-only.
+________________________________________
+Commit 12 — CRUD: Contract & Inspection (Handover/Receive)
+Message: feat(contracts, inspections): CRUD and relations for handover/receive flow
+Contract: unique code, links to renter/vehicle/stations.
+Inspection: type (pre_rental|post_rental), created_by staff.
+Filter: GET /inspections?contractId= returns both pre/post.
+________________________________________
+Commit 13 — CRUD: IssueReport with workflow
+Message: feat(issue-reports): CRUD with status workflow (open→in_progress→resolved)
+Default: status=open; PATCH only allows valid transitions.
+________________________________________
+Commit 14 — CRUD: PricingRule & PeakHourWindow (Manage Pricing)
+Message: feat(pricing): CRUD pricing rules and peak-hour windows (admin only)
+Validations: weekday in [0..6], start_time < end_time; scope logic for PricingRule.
+________________________________________
+Commit 15 — Analytics (read-only)
+Message: feat(analytics): revenue, staff performance, and risky customers endpoints
+Endpoints:
+•	GET /analytics/revenue?stationId?&from?&to? → aggregate from contracts, sum price_actual || price_plan by day.
+•	GET /analytics/staff-performance?stationId?&from?&to? → { staffId, contracts_count, issues_resolved, on_time_ratio, avg_rating? }.
+•	GET /analytics/risky-customers?limit=20 → list renters with a simple risk_score (overdue contracts + unresolved issues). Mark as placeholder.
+________________________________________
+Commit 16 — Vehicle history view
+Message: feat(vehicles): GET /vehicles/:id/history aggregates logs, inspections, and issues
+Return: { vehicle, statusLogs[], inspections[], issueReports[] }.
+________________________________________
+Commit 17 — Auth & Swagger polish
+Message: chore(auth): apply JwtAuthGuard and RolesGuard; Swagger polish across modules
+Access policy:
+•	Admin-only: stations, staff-station-assignments, pricing-rules, peak-hour-windows.
+•	Admin + Staff: vehicles, vehicle-at-stations, vehicle-status-logs, contracts, inspections, issue-reports.
+Add @ApiTags, @ApiBearerAuth(), standard responses.
+________________________________________
+Commit 18 — E2E smoke tests / HTTP examples
+Message: test(e2e): add smoke tests for key flows
+Flows: status update + log, staff assignment, contract + pre/post inspection, revenue analytics.
+________________________________________
+Commit 19 — Lint, format, docs
+Message: chore: lint/format and add README snippets for new endpoints
+Run pnpm run lint && pnpm run format.
+Add short cURL samples per module in README.md (or docs/USECASES.md).
+________________________________________
+Controller & Service Conventions (for all CRUD modules)
+•	Routes: plural kebab-case (e.g., /vehicle-at-stations).
+•	Endpoints: POST /, GET /, GET /:id, PATCH /:id, DELETE /:id.
+•	Pagination: ?page (default 1), ?limit (default 20, max 100).
+•	Filtering: ?q on sensible fields (name/code), plus module-specific filters.
+•	DTOs: class-validator with whitelist/transform (ValidationPipe per AGENTS.md).
+•	Errors: use the project’s custom exceptions.
+•	Docs: @ApiTags, @ApiOkResponse, etc.
+•	Schemas: use refs via Types.ObjectId, timestamps as created_at/updated_at.
+________________________________________
+Minimal Field Reference (exact names unless an identical schema already exists)
+•	Station: name, code, address?, lat?, lng?, is_active
+•	Vehicle: vin_or_code, type, brand?, model?, battery_capacity_kwh?, odo_km?, status
+•	VehicleAtStation: station, vehicle, since?, note?
+•	VehicleStatusLog: vehicle, by_staff?, from_status?, to_status, note?
+•	StaffStationAssignment: staff, station, start_date, end_date?, is_primary?
+•	Contract: code, renter, vehicle, pickup_station, dropoff_station?, status, start_time, end_time_plan, end_time_actual?, price_plan, price_actual?
+•	Inspection: contract, vehicle, type, battery_percent?, photos?[], notes?, created_by?
+•	IssueReport: vehicle, reported_by?, type, severity?, status, notes?
+•	PricingRule: name, scope, station?, vehicle_type?, base_rate, per_km?, per_hour?, weekend_multiplier?, holiday_multiplier?, effective_from, effective_to?
+•	PeakHourWindow: station?, weekday, start_time, end_time, multiplier
+________________________________________
+Delivery goal: after each commit the app must build and run, new modules appear in Swagger /api, and authorization behavior matches AGENTS.md.
 
