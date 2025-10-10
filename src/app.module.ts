@@ -4,13 +4,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './common/config/config';
 import { index } from './models';
 import { AuthModule } from './modules/auth/auth.module';
+import { MailModule } from './common/mail/mail.module';
+import { RedisModule } from './common/redis/redis.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
     }),
-
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -18,9 +20,11 @@ import { AuthModule } from './modules/auth/auth.module';
       }),
       inject: [ConfigService],
     }),
-
     MongooseModule.forFeature(index),
     AuthModule,
+
+    MailModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

@@ -17,8 +17,8 @@ import { StaffAtStation, StaffAtStationSchema } from './staff_at_station.schema'
 import { StaffTransfer, StaffTransferSchema } from './staff_transfer.schema';
 import { Station, StationSchema } from './station.schema';
 import { VehicleAtStation, VehicleAtStationSchema } from './vehicle_at_station.schema';
-import { VehicleTransfer, VehicleTransferSchema } from './vehicle_tranfer.schema';
 import { Vehicle, VehicleSchema } from './vehicle.schema';
+import { VehicleTransfer, VehicleTransferSchema } from './vehicle_transfer.schema';
 
 export const index = [
   { name: User.name, schema: UserSchema },

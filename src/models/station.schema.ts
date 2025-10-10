@@ -26,5 +26,3 @@ export class Station {
 }
 
 export const StationSchema = SchemaFactory.createForClass(Station);
-
-StationSchema.index({ station_id: 1 }, { unique: true });

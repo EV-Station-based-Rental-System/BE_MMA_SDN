@@ -41,7 +41,3 @@ export class Pricing {
   excess_mileage_fee?: mongoose.Types.Decimal128;
 }
 export const PricingSchema = SchemaFactory.createForClass(Pricing);
-
-PricingSchema.index({ pricing_id: 1 }, { unique: true });
-PricingSchema.index({ vehicle_id: 1 });
-PricingSchema.index({ effective_from: 1 });
