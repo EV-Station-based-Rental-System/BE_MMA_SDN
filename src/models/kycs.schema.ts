@@ -46,6 +46,3 @@ export class Kycs {
 }
 
 export const KycsSchema = SchemaFactory.createForClass(Kycs);
-
-KycsSchema.index({ kyc_id: 1 }, { unique: true });
-KycsSchema.index({ renter_id: 1 });

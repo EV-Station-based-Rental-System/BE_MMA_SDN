@@ -36,9 +36,3 @@ export class VehicleAtStation {
 }
 
 export const VehicleAtStationSchema = SchemaFactory.createForClass(VehicleAtStation);
-
-VehicleAtStationSchema.index({ vehicle_at_station_id: 1 }, { unique: true });
-VehicleAtStationSchema.index({ vehicle_id: 1 });
-VehicleAtStationSchema.index({ station_id: 1 });
-VehicleAtStationSchema.index({ start_time: 1 });
-VehicleAtStationSchema.index({ vehicle_id: 1, end_time: 1 });

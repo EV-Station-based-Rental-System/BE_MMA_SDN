@@ -57,6 +57,3 @@ export class Contract {
   audit_trail_url?: string;
 }
 export const ContractSchema = SchemaFactory.createForClass(Contract);
-
-ContractSchema.index({ contract_id: 1 }, { unique: true });
-ContractSchema.index({ rental_id: 1 }, { unique: true });

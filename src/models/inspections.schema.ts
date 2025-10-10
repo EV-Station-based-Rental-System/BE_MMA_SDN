@@ -37,8 +37,3 @@ export class Inspection {
   current_mileage: number;
 }
 export const InspectionSchema = SchemaFactory.createForClass(Inspection);
-
-InspectionSchema.index({ rental_id: 1, type: 1 }, { unique: true, name: 'ux_inspections_rental_type' });
-InspectionSchema.index({ inspection_id: 1 }, { unique: true });
-InspectionSchema.index({ rental_id: 1 });
-InspectionSchema.index({ type: 1 });

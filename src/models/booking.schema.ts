@@ -1,9 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import {
-  BookingStatus,
-  BookingVerificationStatus,
-} from 'src/common/enums/booking.enum';
+import { BookingStatus, BookingVerificationStatus } from 'src/common/enums/booking.enum';
 
 export type BookingDocument = mongoose.HydratedDocument<Booking>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
@@ -54,7 +51,3 @@ export class Booking {
   cancel_reason: string;
 }
 export const BookingSchema = SchemaFactory.createForClass(Booking);
-
-BookingSchema.index({ booking_id: 1 }, { unique: true });
-BookingSchema.index({ renter_id: 1 });
-BookingSchema.index({ vehicle_at_station_id: 1 });
