@@ -58,13 +58,7 @@ export class VehiclesService {
     const pagination = normalizePagination(query);
 
     const [vehicles, total] = await Promise.all([
-      this.vehicleModel
-        .find(filters)
-        .sort({ created_at: -1 })
-        .skip(pagination.skip)
-        .limit(pagination.limit)
-        .select("-__v")
-        .lean<VehicleLean[]>(),
+      this.vehicleModel.find(filters).sort({ created_at: -1 }).skip(pagination.skip).limit(pagination.limit).select("-__v").lean<VehicleLean[]>(),
       this.vehicleModel.countDocuments(filters),
     ]);
 
@@ -116,11 +110,7 @@ export class VehiclesService {
 
     if (query.q) {
       const regex = new RegExp(this.escapeRegex(query.q), "i");
-      filters.$or = [
-        { make: regex },
-        { model: regex },
-        { vin_number: regex },
-      ];
+      filters.$or = [{ make: regex }, { model: regex }, { vin_number: regex }];
     }
 
     if (query.category) {

@@ -57,13 +57,7 @@ export class StationsService {
     const pagination = normalizePagination(paginationDto);
 
     const [stations, total] = await Promise.all([
-      this.stationModel
-        .find()
-        .sort({ created_at: -1 })
-        .skip(pagination.skip)
-        .limit(pagination.limit)
-        .select("-__v")
-        .lean<StationLean[]>(),
+      this.stationModel.find().sort({ created_at: -1 }).skip(pagination.skip).limit(pagination.limit).select("-__v").lean<StationLean[]>(),
       this.stationModel.countDocuments(),
     ]);
 
