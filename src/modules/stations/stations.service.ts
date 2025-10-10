@@ -13,7 +13,7 @@ import { Station, StationDocument } from "src/models/station.schema";
 type StationLean = Station & {
   _id: Types.ObjectId | string;
   station_id: Types.ObjectId | string;
-  created_at: Date;
+  created_at?: Date;
   __v?: number;
 };
 

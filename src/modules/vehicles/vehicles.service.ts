@@ -13,7 +13,7 @@ import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
 type VehicleLean = Vehicle & {
   _id: Types.ObjectId | string;
   vehicle_id: Types.ObjectId | string;
-  created_at: Date;
+  created_at?: Date;
   __v?: number;
 };
 
