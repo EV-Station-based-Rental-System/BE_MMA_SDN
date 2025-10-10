@@ -2,7 +2,6 @@ import { IsString, IsDateString, IsOptional } from 'class-validator';
 import { UserDto } from './user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-// DTO để tạo người thuê (Renter) mới
 export class RenterDto extends UserDto {
   @ApiProperty({
     description: 'Số giấy phép lái xe của người thuê',
