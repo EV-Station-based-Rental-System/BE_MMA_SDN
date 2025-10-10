@@ -27,7 +27,7 @@
     "docs:model-diff": "ts-node --project tsconfig.json tools/model-diff.ts"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "**/*": "prettier --write --ignore-unknown && eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "dependencies": {
     "@dbml/core": "^3.14.1",
