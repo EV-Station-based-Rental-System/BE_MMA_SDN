@@ -5,14 +5,6 @@ import { SignatureEvent, SignaturePartyRole, SignatureType } from 'src/common/en
 export type SignatureDocument = HydratedDocument<Signature>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Signature {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  signature_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Contract', required: true, index: true })
   contract_id: mongoose.Types.ObjectId;
 

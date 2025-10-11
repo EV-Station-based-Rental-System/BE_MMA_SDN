@@ -5,14 +5,6 @@ import { ContractStatus, EsignProvider } from 'src/common/enums/contract.enum';
 export type ContractDocument = HydratedDocument<Contract>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
 export class Contract {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  contract_id: mongoose.Types.ObjectId;
-
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Rental', unique: true })
   rental_id: mongoose.Types.ObjectId;
 

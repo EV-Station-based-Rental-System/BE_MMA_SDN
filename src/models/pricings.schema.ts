@@ -5,14 +5,6 @@ export type PricingDocument = HydratedDocument<Pricing>;
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Pricing {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  pricing_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true, index: true })
   vehicle_id: mongoose.Types.ObjectId;
 

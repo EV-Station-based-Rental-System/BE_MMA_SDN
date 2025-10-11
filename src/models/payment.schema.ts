@@ -6,14 +6,6 @@ export type PaymentDocument = HydratedDocument<Payment>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Payment {
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  payment_id: mongoose.Types.ObjectId;
-
-  @Prop({
     required: true,
     enum: Object.values(PaymentMethod),
     type: String,

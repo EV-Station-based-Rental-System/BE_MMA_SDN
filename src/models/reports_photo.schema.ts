@@ -10,14 +10,6 @@ export type ReportsPhotoDocument = HydratedDocument<ReportsPhoto>;
   timestamps: { createdAt: 'created_at', updatedAt: false },
 })
 export class ReportsPhoto {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    unique: true,
-    required: true,
-  })
-  reports_photo_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Report' })
   report_id?: Report;
 

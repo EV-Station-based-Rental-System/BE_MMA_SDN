@@ -1,18 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 export type VehicleDocument = HydratedDocument<Vehicle>;
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Vehicle {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  vehicle_id: mongoose.Types.ObjectId;
-
   @Prop({ required: true, type: String })
   make: string;
 
@@ -33,6 +25,13 @@ export class Vehicle {
 
   @Prop({ type: String, unique: true })
   vin_number?: string;
+
+  @Prop({ type: String })
+  img_url?: string;
+
+  @Prop({ type: Boolean, default: true })
+  is_active: boolean;
+
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

@@ -5,14 +5,6 @@ import { RentalStatus } from 'src/common/enums/rental.enum';
 export type RentalDocument = HydratedDocument<Rental>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Rental {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  rental_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true, unique: true })
   booking_id: mongoose.Types.ObjectId;
 

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import { Role } from 'src/common/enums/role.enum';
 
 export type UserDocument = HydratedDocument<User>;
@@ -8,13 +8,7 @@ export class User {
   save() {
     throw new Error('Method not implemented.');
   }
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  user_id: mongoose.Types.ObjectId;
+
 
   @Prop({ required: true, type: String, unique: true, lowercase: true, trim: true })
   email: string;

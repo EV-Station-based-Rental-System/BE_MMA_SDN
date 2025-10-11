@@ -6,14 +6,6 @@ export type StaffTransferDocument = HydratedDocument<StaffTransfer>;
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class StaffTransfer {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  staff_transfer_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Staff', required: true, index: true })
   staff_id: mongoose.Types.ObjectId;
 
