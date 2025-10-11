@@ -1,6 +1,3 @@
-
-
-
 export type BaseJwtUserPayload = {
   _id: string;
   email: string;
@@ -27,7 +24,6 @@ export type AdminJwtUserPayload = BaseJwtUserPayload & {
   hire_date: Date;
 };
 
-
 export type FilterField = {
   field: string;
   type?: 'string' | 'number' | 'date' | 'boolean';
@@ -37,7 +33,7 @@ export type FilterField = {
 export type PaginationParams = {
   page: number;
   take: number;
-}
+};
 
 export type MetaOptions = {
   total: number;
@@ -52,7 +48,6 @@ export type MetaOptions = {
   // totalMovieDeleted?: number;
 };
 
-
 export type FacetResult<T> = {
   data: T[];
   meta: { total: number }[];
@@ -62,4 +57,4 @@ export type ToNumberOptions = {
   default?: number;
   min?: number;
   max?: number;
-}
+};

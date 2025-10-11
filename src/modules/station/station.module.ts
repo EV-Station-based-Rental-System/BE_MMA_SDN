@@ -8,4 +8,4 @@ import { MongooseModule } from '@nestjs/mongoose';
   controllers: [StationController],
   providers: [StationService],
 })
-export class StationModule { }
+export class StationModule {}

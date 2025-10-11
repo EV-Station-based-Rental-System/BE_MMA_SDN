@@ -18,9 +18,7 @@ import { VehicleFieldMapping } from 'src/common/pagination/filters/vehicle-field
 
 @Injectable()
 export class VehicleService {
-  constructor(
-    @InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>,
-  ) { }
+  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) {}
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     const newVehicle = new this.vehicleRepository(createVehicleDto);
     return await newVehicle.save();
@@ -32,7 +30,7 @@ export class VehicleService {
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, 'create_at');
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
     applyFacetMongo(pipeline);
-    const result = await this.vehicleRepository.aggregate(pipeline) as FacetResult<Vehicle>;
+    const result = (await this.vehicleRepository.aggregate(pipeline)) as FacetResult<Vehicle>;
     const vehicles = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
     return buildPaginationResponse(vehicles, {
@@ -57,13 +55,13 @@ export class VehicleService {
   async softDelete(id: string): Promise<{ msg: string }> {
     await this.vehicleRepository.findByIdAndUpdate(id, { is_active: false }, { new: true });
     return {
-      msg: 'Vehicle soft-deleted successfully'
-    }
+      msg: 'Vehicle soft-deleted successfully',
+    };
   }
   async hashDelete(id: string): Promise<{ msg: string }> {
     await this.vehicleRepository.findByIdAndDelete(id);
     return {
-      msg: 'Vehicle hard-deleted successfully'
+      msg: 'Vehicle hard-deleted successfully',
     };
   }
 }

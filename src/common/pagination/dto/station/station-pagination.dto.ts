@@ -1,9 +1,8 @@
-import { Transform } from "class-transformer";
-import { IsOptional, IsBoolean, IsString } from "class-validator";
-import { BasePaginationDto } from "../basePagination.dto";
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { toBoolean } from "src/common/utils/helper";
-
+import { Transform } from 'class-transformer';
+import { IsOptional, IsBoolean, IsString } from 'class-validator';
+import { BasePaginationDto } from '../basePagination.dto';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { toBoolean } from 'src/common/utils/helper';
 
 export class StationPaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({

@@ -21,7 +21,6 @@ import { applySortingMongo } from 'src/common/pagination/applySorting';
 import { applyFacetMongo } from 'src/common/pagination/applyFacetMongo';
 import { FacetResult } from 'src/common/utils/type';
 
-
 @Injectable()
 export class UsersService {
   constructor(
@@ -30,14 +29,12 @@ export class UsersService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
-  ) { }
+  ) {}
 
   async findAll(filters: UserPaginationDto): Promise<ReturnType<typeof buildPaginationResponse>> {
     const pipeline: any[] = [];
 
-
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
-
 
     pipeline.push(
       {
@@ -78,19 +75,16 @@ export class UsersService {
           },
         },
       },
-      { $project: { staff: 0, renter: 0, admin: 0 } }
+      { $project: { staff: 0, renter: 0, admin: 0 } },
     );
-
 
     const allowedSortFields = ['full_name', 'email', 'phone', 'created_at'];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, 'created_at');
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
 
-
     applyFacetMongo(pipeline);
 
-
-    const result = await this.userRepository.aggregate(pipeline) as FacetResult<UserWithRoleExtra>;
+    const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<UserWithRoleExtra>;
     const users = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
 
@@ -100,10 +94,6 @@ export class UsersService {
       total,
     });
   }
-
-
-
-
 
   async findOne(id: string): Promise<UserWithRoleExtra> {
     const users = await this.userRepository.aggregate<UserWithRoleExtra>([
@@ -138,8 +128,6 @@ export class UsersService {
     return users[0];
   }
 
-
-
   async updateRenter(id: string, updateRenterDto: UpdateRenterDto): Promise<UserWithRoleExtra> {
     const user = await this.userRepository.findByIdAndUpdate(
       id,
@@ -162,12 +150,7 @@ export class UsersService {
   }
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<UserWithRoleExtra | null> {
-
-    const user = await this.userRepository.findByIdAndUpdate(
-      id,
-      { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone },
-      { new: true },
-    );
+    const user = await this.userRepository.findByIdAndUpdate(id, { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone }, { new: true });
     if (!user) throw new NotFoundException('User not found');
     const objectId = new mongoose.Types.ObjectId(id);
 
@@ -180,30 +163,18 @@ export class UsersService {
     return user as UserWithRoleExtra;
   }
 
-
-
-
-
   private async checkUser(id: string): Promise<boolean> {
     const count = await this.bookingRepository.countDocuments({ user_id: id });
     return count > 0;
   }
 
   async softDelete(id: string): Promise<{ msg: string }> {
-    await this.userRepository.findByIdAndUpdate(
-      id,
-      { is_active: false },
-      { new: true },
-    );
+    await this.userRepository.findByIdAndUpdate(id, { is_active: false }, { new: true });
 
     return { msg: 'User soft-deleted successfully' };
   }
   async restoreStatus(id: string): Promise<{ msg: string }> {
-    await this.userRepository.findByIdAndUpdate(
-      id,
-      { is_active: true },
-      { new: true },
-    );
+    await this.userRepository.findByIdAndUpdate(id, { is_active: true }, { new: true });
     return { msg: 'User restored successfully' };
   }
 
@@ -214,7 +185,6 @@ export class UsersService {
     }
     const user = await this.userRepository.findById(id);
     if (!user) return { msg: 'User not found' };
-
 
     switch (user.role) {
       case Role.STAFF:
@@ -228,9 +198,7 @@ export class UsersService {
         break;
     }
 
-
     await this.userRepository.deleteOne({ _id: id });
     return { msg: 'User hard-deleted successfully' };
   }
-
 }

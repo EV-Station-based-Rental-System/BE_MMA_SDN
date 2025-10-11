@@ -1,8 +1,6 @@
-
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BasePaginationDto } from '../basePagination.dto';
-
 
 import { Transform } from 'class-transformer';
 import { toBoolean } from 'src/common/utils/helper';

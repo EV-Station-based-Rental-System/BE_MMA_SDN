@@ -27,7 +27,6 @@ export class BasePaginationDto {
   @Max(100)
   take = 10;
 
-
   @ApiPropertyOptional({
     description: 'Field to sort by',
     example: 'created_at',

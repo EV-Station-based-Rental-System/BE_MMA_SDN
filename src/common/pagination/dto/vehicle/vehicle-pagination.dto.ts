@@ -1,9 +1,8 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Transform, Type } from "class-transformer";
-import { IsOptional, IsNumber, IsBoolean, IsString } from "class-validator";
-import { BasePaginationDto } from "../basePagination.dto";
-import { toBoolean } from "src/common/utils/helper";
-
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import { IsOptional, IsNumber, IsBoolean, IsString } from 'class-validator';
+import { BasePaginationDto } from '../basePagination.dto';
+import { toBoolean } from 'src/common/utils/helper';
 
 export class VehiclePaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({

@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEmail, IsOptional, MinLength, IsNotEmpty } from 'class-validator';
 
-
 export class UserDto {
   @ApiProperty({
     example: 'user@example.com',
@@ -22,7 +21,6 @@ export class UserDto {
   })
   @IsString({ message: 'Full name must be a string' })
   full_name: string;
-
 
   @ApiProperty({
     description: 'Your phone number (optional)',

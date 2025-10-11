@@ -1,7 +1,4 @@
-
-
 export function applyFacetMongo(pipeline: any[]) {
-
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const clonedPipeline = [...pipeline];
 

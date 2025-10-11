@@ -9,7 +9,6 @@ export class User {
     throw new Error('Method not implemented.');
   }
 
-
   @Prop({ required: true, type: String, unique: true, lowercase: true, trim: true })
   email: string;
 

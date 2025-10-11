@@ -9,12 +9,11 @@ import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { UserPaginationDto } from 'src/common/pagination/dto/user/user-pagination.dto';
 
-
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Roles(Role.ADMIN, Role.STAFF)
   @Get()
@@ -36,24 +35,19 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-
   @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
-
   @Put('update-renter/:id')
   updateRenter(@Param('id') id: string, @Body() body: UpdateRenterDto) {
     return this.usersService.updateRenter(id, body);
   }
 
   @Roles(Role.ADMIN)
-
   @Put('update-staff/:id')
   updateStaff(@Param('id') id: string, @Body() body: UpdateStaffDto) {
     return this.usersService.updateStaff(id, body);
   }
 
-
   @Roles(Role.ADMIN)
-
   @Patch('soft-delete/:id')
   softDelete(@Param('id') id: string) {
     return this.usersService.softDelete(id);
@@ -64,9 +58,7 @@ export class UsersController {
     return this.usersService.restoreStatus(id);
   }
 
-
   @Roles(Role.ADMIN)
-
   @Delete(':id')
   hashDelete(@Param('id') id: string) {
     return this.usersService.hashDelete(id);

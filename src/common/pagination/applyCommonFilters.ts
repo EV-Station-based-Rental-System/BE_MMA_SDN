@@ -1,10 +1,6 @@
-import { FilterField } from "../utils/type";
+import { FilterField } from '../utils/type';
 
-export function applyCommonFiltersMongo(
-  pipeline: any[],
-  filters: Record<string, any>,
-  fieldMapping: Record<string, FilterField>,
-) {
+export function applyCommonFiltersMongo(pipeline: any[], filters: Record<string, any>, fieldMapping: Record<string, FilterField>) {
   const matchStage: Record<string, any> = {};
   const orConditions: any[] = [];
 

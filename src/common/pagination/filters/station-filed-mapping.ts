@@ -1,6 +1,4 @@
-import { FilterField } from "src/common/utils/type";
-
-
+import { FilterField } from 'src/common/utils/type';
 
 export const StationFieldMapping: Record<string, FilterField> = {
   search: {
@@ -8,11 +6,7 @@ export const StationFieldMapping: Record<string, FilterField> = {
     type: 'string',
     customWhere: (value: string) => {
       const regex = new RegExp(value, 'i');
-      return [
-        { name: regex },
-        { address: regex },
-
-      ];
-    }
-  }
-}
+      return [{ name: regex }, { address: regex }];
+    },
+  },
+};
