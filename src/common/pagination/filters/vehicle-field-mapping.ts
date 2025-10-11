@@ -1,5 +1,4 @@
-import { FilterField } from "src/common/utils/type";
-
+import { FilterField } from 'src/common/utils/type';
 
 export const VehicleFieldMapping: Record<string, FilterField> = {
   // make, model
@@ -8,10 +7,7 @@ export const VehicleFieldMapping: Record<string, FilterField> = {
     type: 'string',
     customWhere: (value: string) => {
       const regex = new RegExp(value, 'i');
-      return [
-        { make: regex },
-        { model: regex },
-      ];
+      return [{ make: regex }, { model: regex }];
     },
   },
   model_year: {
@@ -21,5 +17,5 @@ export const VehicleFieldMapping: Record<string, FilterField> = {
   is_active: {
     field: 'is_active',
     type: 'boolean',
-  }
-}
+  },
+};

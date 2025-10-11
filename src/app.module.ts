@@ -10,7 +10,6 @@ import { UsersModule } from './modules/users/users.module';
 import { VehicleModule } from './modules/vehicle/vehicle.module';
 import { StationModule } from './modules/station/station.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,11 +28,9 @@ import { StationModule } from './modules/station/station.module';
     UsersModule,
     VehicleModule,
 
-
     MailModule,
     RedisModule,
     StationModule,
-
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -10,9 +10,8 @@ import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { VehiclePaginationDto } from 'src/common/pagination/dto/vehicle/vehicle-pagination.dto';
 
 @Controller('vehicle')
-
 export class VehicleController {
-  constructor(private readonly vehicleService: VehicleService) { }
+  constructor(private readonly vehicleService: VehicleService) {}
 
   @Roles(Role.ADMIN, Role.STAFF)
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -31,7 +31,6 @@ export class Vehicle {
 
   @Prop({ type: Boolean, default: true })
   is_active: boolean;
-
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

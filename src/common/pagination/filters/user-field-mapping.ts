@@ -10,11 +10,7 @@ export const UserFieldMapping: Record<string, FilterField> = {
     type: 'string',
     customWhere: (value: string) => {
       const regex = new RegExp(value, 'i');
-      return [
-        { email: regex },
-        { full_name: regex },
-        { phone_number: regex },
-      ];
+      return [{ email: regex }, { full_name: regex }, { phone_number: regex }];
     },
   },
   position: {

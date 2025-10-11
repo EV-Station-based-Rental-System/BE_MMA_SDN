@@ -16,12 +16,9 @@ import { applySortingMongo } from 'src/common/pagination/applySorting';
 import { FacetResult } from 'src/common/utils/type';
 import { StationFieldMapping } from 'src/common/pagination/filters/station-filed-mapping';
 
-
 @Injectable()
 export class StationService {
-  constructor(
-    @InjectModel(Station.name) private stationRepository: Model<Station>,
-  ) { }
+  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) {}
   async create(createStationDto: CreateStationDto): Promise<Station> {
     const createdStation = new this.stationRepository(createStationDto);
     return await createdStation.save();
@@ -34,7 +31,7 @@ export class StationService {
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, 'create_at');
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
     applyFacetMongo(pipeline);
-    const result = await this.stationRepository.aggregate(pipeline) as FacetResult<Station>;
+    const result = (await this.stationRepository.aggregate(pipeline)) as FacetResult<Station>;
     const stations = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
     return buildPaginationResponse(stations, {

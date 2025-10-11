@@ -9,15 +9,16 @@ import { Staff, StaffSchema } from 'src/models/staff.schema';
 import { Booking, BookingSchema } from 'src/models/booking.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([
-    { name: User.name, schema: UserSchema },
-    { name: Staff.name, schema: StaffSchema },
-    { name: Admin.name, schema: AdminSchema },
-    { name: Renter.name, schema: RenterSchema },
-    { name: Booking.name, schema: BookingSchema },
-
-  ])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Staff.name, schema: StaffSchema },
+      { name: Admin.name, schema: AdminSchema },
+      { name: Renter.name, schema: RenterSchema },
+      { name: Booking.name, schema: BookingSchema },
+    ]),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

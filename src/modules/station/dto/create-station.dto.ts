@@ -1,7 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNumber, IsOptional } from 'class-validator';
 
-
 export class CreateStationDto {
   @ApiProperty({ description: 'Name Station', example: 'HCM' })
   @IsString()

@@ -33,7 +33,6 @@ export class CreateVehicleDto {
   @IsString()
   vin_number?: string;
 
-
   @ApiProperty({ description: 'Image URL', example: 'http://example.com/car.jpg', required: false })
   @IsOptional()
   @IsString()

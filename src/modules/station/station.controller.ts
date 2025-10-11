@@ -13,7 +13,7 @@ import { StationPaginationDto } from 'src/common/pagination/dto/station/station-
 @ApiBearerAuth()
 @Controller('station')
 export class StationController {
-  constructor(private readonly stationService: StationService) { }
+  constructor(private readonly stationService: StationService) {}
 
   @Roles(Role.ADMIN)
   @Post()
@@ -35,11 +35,9 @@ export class StationController {
         if (value === 'true') return [key, true];
         if (value === 'false') return [key, false];
         return [key, value];
-      })
+      }),
     );
-    return this.stationService.findAll(
-      { page, take: Math.min(take, 100), ...parsedFilters }
-    );
+    return this.stationService.findAll({ page, take: Math.min(take, 100), ...parsedFilters });
   }
 
   @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
@@ -67,4 +65,3 @@ export class StationController {
     return this.stationService.hashDelete(id);
   }
 }
-

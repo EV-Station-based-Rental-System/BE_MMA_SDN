@@ -1,4 +1,4 @@
-import { BaseJwtUserPayload } from "../utils/type";
+import { BaseJwtUserPayload } from '../utils/type';
 
 export interface AuthRequest extends Request {
   user: BaseJwtUserPayload;
