@@ -4,14 +4,6 @@ import { VehicleTransferStatus } from 'src/common/enums/vehicle_transfer.enum';
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class VehicleTransfer {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  vehicle_transfer_id: mongoose.Types.ObjectId;
-
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', index: true })
   vehicle_id: mongoose.Types.ObjectId;
 

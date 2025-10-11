@@ -5,14 +5,6 @@ import { InspectionType } from 'src/common/enums/inspection.enum';
 export type InspectionDocument = HydratedDocument<Inspection>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Inspection {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  inspection_id: mongoose.Types.ObjectId;
-
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Rental', index: true })
   rental_id: mongoose.Types.ObjectId;
 

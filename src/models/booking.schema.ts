@@ -5,14 +5,6 @@ import { BookingStatus, BookingVerificationStatus } from 'src/common/enums/booki
 export type BookingDocument = mongoose.HydratedDocument<Booking>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Booking {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  booking_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Renter', required: true, index: true })
   renter_id: mongoose.Types.ObjectId;
 

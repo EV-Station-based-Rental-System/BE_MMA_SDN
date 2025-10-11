@@ -5,14 +5,6 @@ import { FeeType } from 'src/common/enums/fee.enum';
 export type FeeDocument = mongoose.HydratedDocument<Fee>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Fee {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  fee_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true, index: true })
   booking_id: mongoose.Types.ObjectId;
 

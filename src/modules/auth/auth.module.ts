@@ -8,8 +8,8 @@ import { Admin, AdminSchema } from 'src/models/admin.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Renter, RenterSchema } from 'src/models/renter.schema';
-import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -30,6 +30,6 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAuthGuard, LocalStrategy],
+  providers: [AuthService, JwtStrategy, LocalStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }

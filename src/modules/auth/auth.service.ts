@@ -22,6 +22,7 @@ import { VerifyOtpDto } from 'src/common/mail/dto/verifyOtp.dto';
 import { SendOtpDto } from 'src/common/mail/dto/sendEmail.dto';
 import Redis from 'ioredis/built/Redis';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
+import { ConflictException } from 'src/common/exceptions/conflict.exception';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async validateUser(data: LoginDto): Promise<BaseJwtUserPayload | RenterJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload> {
     const checkUser = (await this.userRepository.findOne({ email: data.email })) as User & { _id: string };
@@ -53,7 +54,7 @@ export class AuthService {
       _id: checkUser._id,
       email: checkUser.email,
       fullName: checkUser.full_name,
-      roles: checkUser.role,
+      role: checkUser.role,
     };
 
     switch (checkUser.role) {
@@ -125,6 +126,11 @@ export class AuthService {
   }
 
   async createRenter(data: RenterDto): Promise<{ msg: string }> {
+    // check email
+    const checkUser = await this.userRepository.findOne({ email: data.email });
+    if (checkUser) {
+      throw new ConflictException('Email already exists');
+    }
     const newUser = new this.userRepository({
       email: data.email,
       password_hash: await hashPassword(data.password_hash),
@@ -148,6 +154,11 @@ export class AuthService {
   }
 
   async createStaff(data: StaffDto): Promise<{ msg: string }> {
+    // check email
+    const checkUser = await this.userRepository.findOne({ email: data.email });
+    if (checkUser) {
+      throw new ConflictException('Email already exists');
+    }
     const newUser = new this.userRepository({
       email: data.email,
       password_hash: await hashPassword(data.password_hash),
@@ -170,6 +181,13 @@ export class AuthService {
     };
   }
   async createAdmin(data: AdminDto): Promise<{ msg: string }> {
+    // check email
+    const checkUser = await this.userRepository.findOne({
+      email: data.email,
+    });
+    if (checkUser) {
+      throw new ConflictException('Email already exists');
+    }
     const newUser = new this.userRepository({
       email: data.email,
       password_hash: await hashPassword(data.password_hash),

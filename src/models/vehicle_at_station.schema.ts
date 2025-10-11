@@ -5,14 +5,6 @@ import { StatusVehicleAtStation } from 'src/common/enums/vehicle_at_station.enum
 export type VehicleAtStationDocument = mongoose.HydratedDocument<VehicleAtStation>;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class VehicleAtStation {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-    required: true,
-    unique: true,
-  })
-  vehicle_at_station_id: mongoose.Types.ObjectId;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true, index: true })
   vehicle_id: mongoose.Types.ObjectId;
 

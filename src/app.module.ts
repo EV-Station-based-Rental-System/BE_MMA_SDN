@@ -6,6 +6,10 @@ import { index } from './models';
 import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './common/mail/mail.module';
 import { RedisModule } from './common/redis/redis.module';
+import { UsersModule } from './modules/users/users.module';
+import { VehicleModule } from './modules/vehicle/vehicle.module';
+import { StationModule } from './modules/station/station.module';
+
 
 @Module({
   imports: [
@@ -22,9 +26,14 @@ import { RedisModule } from './common/redis/redis.module';
     }),
     MongooseModule.forFeature(index),
     AuthModule,
+    UsersModule,
+    VehicleModule,
+
 
     MailModule,
     RedisModule,
+    StationModule,
+
   ],
 })
-export class AppModule {}
+export class AppModule { }
