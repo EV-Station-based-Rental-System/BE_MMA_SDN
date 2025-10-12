@@ -20,6 +20,9 @@ import { applyPaginationMongo } from 'src/common/pagination/applyPagination';
 import { applySortingMongo } from 'src/common/pagination/applySorting';
 import { applyFacetMongo } from 'src/common/pagination/applyFacetMongo';
 import { FacetResult } from 'src/common/utils/type';
+import { ResponseList } from 'src/common/response/response-list';
+import { ResponseDetail } from 'src/common/response/response-detail-create-update';
+import { ResponseMsg } from 'src/common/response/response-message';
 
 @Injectable()
 export class UsersService {
@@ -29,9 +32,9 @@ export class UsersService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
-  ) {}
+  ) { }
 
-  async findAll(filters: UserPaginationDto): Promise<ReturnType<typeof buildPaginationResponse>> {
+  async findAll(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];
 
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
@@ -88,14 +91,10 @@ export class UsersService {
     const users = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
 
-    return buildPaginationResponse(users, {
-      page: filters.page,
-      take: filters.take,
-      total,
-    });
+    return ResponseList.ok(buildPaginationResponse(users, { total, page: filters.page, take: filters.take }));
   }
 
-  async findOne(id: string): Promise<UserWithRoleExtra> {
+  async findOne(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
     const users = await this.userRepository.aggregate<UserWithRoleExtra>([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       {
@@ -125,10 +124,10 @@ export class UsersService {
     ]);
 
     if (users.length === 0) throw new NotFoundException('User not found');
-    return users[0];
+    return ResponseDetail.ok(users[0]);
   }
 
-  async updateRenter(id: string, updateRenterDto: UpdateRenterDto): Promise<UserWithRoleExtra> {
+  async updateRenter(id: string, updateRenterDto: UpdateRenterDto): Promise<ResponseDetail<UserWithRoleExtra | null>> {
     const user = await this.userRepository.findByIdAndUpdate(
       id,
       { full_name: updateRenterDto.full_name, phone: updateRenterDto.phone },
@@ -146,10 +145,10 @@ export class UsersService {
       { new: true, upsert: true },
     );
     (user as UserWithRoleExtra).roleExtra = renter;
-    return user as UserWithRoleExtra;
+    return ResponseDetail.ok(user as UserWithRoleExtra);
   }
 
-  async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<UserWithRoleExtra | null> {
+  async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
     const user = await this.userRepository.findByIdAndUpdate(id, { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone }, { new: true });
     if (!user) throw new NotFoundException('User not found');
     const objectId = new mongoose.Types.ObjectId(id);
@@ -160,7 +159,7 @@ export class UsersService {
       { new: true, upsert: true },
     );
     (user as UserWithRoleExtra).roleExtra = staff;
-    return user as UserWithRoleExtra;
+    return ResponseDetail.ok(user as UserWithRoleExtra);
   }
 
   private async checkUser(id: string): Promise<boolean> {
@@ -168,23 +167,23 @@ export class UsersService {
     return count > 0;
   }
 
-  async softDelete(id: string): Promise<{ msg: string }> {
+  async softDelete(id: string): Promise<ResponseMsg> {
     await this.userRepository.findByIdAndUpdate(id, { is_active: false }, { new: true });
 
-    return { msg: 'User soft-deleted successfully' };
+    return ResponseMsg.ok('User soft-deleted successfully');
   }
-  async restoreStatus(id: string): Promise<{ msg: string }> {
+  async restoreStatus(id: string): Promise<ResponseMsg> {
     await this.userRepository.findByIdAndUpdate(id, { is_active: true }, { new: true });
-    return { msg: 'User restored successfully' };
+    return ResponseMsg.ok('User restored successfully');
   }
 
-  async hashDelete(id: string): Promise<{ msg: string }> {
+  async hashDelete(id: string): Promise<ResponseMsg> {
     const checkBooking = await this.checkUser(id);
     if (checkBooking) {
       throw new ConflictException('Cannot delete user with existing bookings');
     }
     const user = await this.userRepository.findById(id);
-    if (!user) return { msg: 'User not found' };
+    if (!user) return ResponseMsg.fail('User hard-deleted successfully');
 
     switch (user.role) {
       case Role.STAFF:
@@ -199,6 +198,6 @@ export class UsersService {
     }
 
     await this.userRepository.deleteOne({ _id: id });
-    return { msg: 'User hard-deleted successfully' };
+    return ResponseMsg.ok('User hard-deleted successfully');
   }
 }

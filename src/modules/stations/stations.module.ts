@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { StationService } from './station.service';
-import { StationController } from './station.controller';
+import { StationService } from './stations.service';
+import { StationController } from './stations.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
@@ -8,4 +8,4 @@ import { MongooseModule } from '@nestjs/mongoose';
   controllers: [StationController],
   providers: [StationService],
 })
-export class StationModule {}
+export class StationModule { }

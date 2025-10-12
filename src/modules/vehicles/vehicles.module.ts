@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { VehicleService } from './vehicle.service';
-import { VehicleController } from './vehicle.controller';
+import { VehicleService } from './vehicles.service';
+import { VehicleController } from './vehicles.controller';
 import { Vehicle, VehicleSchema } from 'src/models/vehicle.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -9,4 +9,4 @@ import { MongooseModule } from '@nestjs/mongoose';
   controllers: [VehicleController],
   providers: [VehicleService],
 })
-export class VehicleModule {}
+export class VehicleModule { }

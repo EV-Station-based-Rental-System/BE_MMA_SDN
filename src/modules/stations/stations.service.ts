@@ -18,7 +18,7 @@ import { StationFieldMapping } from 'src/common/pagination/filters/station-filed
 
 @Injectable()
 export class StationService {
-  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) {}
+  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) { }
   async create(createStationDto: CreateStationDto): Promise<Station> {
     const createdStation = new this.stationRepository(createStationDto);
     return await createdStation.save();

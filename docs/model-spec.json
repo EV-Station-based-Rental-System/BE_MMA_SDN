@@ -5,159 +5,75 @@
   "enums": {
     "booking_status": {
       "name": "booking_status",
-      "values": [
-        "pending_verification",
-        "verified",
-        "cancelled"
-      ]
+      "values": ["pending_verification", "verified", "cancelled"]
     },
     "booking_verification_status": {
       "name": "booking_verification_status",
-      "values": [
-        "pending",
-        "approved",
-        "rejected_mismatch",
-        "rejected_other"
-      ]
+      "values": ["pending", "approved", "rejected_mismatch", "rejected_other"]
     },
     "confirmation_type": {
       "name": "confirmation_type",
-      "values": [
-        "pickup",
-        "dropoff"
-      ]
+      "values": ["pickup", "dropoff"]
     },
     "contract_status": {
       "name": "contract_status",
-      "values": [
-        "issued",
-        "partially_signed",
-        "signed",
-        "voided",
-        "expired"
-      ]
+      "values": ["issued", "partially_signed", "signed", "voided", "expired"]
     },
     "esign_provider": {
       "name": "esign_provider",
-      "values": [
-        "native",
-        "docusign",
-        "adobesign",
-        "signnow",
-        "other"
-      ]
+      "values": ["native", "docusign", "adobesign", "signnow", "other"]
     },
     "fee_type": {
       "name": "fee_type",
-      "values": [
-        "deposit",
-        "rental_charge",
-        "surcharge",
-        "damage",
-        "other"
-      ]
+      "values": ["deposit", "rental_charge", "surcharge", "damage", "other"]
     },
     "inspection_type": {
       "name": "inspection_type",
-      "values": [
-        "pre_rental",
-        "post_rental"
-      ]
+      "values": ["pre_rental", "post_rental"]
     },
     "kyc_status": {
       "name": "kyc_status",
-      "values": [
-        "submitted",
-        "approved",
-        "rejected",
-        "expired"
-      ]
+      "values": ["submitted", "approved", "rejected", "expired"]
     },
     "kyc_type": {
       "name": "kyc_type",
-      "values": [
-        "national_id",
-        "driver_license",
-        "passport",
-        "other"
-      ]
+      "values": ["national_id", "driver_license", "passport", "other"]
     },
     "party_role": {
       "name": "party_role",
-      "values": [
-        "renter",
-        "staff",
-        "other"
-      ]
+      "values": ["renter", "staff", "other"]
     },
     "payment_method": {
       "name": "payment_method",
-      "values": [
-        "unknown",
-        "cash",
-        "card",
-        "ewallet",
-        "bank_transfer"
-      ]
+      "values": ["unknown", "cash", "card", "ewallet", "bank_transfer"]
     },
     "payment_status": {
       "name": "payment_status",
-      "values": [
-        "paid",
-        "refunded"
-      ]
+      "values": ["paid", "refunded"]
     },
     "rental_status": {
       "name": "rental_status",
-      "values": [
-        "reserved",
-        "in_progress",
-        "completed",
-        "late",
-        "cancelled"
-      ]
+      "values": ["reserved", "in_progress", "completed", "late", "cancelled"]
     },
     "signature_event_type": {
       "name": "signature_event_type",
-      "values": [
-        "pickup",
-        "dropoff"
-      ]
+      "values": ["pickup", "dropoff"]
     },
     "signature_type": {
       "name": "signature_type",
-      "values": [
-        "drawn",
-        "typed",
-        "digital_cert"
-      ]
+      "values": ["drawn", "typed", "digital_cert"]
     },
     "transfer_status": {
       "name": "transfer_status",
-      "values": [
-        "draft",
-        "approved",
-        "in_transit",
-        "completed",
-        "cancelled"
-      ]
+      "values": ["draft", "approved", "in_transit", "completed", "cancelled"]
     },
     "user_role": {
       "name": "user_role",
-      "values": [
-        "unknown",
-        "renter",
-        "staff",
-        "admin"
-      ]
+      "values": ["unknown", "renter", "staff", "admin"]
     },
     "vehicle_at_stations_status_t": {
       "name": "vehicle_at_stations_status_t",
-      "values": [
-        "maintain",
-        "available",
-        "booked"
-      ]
+      "values": ["maintain", "available", "booked"]
     }
   },
   "collections": {
@@ -220,56 +136,36 @@
         {
           "type": "belongsTo",
           "targetCollection": "users",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "vehicle_transfers",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "created_by_admin_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["created_by_admin_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "vehicle_transfers",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "approved_by_admin_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["approved_by_admin_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "staff_transfers",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "created_by_admin_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["created_by_admin_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "staff_transfers",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "approved_by_admin_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["approved_by_admin_id"],
           "onDelete": null
         }
       ]
@@ -407,9 +303,7 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "renter_id"
-          ]
+          "columns": ["renter_id"]
         },
         {
           "name": "ix_bookings_vehicle_at_station",
@@ -417,65 +311,43 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "vehicle_at_station_id"
-          ]
+          "columns": ["vehicle_at_station_id"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "renters",
-          "sourceFields": [
-            "renter_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["renter_id"],
+          "targetFields": ["user_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "vehicle_at_stations",
-          "sourceFields": [
-            "vehicle_at_station_id"
-          ],
-          "targetFields": [
-            "vehicle_at_station_id"
-          ],
+          "sourceFields": ["vehicle_at_station_id"],
+          "targetFields": ["vehicle_at_station_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "staff",
-          "sourceFields": [
-            "verified_by_staff_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["verified_by_staff_id"],
+          "targetFields": ["user_id"],
           "onDelete": "set null"
         },
         {
           "type": "hasMany",
           "targetCollection": "fees",
-          "sourceFields": [
-            "booking_id"
-          ],
-          "targetFields": [
-            "booking_id"
-          ],
+          "sourceFields": ["booking_id"],
+          "targetFields": ["booking_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "rentals",
-          "sourceFields": [
-            "booking_id"
-          ],
-          "targetFields": [
-            "booking_id"
-          ],
+          "sourceFields": ["booking_id"],
+          "targetFields": ["booking_id"],
           "onDelete": "cascade"
         }
       ]
@@ -647,23 +519,15 @@
         {
           "type": "hasOne",
           "targetCollection": "rentals",
-          "sourceFields": [
-            "rental_id"
-          ],
-          "targetFields": [
-            "rental_id"
-          ],
+          "sourceFields": ["rental_id"],
+          "targetFields": ["rental_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "signatures",
-          "sourceFields": [
-            "contract_id"
-          ],
-          "targetFields": [
-            "contract_id"
-          ],
+          "sourceFields": ["contract_id"],
+          "targetFields": ["contract_id"],
           "onDelete": "cascade"
         }
       ]
@@ -765,32 +629,22 @@
           "unique": true,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "booking_id"
-          ]
+          "columns": ["booking_id"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "bookings",
-          "sourceFields": [
-            "booking_id"
-          ],
-          "targetFields": [
-            "booking_id"
-          ],
+          "sourceFields": ["booking_id"],
+          "targetFields": ["booking_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "payments",
-          "sourceFields": [
-            "fee_id"
-          ],
-          "targetFields": [
-            "payment_id"
-          ],
+          "sourceFields": ["fee_id"],
+          "targetFields": ["payment_id"],
           "onDelete": "cascade"
         }
       ]
@@ -892,44 +746,29 @@
           "unique": true,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "rental_id",
-            "type"
-          ]
+          "columns": ["rental_id", "type"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "rentals",
-          "sourceFields": [
-            "rental_id"
-          ],
-          "targetFields": [
-            "rental_id"
-          ],
+          "sourceFields": ["rental_id"],
+          "targetFields": ["rental_id"],
           "onDelete": "cascade"
         },
         {
           "type": "belongsTo",
           "targetCollection": "staff",
-          "sourceFields": [
-            "inspector_staff_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["inspector_staff_id"],
+          "targetFields": ["user_id"],
           "onDelete": "set null"
         },
         {
           "type": "hasMany",
           "targetCollection": "reports",
-          "sourceFields": [
-            "inspection_id"
-          ],
-          "targetFields": [
-            "inspection_id"
-          ],
+          "sourceFields": ["inspection_id"],
+          "targetFields": ["inspection_id"],
           "onDelete": "cascade"
         }
       ]
@@ -1043,21 +882,15 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "renter_id"
-          ]
+          "columns": ["renter_id"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "renters",
-          "sourceFields": [
-            "renter_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["renter_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         }
       ]
@@ -1145,12 +978,8 @@
         {
           "type": "belongsTo",
           "targetCollection": "fees",
-          "sourceFields": [
-            "payment_id"
-          ],
-          "targetFields": [
-            "fee_id"
-          ],
+          "sourceFields": ["payment_id"],
+          "targetFields": ["fee_id"],
           "onDelete": "cascade"
         }
       ]
@@ -1288,22 +1117,15 @@
           "unique": true,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "vehicle_id",
-            "effective_from"
-          ]
+          "columns": ["vehicle_id", "effective_from"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "vehicles",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": "cascade"
         }
       ]
@@ -1441,54 +1263,36 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "vehicle_id"
-          ]
+          "columns": ["vehicle_id"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "bookings",
-          "sourceFields": [
-            "booking_id"
-          ],
-          "targetFields": [
-            "booking_id"
-          ],
+          "sourceFields": ["booking_id"],
+          "targetFields": ["booking_id"],
           "onDelete": "cascade"
         },
         {
           "type": "belongsTo",
           "targetCollection": "vehicles",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": null
         },
         {
           "type": "hasOne",
           "targetCollection": "contracts",
-          "sourceFields": [
-            "rental_id"
-          ],
-          "targetFields": [
-            "rental_id"
-          ],
+          "sourceFields": ["rental_id"],
+          "targetFields": ["rental_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "inspections",
-          "sourceFields": [
-            "rental_id"
-          ],
-          "targetFields": [
-            "rental_id"
-          ],
+          "sourceFields": ["rental_id"],
+          "targetFields": ["rental_id"],
           "onDelete": "cascade"
         }
       ]
@@ -1564,34 +1368,22 @@
         {
           "type": "belongsTo",
           "targetCollection": "users",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "bookings",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "renter_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["renter_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "kycs",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "renter_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["renter_id"],
           "onDelete": "cascade"
         }
       ]
@@ -1657,32 +1449,22 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "inspection_id"
-          ]
+          "columns": ["inspection_id"]
         }
       ],
       "relations": [
         {
           "type": "hasMany",
           "targetCollection": "reports_photo",
-          "sourceFields": [
-            "report_id"
-          ],
-          "targetFields": [
-            "report_id"
-          ],
+          "sourceFields": ["report_id"],
+          "targetFields": ["report_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "inspections",
-          "sourceFields": [
-            "inspection_id"
-          ],
-          "targetFields": [
-            "inspection_id"
-          ],
+          "sourceFields": ["inspection_id"],
+          "targetFields": ["inspection_id"],
           "onDelete": "cascade"
         }
       ]
@@ -1770,12 +1552,8 @@
         {
           "type": "belongsTo",
           "targetCollection": "reports",
-          "sourceFields": [
-            "report_id"
-          ],
-          "targetFields": [
-            "report_id"
-          ],
+          "sourceFields": ["report_id"],
+          "targetFields": ["report_id"],
           "onDelete": null
         }
       ]
@@ -1985,21 +1763,15 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "contract_id"
-          ]
+          "columns": ["contract_id"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "contracts",
-          "sourceFields": [
-            "contract_id"
-          ],
-          "targetFields": [
-            "contract_id"
-          ],
+          "sourceFields": ["contract_id"],
+          "targetFields": ["contract_id"],
           "onDelete": "cascade"
         }
       ]
@@ -2063,56 +1835,36 @@
         {
           "type": "belongsTo",
           "targetCollection": "users",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "staff_at_stations",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "staff_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["staff_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "bookings",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "verified_by_staff_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["verified_by_staff_id"],
           "onDelete": "set null"
         },
         {
           "type": "hasMany",
           "targetCollection": "inspections",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "inspector_staff_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["inspector_staff_id"],
           "onDelete": "set null"
         },
         {
           "type": "hasMany",
           "targetCollection": "staff_transfers",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "staff_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["staff_id"],
           "onDelete": null
         }
       ]
@@ -2190,10 +1942,7 @@
           "unique": true,
           "primaryKey": true,
           "note": null,
-          "columns": [
-            "staff_id",
-            "start_time"
-          ]
+          "columns": ["staff_id", "start_time"]
         },
         {
           "name": "ix_staff_at_stations_staff_endtime",
@@ -2201,10 +1950,7 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "staff_id",
-            "end_time"
-          ]
+          "columns": ["staff_id", "end_time"]
         },
         {
           "name": "ix_staff_at_stations_station_endtime",
@@ -2212,33 +1958,22 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "station_id",
-            "end_time"
-          ]
+          "columns": ["station_id", "end_time"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "staff",
-          "sourceFields": [
-            "staff_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["staff_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         },
         {
           "type": "belongsTo",
           "targetCollection": "stations",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["station_id"],
           "onDelete": "cascade"
         }
       ]
@@ -2388,10 +2123,7 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "staff_id",
-            "status"
-          ]
+          "columns": ["staff_id", "status"]
         },
         {
           "name": "ix_staff_transfers_to_station",
@@ -2399,65 +2131,43 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "to_station_id"
-          ]
+          "columns": ["to_station_id"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "staff",
-          "sourceFields": [
-            "staff_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["staff_id"],
+          "targetFields": ["user_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "stations",
-          "sourceFields": [
-            "from_station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["from_station_id"],
+          "targetFields": ["station_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "stations",
-          "sourceFields": [
-            "to_station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["to_station_id"],
+          "targetFields": ["station_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "admins",
-          "sourceFields": [
-            "created_by_admin_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["created_by_admin_id"],
+          "targetFields": ["user_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "admins",
-          "sourceFields": [
-            "approved_by_admin_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["approved_by_admin_id"],
+          "targetFields": ["user_id"],
           "onDelete": null
         }
       ]
@@ -2533,67 +2243,43 @@
         {
           "type": "hasMany",
           "targetCollection": "staff_at_stations",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["station_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "vehicle_at_stations",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["station_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "vehicle_transfers",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "from_station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["from_station_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "vehicle_transfers",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "to_station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["to_station_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "staff_transfers",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "from_station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["from_station_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "staff_transfers",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "to_station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["to_station_id"],
           "onDelete": null
         }
       ]
@@ -2693,34 +2379,22 @@
         {
           "type": "hasMany",
           "targetCollection": "renters",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "staff",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "admins",
-          "sourceFields": [
-            "user_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
+          "targetFields": ["user_id"],
           "onDelete": "cascade"
         }
       ]
@@ -2834,10 +2508,7 @@
           "unique": true,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "vehicle_id",
-            "start_time"
-          ]
+          "columns": ["vehicle_id", "start_time"]
         },
         {
           "name": "ix_vehicle_at_stations_vehicle_end",
@@ -2845,10 +2516,7 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "vehicle_id",
-            "end_time"
-          ]
+          "columns": ["vehicle_id", "end_time"]
         },
         {
           "name": "ix_vehicle_at_stations_station_end",
@@ -2856,44 +2524,29 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "station_id",
-            "end_time"
-          ]
+          "columns": ["station_id", "end_time"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "vehicles",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": "cascade"
         },
         {
           "type": "belongsTo",
           "targetCollection": "stations",
-          "sourceFields": [
-            "station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["station_id"],
+          "targetFields": ["station_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "bookings",
-          "sourceFields": [
-            "vehicle_at_station_id"
-          ],
-          "targetFields": [
-            "vehicle_at_station_id"
-          ],
+          "sourceFields": ["vehicle_at_station_id"],
+          "targetFields": ["vehicle_at_station_id"],
           "onDelete": null
         }
       ]
@@ -3127,9 +2780,7 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "status"
-          ]
+          "columns": ["status"]
         },
         {
           "name": "ix_vehicle_transfers_from_to",
@@ -3137,66 +2788,43 @@
           "unique": false,
           "primaryKey": false,
           "note": null,
-          "columns": [
-            "from_station_id",
-            "to_station_id"
-          ]
+          "columns": ["from_station_id", "to_station_id"]
         }
       ],
       "relations": [
         {
           "type": "belongsTo",
           "targetCollection": "stations",
-          "sourceFields": [
-            "from_station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["from_station_id"],
+          "targetFields": ["station_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "stations",
-          "sourceFields": [
-            "to_station_id"
-          ],
-          "targetFields": [
-            "station_id"
-          ],
+          "sourceFields": ["to_station_id"],
+          "targetFields": ["station_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "admins",
-          "sourceFields": [
-            "created_by_admin_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["created_by_admin_id"],
+          "targetFields": ["user_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "admins",
-          "sourceFields": [
-            "approved_by_admin_id"
-          ],
-          "targetFields": [
-            "user_id"
-          ],
+          "sourceFields": ["approved_by_admin_id"],
+          "targetFields": ["user_id"],
           "onDelete": null
         },
         {
           "type": "belongsTo",
           "targetCollection": "vehicles",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": null
         }
       ]
@@ -3308,45 +2936,29 @@
         {
           "type": "hasMany",
           "targetCollection": "vehicle_at_stations",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "rentals",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": null
         },
         {
           "type": "hasMany",
           "targetCollection": "pricings",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": "cascade"
         },
         {
           "type": "hasMany",
           "targetCollection": "vehicle_transfers",
-          "sourceFields": [
-            "vehicle_id"
-          ],
-          "targetFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
+          "targetFields": ["vehicle_id"],
           "onDelete": null
         }
       ]

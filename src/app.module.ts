@@ -7,8 +7,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './common/mail/mail.module';
 import { RedisModule } from './common/redis/redis.module';
 import { UsersModule } from './modules/users/users.module';
-import { VehicleModule } from './modules/vehicle/vehicle.module';
-import { StationModule } from './modules/station/station.module';
+import { VehicleModule } from './modules/vehicles/vehicles.module';
+import { StationModule } from './modules/stations/stations.module';
 
 @Module({
   imports: [
@@ -33,4 +33,4 @@ import { StationModule } from './modules/station/station.module';
     StationModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
