@@ -4,153 +4,71 @@
   "enums": {
     "ContractProvider": {
       "name": "ContractProvider",
-      "values": [
-        "native",
-        "docusign",
-        "adobesign",
-        "signnow",
-        "other"
-      ]
+      "values": ["native", "docusign", "adobesign", "signnow", "other"]
     },
     "ContractStatus": {
       "name": "ContractStatus",
-      "values": [
-        "issued",
-        "partially_signed",
-        "signed",
-        "voided",
-        "expired"
-      ]
+      "values": ["issued", "partially_signed", "signed", "voided", "expired"]
     },
     "FeeType": {
       "name": "FeeType",
-      "values": [
-        "deposit",
-        "rental_charge",
-        "surcharge",
-        "damage",
-        "other"
-      ]
+      "values": ["deposit", "rental_charge", "surcharge", "damage", "other"]
     },
     "InspectorType": {
       "name": "InspectorType",
-      "values": [
-        "pre_rental",
-        "post_rental"
-      ]
+      "values": ["pre_rental", "post_rental"]
     },
     "KycsStatus": {
       "name": "KycsStatus",
-      "values": [
-        "submitted",
-        "approved",
-        "rejected",
-        "expired"
-      ]
+      "values": ["submitted", "approved", "rejected", "expired"]
     },
     "KycsType": {
       "name": "KycsType",
-      "values": [
-        "national_id",
-        "passport",
-        "driver_license",
-        "other"
-      ]
+      "values": ["national_id", "passport", "driver_license", "other"]
     },
     "PaymentMethod": {
       "name": "PaymentMethod",
-      "values": [
-        "unknown",
-        "cash",
-        "card",
-        "ewallet",
-        "bank_transfer"
-      ]
+      "values": ["unknown", "cash", "card", "ewallet", "bank_transfer"]
     },
     "PaymentStatus": {
       "name": "PaymentStatus",
-      "values": [
-        "paid",
-        "refunded"
-      ]
+      "values": ["paid", "refunded"]
     },
     "RetalStatus": {
       "name": "RetalStatus",
-      "values": [
-        "reserved",
-        "in_progress",
-        "completed",
-        "late",
-        "cancelled"
-      ]
+      "values": ["reserved", "in_progress", "completed", "late", "cancelled"]
     },
     "Role": {
       "name": "Role",
-      "values": [
-        "unknown",
-        "renter",
-        "staff",
-        "admin"
-      ]
+      "values": ["unknown", "renter", "staff", "admin"]
     },
     "SignatureEvent": {
       "name": "SignatureEvent",
-      "values": [
-        "pickup",
-        "dropoff"
-      ]
+      "values": ["pickup", "dropoff"]
     },
     "SignatureType": {
       "name": "SignatureType",
-      "values": [
-        "drawn",
-        "typed",
-        "digital_cert"
-      ]
+      "values": ["drawn", "typed", "digital_cert"]
     },
     "StaffTransferStatus": {
       "name": "StaffTransferStatus",
-      "values": [
-        "draft",
-        "pending",
-        "approved",
-        "rejected"
-      ]
+      "values": ["draft", "pending", "approved", "rejected"]
     },
     "StatusBooking": {
       "name": "StatusBooking",
-      "values": [
-        "pending_verification",
-        "verified",
-        "cancelled"
-      ]
+      "values": ["pending_verification", "verified", "cancelled"]
     },
     "StatusVehicleAtStation": {
       "name": "StatusVehicleAtStation",
-      "values": [
-        "maintenance",
-        "available",
-        "booked"
-      ]
+      "values": ["maintenance", "available", "booked"]
     },
     "VehicleTransferStatus": {
       "name": "VehicleTransferStatus",
-      "values": [
-        "draft",
-        "approved",
-        "in_transit",
-        "completed",
-        "cancelled"
-      ]
+      "values": ["draft", "approved", "in_transit", "completed", "cancelled"]
     },
     "VerificationStatus": {
       "name": "VerificationStatus",
-      "values": [
-        "pending",
-        "approved",
-        "rejected_mismatch",
-        "rejected_other"
-      ]
+      "values": ["pending", "approved", "rejected_mismatch", "rejected_other"]
     }
   },
   "collections": {
@@ -232,9 +150,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "User",
-          "sourceFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
           "targetFields": []
         }
       ]
@@ -394,25 +310,19 @@
         {
           "type": "referencesOne",
           "targetCollection": "Renter",
-          "sourceFields": [
-            "renter_id"
-          ],
+          "sourceFields": ["renter_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "VehicleAtStation",
-          "sourceFields": [
-            "vehicle_at_station_id"
-          ],
+          "sourceFields": ["vehicle_at_station_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "User",
-          "sourceFields": [
-            "verified_by_staff_id"
-          ],
+          "sourceFields": ["verified_by_staff_id"],
           "targetFields": []
         }
       ]
@@ -603,9 +513,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "Rental",
-          "sourceFields": [
-            "rental_id"
-          ],
+          "sourceFields": ["rental_id"],
           "targetFields": []
         }
       ]
@@ -703,9 +611,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "Booking",
-          "sourceFields": [
-            "booking_id"
-          ],
+          "sourceFields": ["booking_id"],
           "targetFields": []
         }
       ]
@@ -820,17 +726,13 @@
         {
           "type": "referencesOne",
           "targetCollection": "Rental",
-          "sourceFields": [
-            "rental_id"
-          ],
+          "sourceFields": ["rental_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Staff",
-          "sourceFields": [
-            "inspector_staff_id"
-          ],
+          "sourceFields": ["inspector_staff_id"],
           "targetFields": []
         }
       ]
@@ -933,9 +835,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "Renter",
-          "sourceFields": [
-            "renter_id"
-          ],
+          "sourceFields": ["renter_id"],
           "targetFields": []
         }
       ]
@@ -1186,9 +1086,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "Vehicle",
-          "sourceFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
           "targetFields": []
         }
       ]
@@ -1347,17 +1245,13 @@
         {
           "type": "referencesOne",
           "targetCollection": "Booking",
-          "sourceFields": [
-            "booking_id"
-          ],
+          "sourceFields": ["booking_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Vehicle",
-          "sourceFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
           "targetFields": []
         }
       ]
@@ -1458,9 +1352,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "User",
-          "sourceFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
           "targetFields": []
         }
       ]
@@ -1528,9 +1420,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "Inspection",
-          "sourceFields": [
-            "inspector_id"
-          ],
+          "sourceFields": ["inspector_id"],
           "targetFields": []
         }
       ]
@@ -1614,17 +1504,13 @@
         {
           "type": "referencesOne",
           "targetCollection": "Report",
-          "sourceFields": [
-            "report_id"
-          ],
+          "sourceFields": ["report_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Inspection",
-          "sourceFields": [
-            "inspection_id"
-          ],
+          "sourceFields": ["inspection_id"],
           "targetFields": []
         }
       ]
@@ -1875,9 +1761,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "Contract",
-          "sourceFields": [
-            "contract_id"
-          ],
+          "sourceFields": ["contract_id"],
           "targetFields": []
         }
       ]
@@ -1975,17 +1859,13 @@
         {
           "type": "referencesOne",
           "targetCollection": "Staff",
-          "sourceFields": [
-            "staff_id"
-          ],
+          "sourceFields": ["staff_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Station",
-          "sourceFields": [
-            "station_id"
-          ],
+          "sourceFields": ["station_id"],
           "targetFields": []
         }
       ]
@@ -2162,41 +2042,31 @@
         {
           "type": "referencesOne",
           "targetCollection": "Staff",
-          "sourceFields": [
-            "staff_id"
-          ],
+          "sourceFields": ["staff_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Station",
-          "sourceFields": [
-            "from_station_id"
-          ],
+          "sourceFields": ["from_station_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Station",
-          "sourceFields": [
-            "to_station_id"
-          ],
+          "sourceFields": ["to_station_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Admin",
-          "sourceFields": [
-            "approved_by_admin_id"
-          ],
+          "sourceFields": ["approved_by_admin_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Admin",
-          "sourceFields": [
-            "created_by_admin_id"
-          ],
+          "sourceFields": ["created_by_admin_id"],
           "targetFields": []
         }
       ]
@@ -2280,9 +2150,7 @@
         {
           "type": "referencesOne",
           "targetCollection": "User",
-          "sourceFields": [
-            "user_id"
-          ],
+          "sourceFields": ["user_id"],
           "targetFields": []
         }
       ]
@@ -2594,17 +2462,13 @@
         {
           "type": "referencesOne",
           "targetCollection": "Vehicle",
-          "sourceFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Station",
-          "sourceFields": [
-            "station_id"
-          ],
+          "sourceFields": ["station_id"],
           "targetFields": []
         }
       ]
@@ -2887,25 +2751,19 @@
         {
           "type": "referencesOne",
           "targetCollection": "Vehicle",
-          "sourceFields": [
-            "vehicle_id"
-          ],
+          "sourceFields": ["vehicle_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Station",
-          "sourceFields": [
-            "from_station_id"
-          ],
+          "sourceFields": ["from_station_id"],
           "targetFields": []
         },
         {
           "type": "referencesOne",
           "targetCollection": "Station",
-          "sourceFields": [
-            "to_station_id"
-          ],
+          "sourceFields": ["to_station_id"],
           "targetFields": []
         }
       ]

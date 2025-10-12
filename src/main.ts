@@ -3,8 +3,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpErrorInterceptor } from './common/interceptors/http-error.interceptor';
-import { ErrorResponseDto } from './common/dto/error-response.dto';
-import { addBadRequestByPrefix } from './common/utils/helper';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,26 +22,28 @@ async function bootstrap() {
   app.useGlobalInterceptors(new HttpErrorInterceptor());
   // Swagger config
   const config = new DocumentBuilder()
-    .setTitle('EV Station-based Rental System ')
-    .setDescription('The EV Station-based Rental System API ')
-    .setVersion('1.0')
+    .setTitle("EV Station-based Rental System ")
+    .setDescription("The EV Station-based Rental System API ")
+    .setVersion("1.0")
     .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
+      type: "http",
+      scheme: "bearer",
+      bearerFormat: "JWT",
     })
 
     .build();
 
-  const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [ErrorResponseDto],
-  });
-  addBadRequestByPrefix(document, '/auth');
+  const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  // await app.listen(3001, () =>
+  //   console.log('Server is running on port http://localhost:3001/api'),
+  // );
   const port = Number(process.env.PORT ?? 3001);
   const host = process.env.HOST ?? '0.0.0.0';
   await app.listen(port, host);
   console.log(`Server is running: http://${host}:${port}/api`);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

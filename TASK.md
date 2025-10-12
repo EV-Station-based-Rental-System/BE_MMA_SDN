@@ -1,111 +1,79 @@
-Task
-Detect the return type of every HTTP route and add the correct OpenAPI response decorators (@nestjs/swagger) so the generated docs are accurate (including primitives like string, arrays, DTOs, unions, streams/files, and known error shapes). Do not change runtime logic.
-Scope & Files
-•	Controllers: src/**/*.controller.ts
-•	DTOs: src/modules/**/dto/**/*.ts
-•	Services called by controllers: src/**/*.service.ts
-•	Enums: src/common/enums/**/*
-•	Guards/interceptors/filters (for status codes/errors): src/common/**/* and src/**/*.{guard,interceptor,filter}.ts
-Rules
-1.	Add success response decorators that match the actual status code:
-o	200 → @ApiOkResponse
-o	201 (resource created) → @ApiCreatedResponse
-o	204 (no body) → @ApiNoContentResponse
-o	Respect @HttpCode(...) if present, and any custom response handling with @Res().
-2.	Map return shape to schema:
-o	DTO class → type: MyDto.
-o	Array of DTOs → type: MyDto, isArray: true.
-o	Primitive (e.g., string | number | boolean) → schema: { type: 'string' | 'number' | 'boolean' }.
-If the controller returns raw text (not JSON), add @ApiProduces('text/plain').
-o	Array of primitives → schema: { type: 'array', items: { type: 'string' | 'number' | 'boolean' } }.
-o	Object literal (no DTO) → explicit schema: { type: 'object', properties: { ... }, example: { ... } }.
-o	Unions/conditional → schema: { oneOf: [...] } using $ref: getSchemaPath(...) for DTOs. Import getSchemaPath and add @ApiExtraModels(...) as needed.
-o	Streams/files/buffers → @ApiProduces('application/octet-stream') and document format: 'binary' where applicable.
-3.	Add error response decorators for known exceptions thrown by the controller/service or global filters:
-o	@ApiBadRequestResponse, @ApiUnauthorizedResponse, @ApiForbiddenResponse,
-@ApiNotFoundResponse, @ApiConflictResponse, @ApiUnprocessableEntityResponse,
-@ApiInternalServerErrorResponse
-o	Use a consistent error schema (statusCode/message/error), matching the project’s normalized JSON error shape.
-4.	Inference order for return types:
-o	Prefer explicit TypeScript return type.
-o	Otherwise, trace return this.someService.method(...) into the service to infer.
-o	Use DTOs/enums and obvious return literals to deduce the shape.
-o	If @Res() is used and body is constructed manually, document minimally and add a TODO.
-5.	Do not change business logic. Only add/adjust decorators and related imports. Keep Prettier/ESLint happy.
-Repository conventions to respect
-•	DTOs already use @ApiProperty (keep/extend).
-•	ValidationPipe strips unknown props; keep schemas aligned with DTOs.
-•	Swagger UI path is /api; JSON/YAML endpoints should exist at /api-json and /api-yaml unless already customized. 
-Concrete example (apply pattern across controllers)
-If an endpoint returns a plain string (e.g., createAdmin() in AuthController returns "created"):
-import { ApiCreatedResponse, ApiProduces } from '@nestjs/swagger';
+EV Station Rental System — CRUD Roadmap (NestJS + MongoDB)
+This document is scoped to Vehicle and Station APIs only and aligns with the current schemas under src/models. Future modules (bookings, inspections, pricing, analytics, etc.) are out of scope for now and listed as backlog at the end.
 
-@Post('register/admin')
-@ApiProduces('text/plain') // only if response is raw text, not JSON
-@ApiCreatedResponse({
-  description: 'Admin created (plain string)',
-  schema: { type: 'string', example: 'created' },
-})
-async createAdmin(@Body() body: AdminDto) {
-  return this.authService.createAdmin(body);
-}
-If login returns a JWT payload DTO (e.g., LoginResponseDto):
-import { ApiOkResponse } from '@nestjs/swagger';
-
-@Post('login')
-@ApiOkResponse({ description: 'JWT token', type: LoginResponseDto })
-login(@Request() req) {
-  return this.authService.login(req.user);
-}
-If an endpoint can return one of two DTOs:
-import { ApiOkResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
-
-@ApiExtraModels(SuccessDto, ErrorDto)
-@ApiOkResponse({
-  schema: {
-    oneOf: [
-      { $ref: getSchemaPath(SuccessDto) },
-      { $ref: getSchemaPath(ErrorDto) },
-    ],
-  },
-})
-Add representative error decorators if code throws specific Nest exceptions:
-import { ApiBadRequestResponse, ApiUnauthorizedResponse, ApiNotFoundResponse } from '@nestjs/swagger';
-
-@ApiBadRequestResponse({
-  description: 'Validation error',
-  schema: {
-    type: 'object',
-    properties: {
-      statusCode: { type: 'integer', example: 400 },
-      message: { type: 'string', example: 'email must be an email' },
-      error: { type: 'string', example: 'Bad Request' },
-    },
-  },
-})
-@ApiUnauthorizedResponse({ description: 'Invalid credentials' })
-@ApiNotFoundResponse({ description: 'Resource not found' })
-Implementation steps
-1.	For each src/**/*.controller.ts method with @Get/@Post/@Put/@Patch/@Delete (etc.):
-o	Infer status code and return type; add the matching success decorator.
-o	If primitive raw text → add @ApiProduces('text/plain').
-o	Add error decorators that reflect thrown exceptions or global filters.
-2.	Ensure needed imports from @nestjs/swagger are added at file top:
-o	ApiOkResponse, ApiCreatedResponse, ApiNoContentResponse,
-ApiBadRequestResponse, ApiUnauthorizedResponse, ApiForbiddenResponse,
-ApiNotFoundResponse, ApiConflictResponse, ApiUnprocessableEntityResponse,
-ApiInternalServerErrorResponse, ApiProduces, ApiExtraModels, getSchemaPath.
-3.	Do not modify business logic or DTO fields beyond documentation.
-4.	Provide unified diffs for each changed file with commit-sized edits, e.g.:
-o	docs(swagger): annotate AuthController responses
-o	docs(swagger): document error responses for BookingController
-5.	If any return type cannot be confidently inferred, add:
-o	Minimal @ApiOkResponse({ description: 'Undocumented shape' })
-o	A // TODO: comment stating the uncertainty and the suspected type.
-Acceptance criteria
-•	Every controller method has at least one accurate success response decorator.
-•	Known error cases are documented with appropriate error decorators.
-•	Primitive/string endpoints are correctly shown (and marked text/plain when applicable).
-•	Arrays, unions, and file/stream responses are correctly documented.
-•	Build passes and Swagger UI at /api renders accurate schemas.
+2) Commit-by-Commit Prompt for Codex (Nest CLI + CRUD)
+Context: NestJS + MongoDB. Follow AGENTS.md (guards, DTO validation, Swagger, error handling).
+If a schema already exists in src/models, reuse it and only create module/controller/service.
+All new feature modules live under src/modules/*.
+________________________________________
+Commit 1 — Bootstrap feature modules & shared utilities
+Message: chore: scaffold stations and vehicles modules and shared dto/utils
+Actions:
+- npx nest g module modules/stations && npx nest g controller modules/stations --flat && npx nest g service modules/stations --flat
+- npx nest g module modules/vehicles && npx nest g controller modules/vehicles --flat && npx nest g service modules/vehicles --flat
+- Create shared pagination helpers: src/common/dto/pagination.dto.ts, src/common/utils/pagination.ts.
+Notes:
+- AppModule already registers all models via MongooseModule.forFeature(index). Do not re-register Station/Vehicle in the feature modules; just use @InjectModel.
+Check: project builds.
+________________________________________
+Commit 2 — Schemas: Station & Vehicle (reuse existing)
+Message: chore(models): confirm Station and Vehicle schemas and index export
+Files: src/models/station.schema.ts, src/models/vehicle.schema.ts, src/models/index.ts (already present)
+Notes:
+- Timestamps follow AGENTS.md: @Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } }).
+- Station fields: station_id (unique), name (required), address (required), latitude?, longitude?.
+- Vehicle fields: vehicle_id (unique), make (required), model (required), model_year (required), category (default 'EV'), battery_capacity_kwh?, range_km?, vin_number? (unique).
+________________________________________
+Commit 3 — CRUD: Station
+Message: feat(stations): CRUD endpoints with pagination, guards, and swagger
+Endpoints: POST /stations, GET /stations, GET /stations/:id, PATCH /stations/:id, DELETE /stations/:id
+Access: Admin-only (Jwt + Roles) per AGENTS.md.
+DTOs:
+- create-station.dto.ts → { name: string; address: string; latitude?: number; longitude?: number }
+- update-station.dto.ts → partial of the above
+Notes:
+- No code/is_active fields in the model; do not include them in DTOs.
+- Use :id as Mongo _id in routes; station_id remains a unique field in documents.
+________________________________________
+Commit 4 — CRUD: Vehicle (with filters)
+Message: feat(vehicles): CRUD with filters and pagination
+Endpoints: POST /vehicles, GET /vehicles, GET /vehicles/:id, PATCH /vehicles/:id, DELETE /vehicles/:id
+Access: Admin + Staff write, Renter read (follow AGENTS.md policies as available).
+Query filters:
+- ?q searches make, model, vin_number
+- ?category filters by category
+- ?model_year filters by exact model_year
+- ?min_battery_kwh, ?min_range_km for lower bounds
+- ?page, ?limit for pagination
+DTOs:
+- create-vehicle.dto.ts → { make: string; model: string; model_year: number; category?: string; battery_capacity_kwh?: number; range_km?: number; vin_number?: string }
+- update-vehicle.dto.ts → partial of the above
+Notes:
+- Model does not have status/odo/type; do not add them.
+- Use :id as Mongo _id in routes; vehicle_id remains a unique field in documents.
+________________________________________
+Commit 5 — Auth & Swagger polish (scoped)
+Message: chore(auth): apply JwtAuthGuard and RolesGuard in stations/vehicles; Swagger polish
+Actions:
+- Add @ApiTags('stations'|'vehicles'), @ApiBearerAuth(), and success/error response decorators per AGENTS.md.
+- Document DTOs and query params; reflect actual payloads (no extraneous fields).
+________________________________________
+Backlog (out of scope for now)
+- VehicleAtStation, VehicleStatusLog, StaffStationAssignment, Contracts, Inspections, IssueReports, PricingRule, PeakHourWindow, Analytics, Vehicle history view, E2E tests.
+________________________________________
+Controller & Service Conventions (for all CRUD modules)
+• Routes: plural kebab-case (e.g., /stations, /vehicles).
+• Endpoints: POST /, GET /, GET /:id, PATCH /:id, DELETE /:id.
+• Pagination: ?page (default 1), ?limit (default 20, max 100).
+• Filtering: ?q on sensible fields (name/make/model), plus module-specific filters above.
+• DTOs: class-validator with whitelist/transform (ValidationPipe per AGENTS.md).
+• Errors: use the project’s custom exceptions.
+• Docs: @ApiTags, @ApiOkResponse, etc.
+• Schemas: use refs via Types.ObjectId, timestamps as created_at (no updated_at).
+________________________________________
+Minimal Field Reference (exact names from current schemas)
+• Station: station_id, name, address, latitude?, longitude?
+• Vehicle: vehicle_id, make, model, model_year, category, battery_capacity_kwh?, range_km?, vin_number?
+________________________________________
+Delivery goal: after each commit the app must build and run, stations/vehicles modules appear in Swagger /api, and authorization behavior matches AGENTS.md for these modules.
 
