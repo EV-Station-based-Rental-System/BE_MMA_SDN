@@ -1,28 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
-import { Role } from 'src/common/enums/role.enum';
-import { Admin } from 'src/models/admin.schema';
-import { Booking } from 'src/models/booking.schema';
-import { Renter } from 'src/models/renter.schema';
-import { Staff } from 'src/models/staff.schema';
-import { User } from 'src/models/user.schema';
-import { UpdateStaffDto } from './dto/staff.dto';
-import { UpdateRenterDto } from './dto/renter.dto';
-import { UserWithRoleExtra } from 'src/common/interfaces/user.interface';
-import { ConflictException } from 'src/common/exceptions/conflict.exception';
-import { NotFoundException } from 'src/common/exceptions/not-found.exception';
-import { UserPaginationDto } from 'src/common/pagination/dto/user/user-pagination.dto';
-import { UserFieldMapping } from 'src/common/pagination/filters/user-field-mapping';
-import { buildPaginationResponse } from 'src/common/pagination/pagination-response';
-import { applyCommonFiltersMongo } from 'src/common/pagination/applyCommonFilters';
-import { applyPaginationMongo } from 'src/common/pagination/applyPagination';
-import { applySortingMongo } from 'src/common/pagination/applySorting';
-import { applyFacetMongo } from 'src/common/pagination/applyFacetMongo';
-import { FacetResult } from 'src/common/utils/type';
-import { ResponseList } from 'src/common/response/response-list';
-import { ResponseDetail } from 'src/common/response/response-detail-create-update';
-import { ResponseMsg } from 'src/common/response/response-message';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import mongoose, { Model } from "mongoose";
+import { Role } from "src/common/enums/role.enum";
+import { Admin } from "src/models/admin.schema";
+import { Booking } from "src/models/booking.schema";
+import { Renter } from "src/models/renter.schema";
+import { Staff } from "src/models/staff.schema";
+import { User } from "src/models/user.schema";
+import { UpdateStaffDto } from "./dto/staff.dto";
+import { UpdateRenterDto } from "./dto/renter.dto";
+import { UserWithRoleExtra } from "src/common/interfaces/user.interface";
+import { ConflictException } from "src/common/exceptions/conflict.exception";
+import { NotFoundException } from "src/common/exceptions/not-found.exception";
+import { UserPaginationDto } from "src/common/pagination/dto/user/user-pagination.dto";
+import { UserFieldMapping } from "src/common/pagination/filters/user-field-mapping";
+import { buildPaginationResponse } from "src/common/pagination/pagination-response";
+import { applyCommonFiltersMongo } from "src/common/pagination/applyCommonFilters";
+import { applyPaginationMongo } from "src/common/pagination/applyPagination";
+import { applySortingMongo } from "src/common/pagination/applySorting";
+import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
+import { FacetResult } from "src/common/utils/type";
+import { ResponseList } from "src/common/response/response-list";
+import { ResponseDetail } from "src/common/response/response-detail-create-update";
+import { ResponseMsg } from "src/common/response/response-message";
 
 @Injectable()
 export class UsersService {
@@ -32,7 +32,7 @@ export class UsersService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
-  ) { }
+  ) {}
 
   async findAll(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];
@@ -43,25 +43,25 @@ export class UsersService {
       {
         $lookup: {
           from: this.staffRepository.collection.name,
-          localField: '_id',
-          foreignField: 'user_id',
-          as: 'staff',
+          localField: "_id",
+          foreignField: "user_id",
+          as: "staff",
         },
       },
       {
         $lookup: {
           from: this.renterRepository.collection.name,
-          localField: '_id',
-          foreignField: 'user_id',
-          as: 'renter',
+          localField: "_id",
+          foreignField: "user_id",
+          as: "renter",
         },
       },
       {
         $lookup: {
           from: this.adminRepository.collection.name,
-          localField: '_id',
-          foreignField: 'user_id',
-          as: 'admin',
+          localField: "_id",
+          foreignField: "user_id",
+          as: "admin",
         },
       },
       {
@@ -69,9 +69,9 @@ export class UsersService {
           roleExtra: {
             $switch: {
               branches: [
-                { case: { $eq: ['$role', 'staff'] }, then: { $arrayElemAt: ['$staff', 0] } },
-                { case: { $eq: ['$role', 'renter'] }, then: { $arrayElemAt: ['$renter', 0] } },
-                { case: { $eq: ['$role', 'admin'] }, then: { $arrayElemAt: ['$admin', 0] } },
+                { case: { $eq: ["$role", "staff"] }, then: { $arrayElemAt: ["$staff", 0] } },
+                { case: { $eq: ["$role", "renter"] }, then: { $arrayElemAt: ["$renter", 0] } },
+                { case: { $eq: ["$role", "admin"] }, then: { $arrayElemAt: ["$admin", 0] } },
               ],
               default: null,
             },
@@ -81,8 +81,8 @@ export class UsersService {
       { $project: { staff: 0, renter: 0, admin: 0 } },
     );
 
-    const allowedSortFields = ['full_name', 'email', 'phone', 'created_at'];
-    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, 'created_at');
+    const allowedSortFields = ["full_name", "email", "phone", "created_at"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
 
     applyFacetMongo(pipeline);
@@ -98,22 +98,22 @@ export class UsersService {
     const users = await this.userRepository.aggregate<UserWithRoleExtra>([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       {
-        $lookup: { from: this.staffRepository.collection.name, localField: '_id', foreignField: 'user_id', as: 'staff' },
+        $lookup: { from: this.staffRepository.collection.name, localField: "_id", foreignField: "user_id", as: "staff" },
       },
       {
-        $lookup: { from: this.renterRepository.collection.name, localField: '_id', foreignField: 'user_id', as: 'renter' },
+        $lookup: { from: this.renterRepository.collection.name, localField: "_id", foreignField: "user_id", as: "renter" },
       },
       {
-        $lookup: { from: this.adminRepository.collection.name, localField: '_id', foreignField: 'user_id', as: 'admin' },
+        $lookup: { from: this.adminRepository.collection.name, localField: "_id", foreignField: "user_id", as: "admin" },
       },
       {
         $addFields: {
           fieldExtras: {
             $switch: {
               branches: [
-                { case: { $eq: ['$role', 'staff'] }, then: { $arrayElemAt: ['$staff', 0] } },
-                { case: { $eq: ['$role', 'renter'] }, then: { $arrayElemAt: ['$renter', 0] } },
-                { case: { $eq: ['$role', 'admin'] }, then: { $arrayElemAt: ['$admin', 0] } },
+                { case: { $eq: ["$role", "staff"] }, then: { $arrayElemAt: ["$staff", 0] } },
+                { case: { $eq: ["$role", "renter"] }, then: { $arrayElemAt: ["$renter", 0] } },
+                { case: { $eq: ["$role", "admin"] }, then: { $arrayElemAt: ["$admin", 0] } },
               ],
               default: null,
             },
@@ -123,7 +123,7 @@ export class UsersService {
       { $project: { staff: 0, renter: 0, admin: 0 } },
     ]);
 
-    if (users.length === 0) throw new NotFoundException('User not found');
+    if (users.length === 0) throw new NotFoundException("User not found");
     return ResponseDetail.ok(users[0]);
   }
 
@@ -133,7 +133,7 @@ export class UsersService {
       { full_name: updateRenterDto.full_name, phone: updateRenterDto.phone },
       { new: true },
     );
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException("User not found");
     const objectId = new mongoose.Types.ObjectId(id);
     const renter = await this.renterRepository.findOneAndUpdate(
       { user_id: objectId },
@@ -150,7 +150,7 @@ export class UsersService {
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
     const user = await this.userRepository.findByIdAndUpdate(id, { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone }, { new: true });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException("User not found");
     const objectId = new mongoose.Types.ObjectId(id);
 
     const staff = await this.staffRepository.findOneAndUpdate(
@@ -170,20 +170,20 @@ export class UsersService {
   async softDelete(id: string): Promise<ResponseMsg> {
     await this.userRepository.findByIdAndUpdate(id, { is_active: false }, { new: true });
 
-    return ResponseMsg.ok('User soft-deleted successfully');
+    return ResponseMsg.ok("User soft-deleted successfully");
   }
   async restoreStatus(id: string): Promise<ResponseMsg> {
     await this.userRepository.findByIdAndUpdate(id, { is_active: true }, { new: true });
-    return ResponseMsg.ok('User restored successfully');
+    return ResponseMsg.ok("User restored successfully");
   }
 
   async hashDelete(id: string): Promise<ResponseMsg> {
     const checkBooking = await this.checkUser(id);
     if (checkBooking) {
-      throw new ConflictException('Cannot delete user with existing bookings');
+      throw new ConflictException("Cannot delete user with existing bookings");
     }
     const user = await this.userRepository.findById(id);
-    if (!user) return ResponseMsg.fail('User hard-deleted successfully');
+    if (!user) return ResponseMsg.fail("User hard-deleted successfully");
 
     switch (user.role) {
       case Role.STAFF:
@@ -198,6 +198,6 @@ export class UsersService {
     }
 
     await this.userRepository.deleteOne({ _id: id });
-    return ResponseMsg.ok('User hard-deleted successfully');
+    return ResponseMsg.ok("User hard-deleted successfully");
   }
 }
