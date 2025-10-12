@@ -1,11 +1,11 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { Observable, catchError, throwError } from 'rxjs';
-import { HttpException } from '@nestjs/common';
-import { NotFoundException } from '../exceptions/not-found.exception';
-import { ConflictException } from '../exceptions/conflict.exception';
-import { InternalServerErrorException } from '../exceptions/internal-server-error.exception';
-import { ForbiddenException } from '../exceptions/forbidden.exception';
-import { BadRequestException } from '../exceptions/bad-request.exception';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
+import { Observable, catchError, throwError } from "rxjs";
+import { HttpException } from "@nestjs/common";
+import { NotFoundException } from "../exceptions/not-found.exception";
+import { ConflictException } from "../exceptions/conflict.exception";
+import { InternalServerErrorException } from "../exceptions/internal-server-error.exception";
+import { ForbiddenException } from "../exceptions/forbidden.exception";
+import { BadRequestException } from "../exceptions/bad-request.exception";
 
 @Injectable()
 export class HttpErrorInterceptor implements NestInterceptor {

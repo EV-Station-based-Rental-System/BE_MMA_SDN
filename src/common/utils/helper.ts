@@ -1,6 +1,5 @@
-
-import * as bcrypt from 'bcrypt';
-import { ToNumberOptions } from './type';
+import * as bcrypt from "bcrypt";
+import { ToNumberOptions } from "./type";
 
 const SALT_ROUNDS = 10;
 
@@ -13,8 +12,6 @@ export const comparePassword = async (password: string, hash: string): Promise<b
   const isMatch = await bcrypt.compare(password, hash);
   return isMatch;
 };
-
-
 
 export function toLowerCase(value: string): string {
   return value.toLowerCase();
@@ -31,7 +28,7 @@ export function toDate(value: string): Date {
 export function toBoolean(value: string): boolean {
   value = value.toLowerCase();
 
-  return value === 'true' || value === '1' ? true : false;
+  return value === "true" || value === "1" ? true : false;
 }
 
 export function toNumber(value: string, opts: ToNumberOptions = {}): number {
@@ -46,7 +43,7 @@ export function toNumber(value: string, opts: ToNumberOptions = {}): number {
       newValue = opts.min;
     }
 
-    if (typeof opts.max === 'number' && newValue > opts.max) {
+    if (typeof opts.max === "number" && newValue > opts.max) {
       newValue = opts.max;
     }
   }

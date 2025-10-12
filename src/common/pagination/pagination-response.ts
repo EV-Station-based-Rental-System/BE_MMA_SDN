@@ -1,16 +1,7 @@
-import { MetaOptions } from '../utils/type';
+import { MetaOptions } from "../utils/type";
 
 export function buildPaginationResponse<T>(data: T[], meta: MetaOptions) {
-  const {
-    total,
-    page,
-    take,
-    totalSuccess,
-    totalFailed,
-    totalPending,
-    revenue,
-    ...rest
-  } = meta;
+  const { total, page, take, totalSuccess, totalFailed, totalPending, revenue, ...rest } = meta;
 
   return {
     data,

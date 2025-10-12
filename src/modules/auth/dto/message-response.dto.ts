@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export class MessageResponseDto {
   @ApiProperty({
-    description: 'Human-readable summary of the completed action',
-    example: 'Create renter successfully',
+    description: "Human-readable summary of the completed action",
+    example: "Create renter successfully",
   })
   msg: string;
 }
