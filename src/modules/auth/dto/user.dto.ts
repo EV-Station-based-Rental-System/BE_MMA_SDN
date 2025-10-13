@@ -14,7 +14,7 @@ export class UserDto {
   @IsString()
   @IsNotEmpty({ message: "Password must not be empty" })
   @MinLength(8, { message: "Password must be at least 8 characters long" })
-  password_hash: string;
+  password: string;
 
   @ApiProperty({
     example: "Nguyen Van A",

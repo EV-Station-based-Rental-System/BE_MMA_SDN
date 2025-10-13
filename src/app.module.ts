@@ -9,6 +9,8 @@ import { RedisModule } from "./common/redis/redis.module";
 import { UsersModule } from "./modules/users/users.module";
 import { VehicleModule } from "./modules/vehicles/vehicles.module";
 import { StationModule } from "./modules/stations/stations.module";
+import { VehicleStationModule } from "./modules/vehicle_station/vehicle_station.module";
+import { StaffAtStationModule } from "./modules/staff_at_station/staff_at_station.module";
 
 @Module({
   imports: [
@@ -27,10 +29,12 @@ import { StationModule } from "./modules/stations/stations.module";
     AuthModule,
     UsersModule,
     VehicleModule,
+    VehicleStationModule,
 
     MailModule,
     RedisModule,
     StationModule,
+    StaffAtStationModule,
   ],
 })
 export class AppModule {}
