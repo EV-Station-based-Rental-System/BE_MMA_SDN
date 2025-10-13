@@ -15,6 +15,8 @@ import { applySortingMongo } from "src/common/pagination/applySorting";
 
 import { FacetResult } from "src/common/utils/type";
 import { StationFieldMapping } from "src/common/pagination/filters/station-filed-mapping";
+import { ResponseList } from "src/common/response/response-list";
+import { ResponseDetail } from "src/common/response/response-detail-create-update";
 
 @Injectable()
 export class StationService {
@@ -24,7 +26,7 @@ export class StationService {
     return await createdStation.save();
   }
 
-  async findAll(filters: StationPaginationDto): Promise<ReturnType<typeof buildPaginationResponse>> {
+  async findAll(filters: StationPaginationDto): Promise<ResponseList<Station>> {
     const pipeline: any[] = [];
     applyCommonFiltersMongo(pipeline, filters, StationFieldMapping);
     const allowedSortFields = ["name", "create_at"];
@@ -34,23 +36,23 @@ export class StationService {
     const result = (await this.stationRepository.aggregate(pipeline)) as FacetResult<Station>;
     const stations = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
-    return buildPaginationResponse(stations, {
-      page: filters.page,
-      take: filters.take,
-      total,
-    });
+    return ResponseList.ok(buildPaginationResponse(stations, { total, page: filters.page, take: filters.take }));
   }
 
-  async findOne(id: string): Promise<Station | null> {
+  async findOne(id: string): Promise<ResponseDetail<Station>> {
     const station = await this.stationRepository.findById(id);
     if (!station) {
       throw new NotFoundException("Station not found");
     }
-    return station;
+    return ResponseDetail.ok(station);
   }
 
-  async update(id: string, updateStationDto: UpdateStationDto): Promise<Station | null> {
-    return await this.stationRepository.findByIdAndUpdate(id, updateStationDto, { new: true });
+  async update(id: string, updateStationDto: UpdateStationDto): Promise<ResponseDetail<Station | null>> {
+    const updatedStation = await this.stationRepository.findByIdAndUpdate(id, updateStationDto, { new: true });
+    if (!updatedStation) {
+      throw new NotFoundException("Station not found");
+    }
+    return ResponseDetail.ok(updatedStation);
   }
 
   async softDelete(id: string): Promise<{ msg: string }> {
