@@ -36,6 +36,7 @@ export class UsersService {
 
   async findAll(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];
+
     pipeline.push(
       {
         $lookup: {
@@ -77,11 +78,12 @@ export class UsersService {
       },
       { $project: { staff: 0, renter: 0, admin: 0 } },
     );
+
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
+
     const allowedSortFields = ["full_name", "email", "phone", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
-
     applyFacetMongo(pipeline);
 
     const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<UserWithRoleExtra>;
@@ -95,17 +97,32 @@ export class UsersService {
     const users = await this.userRepository.aggregate<UserWithRoleExtra>([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       {
-        $lookup: { from: this.staffRepository.collection.name, localField: "_id", foreignField: "user_id", as: "staff" },
+        $lookup: {
+          from: this.staffRepository.collection.name,
+          localField: "_id",
+          foreignField: "user_id",
+          as: "staff"
+        },
       },
       {
-        $lookup: { from: this.renterRepository.collection.name, localField: "_id", foreignField: "user_id", as: "renter" },
+        $lookup: {
+          from: this.renterRepository.collection.name,
+          localField: "_id",
+          foreignField: "user_id",
+          as: "renter"
+        },
       },
       {
-        $lookup: { from: this.adminRepository.collection.name, localField: "_id", foreignField: "user_id", as: "admin" },
+        $lookup: {
+          from: this.adminRepository.collection.name,
+          localField: "_id",
+          foreignField: "user_id",
+          as: "admin"
+        },
       },
       {
         $addFields: {
-          fieldExtras: {
+          roleExtra: {
             $switch: {
               branches: [
                 { case: { $eq: ["$role", "staff"] }, then: { $arrayElemAt: ["$staff", 0] } },
@@ -131,6 +148,7 @@ export class UsersService {
       { new: true },
     );
     if (!user) throw new NotFoundException("User not found");
+
     const objectId = new mongoose.Types.ObjectId(id);
     const renter = await this.renterRepository.findOneAndUpdate(
       { user_id: objectId },
@@ -141,20 +159,26 @@ export class UsersService {
       },
       { new: true, upsert: true },
     );
+
     (user as UserWithRoleExtra).roleExtra = renter;
     return ResponseDetail.ok(user as UserWithRoleExtra);
   }
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
-    const user = await this.userRepository.findByIdAndUpdate(id, { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone }, { new: true });
+    const user = await this.userRepository.findByIdAndUpdate(
+      id,
+      { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone },
+      { new: true }
+    );
     if (!user) throw new NotFoundException("User not found");
-    const objectId = new mongoose.Types.ObjectId(id);
 
+    const objectId = new mongoose.Types.ObjectId(id);
     const staff = await this.staffRepository.findOneAndUpdate(
       { user_id: objectId },
       { position: updateStaffDto.position },
       { new: true, upsert: true },
     );
+
     (user as UserWithRoleExtra).roleExtra = staff;
     return ResponseDetail.ok(user as UserWithRoleExtra);
   }
@@ -166,9 +190,9 @@ export class UsersService {
 
   async softDelete(id: string): Promise<ResponseMsg> {
     await this.userRepository.findByIdAndUpdate(id, { is_active: false }, { new: true });
-
     return ResponseMsg.ok("User soft-deleted successfully");
   }
+
   async restoreStatus(id: string): Promise<ResponseMsg> {
     await this.userRepository.findByIdAndUpdate(id, { is_active: true }, { new: true });
     return ResponseMsg.ok("User restored successfully");
@@ -179,8 +203,9 @@ export class UsersService {
     if (checkBooking) {
       throw new ConflictException("Cannot delete user with existing bookings");
     }
+
     const user = await this.userRepository.findById(id);
-    if (!user) return ResponseMsg.fail("User hard-deleted successfully");
+    if (!user) return ResponseMsg.fail("User not found");
 
     switch (user.role) {
       case Role.STAFF:
