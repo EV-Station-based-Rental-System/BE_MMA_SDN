@@ -30,11 +30,12 @@ import { StaffAtStationModule } from "./modules/staff_at_station/staff_at_statio
     UsersModule,
     VehicleModule,
     VehicleStationModule,
+    StaffAtStationModule,
 
     MailModule,
     RedisModule,
     StationModule,
-    StaffAtStationModule,
+
   ],
 })
-export class AppModule {}
+export class AppModule { }

@@ -32,13 +32,10 @@ export class UsersService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
-  ) {}
+  ) { }
 
   async findAll(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];
-
-    applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
-
     pipeline.push(
       {
         $lookup: {
@@ -80,7 +77,7 @@ export class UsersService {
       },
       { $project: { staff: 0, renter: 0, admin: 0 } },
     );
-
+    applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
     const allowedSortFields = ["full_name", "email", "phone", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
