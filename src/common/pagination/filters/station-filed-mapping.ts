@@ -9,4 +9,5 @@ export const StationFieldMapping: Record<string, FilterField> = {
       return [{ name: regex }, { address: regex }];
     },
   },
+
 };
