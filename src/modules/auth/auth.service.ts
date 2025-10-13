@@ -23,6 +23,7 @@ import { SendOtpDto } from "src/common/mail/dto/sendEmail.dto";
 import Redis from "ioredis/built/Redis";
 import { ResetPasswordDto } from "./dto/resetPassword.dto";
 import { ConflictException } from "src/common/exceptions/conflict.exception";
+import { ResponseMsg } from "src/common/response/response-message";
 
 @Injectable()
 export class AuthService {
@@ -36,7 +37,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async validateUser(data: LoginDto): Promise<BaseJwtUserPayload | RenterJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload> {
     const checkUser = (await this.userRepository.findOne({ email: data.email })) as User & { _id: string };
@@ -115,7 +116,7 @@ export class AuthService {
   }
 
   login(user: BaseJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload) {
-    return this.generateToken(user);
+    return { data: this.generateToken(user) };
   }
   generateToken(payload: BaseJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload) {
     const access_token = this.jwtService.sign(payload, {
@@ -125,7 +126,7 @@ export class AuthService {
     return { access_token };
   }
 
-  async createRenter(data: RenterDto): Promise<{ msg: string }> {
+  async createRenter(data: RenterDto): Promise<ResponseMsg> {
     // check email
     const checkUser = await this.userRepository.findOne({ email: data.email });
     if (checkUser) {
@@ -148,12 +149,10 @@ export class AuthService {
 
     await newRenter.save();
 
-    return {
-      msg: "Create renter successfully",
-    };
+    return ResponseMsg.ok("Create renter successfully");
   }
 
-  async createStaff(data: StaffDto): Promise<{ msg: string }> {
+  async createStaff(data: StaffDto): Promise<ResponseMsg> {
     // check email
     const checkUser = await this.userRepository.findOne({ email: data.email });
     if (checkUser) {
@@ -176,11 +175,9 @@ export class AuthService {
 
     await newStaff.save();
 
-    return {
-      msg: "Create staff successfully",
-    };
+    return ResponseMsg.ok("Create staff successfully");
   }
-  async createAdmin(data: AdminDto): Promise<{ msg: string }> {
+  async createAdmin(data: AdminDto): Promise<ResponseMsg> {
     // check email
     const checkUser = await this.userRepository.findOne({
       email: data.email,
@@ -205,9 +202,7 @@ export class AuthService {
 
     await newAdmin.save();
 
-    return {
-      msg: "Create admin successfully",
-    };
+    return ResponseMsg.ok("Create admin successfully");
   }
 
   private generateCode(): string {
@@ -215,23 +210,24 @@ export class AuthService {
     return otpCode;
   }
 
-  async sendOtp(data: SendOtpDto): Promise<{ msg: string }> {
+  async sendOtp(data: SendOtpDto): Promise<ResponseMsg> {
     const randomCode = this.generateCode();
     //send email
     await this.mailService.sendOtp(data.email, randomCode);
     //redis
     await this.redisClient.set(`otp:${data.email}`, randomCode, "EX", 300);
-    return { msg: "Send OTP successfully" };
+    return ResponseMsg.ok("Send OTP successfully");
   }
-  async verifyEmail(data: VerifyOtpDto): Promise<{ msg: string }> {
+
+  async verifyEmail(data: VerifyOtpDto): Promise<ResponseMsg> {
     const checkOtp = await this.redisClient.get(`otp:${data.email}`);
     if (!checkOtp || checkOtp !== data.otp) {
       throw new ForbiddenException("Invalid OTP");
     }
     await this.redisClient.del(`otp:${data.email}`);
-    return { msg: "Verify email successfully" };
+    return ResponseMsg.ok("Verify email successfully");
   }
-  async resetPassword(data: ResetPasswordDto): Promise<{ msg: string }> {
+  async resetPassword(data: ResetPasswordDto): Promise<ResponseMsg> {
     // check user
     const user = await this.userRepository.findOne({ email: data.email });
     if (!user) {
@@ -240,6 +236,6 @@ export class AuthService {
     const newPasswordHash = await hashPassword(data.new_password);
     user.password_hash = newPasswordHash;
     await user.save();
-    return { msg: "Reset password successfully" };
+    return ResponseMsg.ok("Reset password successfully");
   }
 }
