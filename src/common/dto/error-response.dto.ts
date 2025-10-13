@@ -11,7 +11,4 @@ export class ErrorResponseDto extends BaseException {
     example: "Validation failed",
   })
   message: string;
-
-  @ApiProperty({ nullable: true, example: null })
-  errorCode?: string | null;
 }
