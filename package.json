@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prepare": "node -e \"process.env.CI || process.env.DOCKER || process.exit(1)\" || (husky && git config --local include.path .gitconfig && pnpm run setup-doppler)",
-    "setup-doppler": "doppler secrets download --config prd --no-file --format env > .env",
+    "setup-doppler": "doppler secrets download --config dev --no-file --format env > .env",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "format:all": "prettier --write .",
