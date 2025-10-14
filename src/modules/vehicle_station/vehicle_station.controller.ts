@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Put } from "@nestjs/common";
 import { VehicleStationService } from "./vehicle_station.service";
 import { CreateVehicleStationDto } from "./dto/create-vehicle_station.dto";
 import { UpdateVehicleStationDto } from "./dto/update-vehicle_station.dto";
@@ -11,6 +11,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { Roles } from "src/common/decorator/roles.decorator";
@@ -25,11 +26,13 @@ import { ResponseInternalError } from "src/common/response/error/response-intern
 import { ResponseUnauthorized } from "src/common/response/error/response-unauthorized";
 import { ResponseList } from "src/common/response/response-list";
 import { ChangeStatusDto } from "./dto/changeStatus.dto";
+import { VehicleAtStationPaginationDto } from "src/common/pagination/dto/vehicle_at_station/vehicle_at_station-pagination";
+
 
 @Controller("vehicle-station")
 @ApiBearerAuth()
 export class VehicleStationController {
-  constructor(private readonly vehicleStationService: VehicleStationService) {}
+  constructor(private readonly vehicleStationService: VehicleStationService) { }
 
   @Post()
   @Roles(Role.ADMIN, Role.STAFF)
@@ -53,8 +56,15 @@ export class VehicleStationController {
   @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
   @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
   @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
-  findAll() {
-    return this.vehicleStationService.findAll();
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
+  findAll(@Query() query: VehicleAtStationPaginationDto) {
+    const { page = 1, take = 10, ...restFilters } = query;
+    return this.vehicleStationService.findAll({
+      page,
+      take: Math.min(take, 100),
+      ...restFilters,
+    });
   }
 
   @Get(":id")
@@ -70,7 +80,7 @@ export class VehicleStationController {
     return this.vehicleStationService.findOne(id);
   }
 
-  @Patch(":id")
+  @Put(":id")
   @Roles(Role.ADMIN, Role.STAFF)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: "Change status of vehicle at station" })

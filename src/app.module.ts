@@ -12,6 +12,7 @@ import { StationModule } from "./modules/stations/stations.module";
 import { VehicleStationModule } from "./modules/vehicle_station/vehicle_station.module";
 import { StaffAtStationModule } from "./modules/staff_at_station/staff_at_station.module";
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,11 +31,11 @@ import { StaffAtStationModule } from "./modules/staff_at_station/staff_at_statio
     UsersModule,
     VehicleModule,
     VehicleStationModule,
+    StaffAtStationModule,
 
     MailModule,
     RedisModule,
     StationModule,
-    StaffAtStationModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
