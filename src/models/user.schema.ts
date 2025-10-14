@@ -1,12 +1,12 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { Role } from 'src/common/enums/role.enum';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
+import { Role } from "src/common/enums/role.enum";
 
 export type UserDocument = HydratedDocument<User>;
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class User {
   save() {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
   }
 
   @Prop({ required: true, type: String, unique: true, lowercase: true, trim: true })

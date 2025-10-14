@@ -26,7 +26,7 @@ export type AdminJwtUserPayload = BaseJwtUserPayload & {
 
 export type FilterField = {
   field: string;
-  type?: 'string' | 'number' | 'date' | 'boolean';
+  type?: "string" | "number" | "date" | "boolean";
   customWhere?: (value: any) => void;
 };
 

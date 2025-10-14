@@ -1,8 +1,8 @@
-import { HttpStatus } from '@nestjs/common';
-import { BaseException } from './base.exception';
+import { HttpStatus } from "@nestjs/common";
+import { BaseException } from "./base.exception";
 
 export class UnauthorizedException extends BaseException {
-  constructor(message = 'Unauthorized, You need to log in') {
+  constructor(message = "Unauthorized, You need to log in") {
     super(message, HttpStatus.UNAUTHORIZED);
   }
 }

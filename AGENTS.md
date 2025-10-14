@@ -9,7 +9,9 @@ This is a NestJS + MongoDB backend for an electric vehicle rental platform with 
 - Cross-cutting assets live in `src/common`:
   - `exceptions/*` wrap Nest `HttpException` with a project-specific JSON payload via `BaseException`.
   - `guards` implement Passport guards (e.g., `LocalGuard`, `JwtAuthGuard`); strategies live under `modules/**/strategies`.
-  - `utils/helper.ts` centralizes bcrypt hashing; reuse instead of duplicating crypto logic.
+  - `utils/helper.ts` centralizes bcrypt hashing and Swagger helpers such as `addBadRequestByPrefix`; reuse instead of duplicating crypto or documentation logic.
+  - `mail/*` exposes the global `MailModule` and `MailService` used for OTP emails; consume it rather than configuring nodemailer repeatedly.
+  - `redis/*` provides the global `RedisModule` and the shared `REDIS_CLIENT` provider; inject it when you need Redis access.
 
 ## Domain patterns
 
@@ -24,7 +26,7 @@ This is a NestJS + MongoDB backend for an electric vehicle rental platform with 
 
 ## Configuration & tooling
 
-- Required environment variables (for local dev/tests): `MONGO_URI`, `JWT_SECRET_KEY`, `JWT_EXPIRES_IN`. The `prepare` script expects Husky/Doppler; when running locally without them, skip `pnpm run prepare` and provide an `.env` manually.
+- Required environment variables (for local dev/tests): `MONGO_URI`, `JWT_SECRET_KEY`, `JWT_EXPIRES_IN`, `GMAIL_USER`, `GMAIL_PASS`, `MAIL_HOST`, `MAIL_PORT`, `REDIS_URL`. Missing Gmail or Redis values will stop the global mailer and Redis providers from booting. The `prepare` script expects Husky/Doppler; when running locally without them, skip `pnpm run prepare` and provide an `.env` manually.
 - Common commands:
   - `pnpm run start:dev` – watch mode server on port `3001` (Swagger at `/api`).
   - `pnpm run lint` / `pnpm run format` – lint and format via ESLint + Prettier (ESLint config tolerates some `@typescript-eslint/*` warnings).
@@ -40,3 +42,11 @@ This is a NestJS + MongoDB backend for an electric vehicle rental platform with 
   - Use the shared `{ msg: string }` contract via `MessageResponseDto` whenever a handler returns a confirmation message.
   - Document token payloads with `LoginResponseDto` (or a sibling DTO) rather than anonymous object schemas.
   - Error responses must describe the normalized `{ statusCode, message, errorCode? }` shape exposed by `BaseException`; keep the `errorCode` example `null` unless a specific code is emitted.
+
+## Swagger Response Documentation (Completed Task Recap)
+
+- Every controller method now carries an explicit success decorator that matches its HTTP status (`@ApiOkResponse`, `@ApiCreatedResponse`, `@ApiNoContentResponse`, etc.), honoring `@HttpCode` overrides and plain-text responses via `@ApiProduces('text/plain')`.
+- Return schemas mirror the actual payloads: DTOs use `type`, arrays set `isArray: true`, primitives rely on `schema`, and composite scenarios leverage `@ApiExtraModels` plus `getSchemaPath` for `oneOf`.
+- Known error paths are documented with shared error-schema decorators (`@ApiBadRequestResponse`, `@ApiUnauthorizedResponse`, `@ApiForbiddenResponse`, `@ApiNotFoundResponse`, `@ApiConflictResponse`, `@ApiUnprocessableEntityResponse`, `@ApiInternalServerErrorResponse`) so Swagger matches the normalized `{ statusCode, message, error }` shape.
+- Response types were inferred from declared return types first, then traced through services when needed; ambiguous cases received a placeholder `@ApiOkResponse` and a TODO rather than leaving them undocumented.
+- No runtime logic changed during the documentation pass; imports were adjusted per controller to include only the decorators in use.

@@ -1,14 +1,14 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { BookingStatus, BookingVerificationStatus } from 'src/common/enums/booking.enum';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose from "mongoose";
+import { BookingStatus, BookingVerificationStatus } from "src/common/enums/booking.enum";
 
 export type BookingDocument = mongoose.HydratedDocument<Booking>;
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Booking {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Renter', required: true, index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Renter", required: true, index: true })
   renter_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'VehicleAtStation', required: true, index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "VehicleAtStation", required: true, index: true })
   vehicle_at_station_id: mongoose.Types.ObjectId;
 
   @Prop({ required: true, type: Date, default: Date.now })
@@ -33,7 +33,7 @@ export class Booking {
   })
   verification_status: BookingVerificationStatus;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Staff', index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Staff", index: true })
   verified_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ type: Date })

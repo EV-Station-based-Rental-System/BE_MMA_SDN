@@ -1,11 +1,11 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { FeeType } from 'src/common/enums/fee.enum';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose from "mongoose";
+import { FeeType } from "src/common/enums/fee.enum";
 
 export type FeeDocument = mongoose.HydratedDocument<Fee>;
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Fee {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true, index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Booking", required: true, index: true })
   booking_id: mongoose.Types.ObjectId;
 
   @Prop({
@@ -22,7 +22,7 @@ export class Fee {
   @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })
   amount: mongoose.Types.Decimal128;
 
-  @Prop({ required: true, type: String, default: 'USD' })
+  @Prop({ required: true, type: String, default: "USD" })
   currency: string;
 }
 export const feeSchema = SchemaFactory.createForClass(Fee);
