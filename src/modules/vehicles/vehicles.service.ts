@@ -19,7 +19,7 @@ import { buildPaginationResponse } from "src/common/pagination/pagination-respon
 
 @Injectable()
 export class VehicleService {
-  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) {}
+  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) { }
   async create(createVehicleDto: CreateVehicleDto): Promise<ResponseDetail<Vehicle>> {
     const newVehicle = new this.vehicleRepository(createVehicleDto);
     const savedVehicle = await newVehicle.save();
@@ -47,7 +47,7 @@ export class VehicleService {
   async findOne(id: string): Promise<ResponseDetail<Vehicle>> {
     const vehicle = await this.vehicleRepository.findById(id);
     if (!vehicle) throw new NotFoundException("Vehicle not found");
-    return { data: vehicle };
+    return ResponseDetail.ok(vehicle);
   }
   async update(id: string, updateVehicleDto: UpdateVehicleDto): Promise<ResponseDetail<Vehicle>> {
     const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(id, updateVehicleDto, { new: true });
