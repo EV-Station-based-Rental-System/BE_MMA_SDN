@@ -9,7 +9,7 @@ export function applyFacetMongo(pipeline: any[]) {
   pipeline.push({
     $facet: {
       data: clonedPipeline,
-      meta: [{ $count: 'total' }],
+      meta: [{ $count: "total" }],
     },
   });
 }

@@ -1,4 +1,4 @@
-import { MetaOptions } from '../utils/type';
+import { MetaOptions } from "../utils/type";
 
 export function buildPaginationResponse<T>(data: T[], meta: MetaOptions) {
   const { total, page, take, totalSuccess, totalFailed, totalPending, revenue, ...rest } = meta;
@@ -8,7 +8,7 @@ export function buildPaginationResponse<T>(data: T[], meta: MetaOptions) {
     meta: {
       total,
       page,
-      pageSize: take,
+      take,
       totalPages: Math.ceil(total / take),
       ...(totalSuccess !== undefined && { totalSuccess }),
       ...(totalFailed !== undefined && { totalFailed }),
