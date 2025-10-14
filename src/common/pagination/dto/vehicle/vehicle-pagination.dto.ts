@@ -1,19 +1,19 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Transform, Type } from "class-transformer";
-import { IsOptional, IsNumber, IsBoolean, IsString } from "class-validator";
-import { BasePaginationDto } from "../basePagination.dto";
-import { toBoolean } from "src/common/utils/helper";
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import { IsOptional, IsNumber, IsBoolean, IsString } from 'class-validator';
+import { BasePaginationDto } from '../basePagination.dto';
+import { toBoolean } from 'src/common/utils/helper';
 
 export class VehiclePaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({
-    description: "Search term to filter results",
-    example: "make | model",
+    description: 'Search term to filter results',
+    example: 'make | model',
   })
   @IsOptional()
   @IsString()
   search?: string;
   @ApiPropertyOptional({
-    description: "Year of the vehicle model",
+    description: 'Year of the vehicle model',
     example: 2021,
   })
   @IsOptional()
@@ -22,7 +22,7 @@ export class VehiclePaginationDto extends BasePaginationDto {
   model_year?: number;
 
   @ApiPropertyOptional({
-    description: "Status of the vehicle (true = active)",
+    description: 'Status of the vehicle (true = active)',
     example: true,
   })
   @IsOptional()

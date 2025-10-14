@@ -1,9 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
-import { UpdateUserDto } from "./user.dto";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
+import { UpdateUserDto } from './user.dto';
 
 export class UpdateStaffDto extends UpdateUserDto {
-  @ApiProperty({ description: "Position of staff", example: "Manager", required: false })
+  @ApiProperty({ description: 'Position of staff', example: 'Manager', required: false })
   @IsString()
   position?: string;
 }

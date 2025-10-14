@@ -1,9 +1,9 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument } from "mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
 
 export type VehicleDocument = HydratedDocument<Vehicle>;
 
-@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
+@Schema({ timestamps: { createdAt: 'created_at', updatedAt: false } })
 export class Vehicle {
   @Prop({ required: true, type: String })
   make: string;
@@ -14,7 +14,7 @@ export class Vehicle {
   @Prop({ required: true, type: Number })
   model_year: number;
 
-  @Prop({ required: true, type: String, default: "EV" })
+  @Prop({ required: true, type: String, default: 'EV' })
   category: string;
 
   @Prop({ type: Number })

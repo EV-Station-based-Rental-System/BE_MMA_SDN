@@ -1,29 +1,29 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { User } from "src/models/user.schema";
-import { LoginDto } from "./dto/login.dto";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { AdminJwtUserPayload, BaseJwtUserPayload, RenterJwtUserPayload, StaffJwtUserPayload } from "src/common/utils/type";
-import { NotFoundException } from "src/common/exceptions/not-found.exception";
-import { ForbiddenException } from "src/common/exceptions/forbidden.exception";
-import { comparePassword, hashPassword } from "src/common/utils/helper";
-import { Role } from "src/common/enums/role.enum";
-import { Staff } from "src/models/staff.schema";
-import { Admin } from "src/models/admin.schema";
-import { JwtService } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
-import { Renter } from "src/models/renter.schema";
-import { RenterDto } from "./dto/renter.dto";
-import { StaffDto } from "./dto/staff.dto";
-import { randomInt } from "crypto";
-import { AdminDto } from "./dto/admin.dto";
-import { MailService } from "src/common/mail/mail.service";
-import { VerifyOtpDto } from "src/common/mail/dto/verifyOtp.dto";
-import { SendOtpDto } from "src/common/mail/dto/sendEmail.dto";
-import Redis from "ioredis/built/Redis";
-import { ResetPasswordDto } from "./dto/resetPassword.dto";
-import { ConflictException } from "src/common/exceptions/conflict.exception";
-import { ResponseMsg } from "src/common/response/response-message";
+import { Inject, Injectable } from '@nestjs/common';
+import { User } from 'src/models/user.schema';
+import { LoginDto } from './dto/login.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { AdminJwtUserPayload, BaseJwtUserPayload, RenterJwtUserPayload, StaffJwtUserPayload } from 'src/common/utils/type';
+import { NotFoundException } from 'src/common/exceptions/not-found.exception';
+import { ForbiddenException } from 'src/common/exceptions/forbidden.exception';
+import { comparePassword, hashPassword } from 'src/common/utils/helper';
+import { Role } from 'src/common/enums/role.enum';
+import { Staff } from 'src/models/staff.schema';
+import { Admin } from 'src/models/admin.schema';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { Renter } from 'src/models/renter.schema';
+import { RenterDto } from './dto/renter.dto';
+import { StaffDto } from './dto/staff.dto';
+import { randomInt } from 'crypto';
+import { AdminDto } from './dto/admin.dto';
+import { MailService } from 'src/common/mail/mail.service';
+import { VerifyOtpDto } from 'src/common/mail/dto/verifyOtp.dto';
+import { SendOtpDto } from 'src/common/mail/dto/sendEmail.dto';
+import Redis from 'ioredis/built/Redis';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
+import { ConflictException } from 'src/common/exceptions/conflict.exception';
+import { ResponseMsg } from 'src/common/response/response-message';
 
 @Injectable()
 export class AuthService {
@@ -33,22 +33,22 @@ export class AuthService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
 
-    @Inject("REDIS_CLIENT") private readonly redisClient: Redis,
+    @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   async validateUser(data: LoginDto): Promise<BaseJwtUserPayload | RenterJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload> {
     const checkUser = (await this.userRepository.findOne({ email: data.email })) as User & { _id: string };
 
     if (!checkUser) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
     const isPasswordValid = await comparePassword(data.password, checkUser.password_hash);
     if (!isPasswordValid) {
-      throw new ForbiddenException("Wrong password");
+      throw new ForbiddenException('Wrong password');
     }
 
     let userPayload: BaseJwtUserPayload = {
@@ -108,10 +108,10 @@ export class AuthService {
   async checkStatus(payload: BaseJwtUserPayload): Promise<void> {
     const user = await this.userRepository.findById(payload._id);
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
     if (!user.is_active) {
-      throw new ForbiddenException("Account is disabled");
+      throw new ForbiddenException('Account is disabled');
     }
   }
 
@@ -120,8 +120,8 @@ export class AuthService {
   }
   generateToken(payload: BaseJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload) {
     const access_token = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>("jwt.secret"),
-      expiresIn: this.configService.get<string>("jwt.expiresIn"),
+      secret: this.configService.get<string>('jwt.secret'),
+      expiresIn: this.configService.get<string>('jwt.expiresIn'),
     });
     return { access_token };
   }
@@ -130,7 +130,7 @@ export class AuthService {
     // check email
     const checkUser = await this.userRepository.findOne({ email: data.email });
     if (checkUser) {
-      throw new ConflictException("Email already exists");
+      throw new ConflictException('Email already exists');
     }
     const newUser = new this.userRepository({
       email: data.email,
@@ -149,14 +149,14 @@ export class AuthService {
 
     await newRenter.save();
 
-    return ResponseMsg.ok("Create renter successfully");
+    return ResponseMsg.ok('Create renter successfully');
   }
 
   async createStaff(data: StaffDto): Promise<ResponseMsg> {
     // check email
     const checkUser = await this.userRepository.findOne({ email: data.email });
     if (checkUser) {
-      throw new ConflictException("Email already exists");
+      throw new ConflictException('Email already exists');
     }
     const newUser = new this.userRepository({
       email: data.email,
@@ -175,7 +175,7 @@ export class AuthService {
 
     await newStaff.save();
 
-    return ResponseMsg.ok("Create staff successfully");
+    return ResponseMsg.ok('Create staff successfully');
   }
   async createAdmin(data: AdminDto): Promise<ResponseMsg> {
     // check email
@@ -183,7 +183,7 @@ export class AuthService {
       email: data.email,
     });
     if (checkUser) {
-      throw new ConflictException("Email already exists");
+      throw new ConflictException('Email already exists');
     }
     const newUser = new this.userRepository({
       email: data.email,
@@ -202,7 +202,7 @@ export class AuthService {
 
     await newAdmin.save();
 
-    return ResponseMsg.ok("Create admin successfully");
+    return ResponseMsg.ok('Create admin successfully');
   }
 
   private generateCode(): string {
@@ -215,27 +215,27 @@ export class AuthService {
     //send email
     await this.mailService.sendOtp(data.email, randomCode);
     //redis
-    await this.redisClient.set(`otp:${data.email}`, randomCode, "EX", 300);
-    return ResponseMsg.ok("Send OTP successfully");
+    await this.redisClient.set(`otp:${data.email}`, randomCode, 'EX', 300);
+    return ResponseMsg.ok('Send OTP successfully');
   }
 
   async verifyEmail(data: VerifyOtpDto): Promise<ResponseMsg> {
     const checkOtp = await this.redisClient.get(`otp:${data.email}`);
     if (!checkOtp || checkOtp !== data.otp) {
-      throw new ForbiddenException("Invalid OTP");
+      throw new ForbiddenException('Invalid OTP');
     }
     await this.redisClient.del(`otp:${data.email}`);
-    return ResponseMsg.ok("Verify email successfully");
+    return ResponseMsg.ok('Verify email successfully');
   }
   async resetPassword(data: ResetPasswordDto): Promise<ResponseMsg> {
     // check user
     const user = await this.userRepository.findOne({ email: data.email });
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
     const newPasswordHash = await hashPassword(data.new_password);
     user.password_hash = newPasswordHash;
     await user.save();
-    return ResponseMsg.ok("Reset password successfully");
+    return ResponseMsg.ok('Reset password successfully');
   }
 }

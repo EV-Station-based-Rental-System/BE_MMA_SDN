@@ -1,6 +1,6 @@
-import { MailerService } from "@nestjs-modules/mailer";
-import { Injectable } from "@nestjs/common";
-import { InternalServerErrorException } from "../exceptions/internal-server-error.exception";
+import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable } from '@nestjs/common';
+import { InternalServerErrorException } from '../exceptions/internal-server-error.exception';
 
 @Injectable()
 export class MailService {
@@ -10,8 +10,8 @@ export class MailService {
     try {
       await this.mailerService.sendMail({
         to: email,
-        subject: "Your OTP Code",
-        template: "./otp",
+        subject: 'Your OTP Code',
+        template: './otp',
         context: {
           email: email,
           code: code,

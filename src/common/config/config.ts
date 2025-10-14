@@ -10,7 +10,7 @@ export default () => ({
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
     host: process.env.MAIL_HOST,
-    port: parseInt(process.env.MAIL_PORT || "587", 10),
+    port: parseInt(process.env.MAIL_PORT || '587', 10),
   },
   redis: {
     url: process.env.REDIS_URL,

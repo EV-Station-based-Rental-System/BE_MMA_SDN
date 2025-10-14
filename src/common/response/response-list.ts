@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { MetaOptions } from "../utils/type";
+import { ApiProperty } from '@nestjs/swagger';
+import { MetaOptions } from '../utils/type';
 
 export class ResponseList<T> {
   @ApiProperty({ example: [], nullable: true })
