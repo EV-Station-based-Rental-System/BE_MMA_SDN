@@ -37,9 +37,6 @@ export class VehicleTransfer {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Admin" })
   created_by_admin_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: Date, default: Date.now })
-  created_at: Date;
-
   @Prop({ required: false, type: Date })
   approved_at: Date;
 

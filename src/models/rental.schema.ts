@@ -34,7 +34,7 @@ export class Rental {
   @Prop({ type: String })
   comment: string;
 
-  @Prop({ required: true, type: Date, default: Date.now })
-  rated_at: Date;
+  @Prop({ required: false, type: Date })
+  rated_at?: Date;
 }
 export const RentalSchema = SchemaFactory.createForClass(Rental);

@@ -21,9 +21,6 @@ export class StaffTransfer {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Admin", required: true })
   created_by_admin_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: Date, required: true, default: Date.now })
-  created_at: Date;
-
   @Prop({ type: Date })
   approved_at?: Date;
 
