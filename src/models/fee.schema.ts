@@ -16,12 +16,12 @@ export class Fee {
   type: FeeType;
 
   @Prop({ required: false, type: String })
-  description: string;
+  description?: string;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })
-  amount: mongoose.Types.Decimal128;
+  @Prop({ required: true, type: Number })
+  amount: number;
 
-  @Prop({ required: true, type: String, default: "USD" })
+  @Prop({ required: true, type: String, default: "VND" })
   currency: string;
 }
 export const FeeSchema = SchemaFactory.createForClass(Fee);

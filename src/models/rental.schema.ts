@@ -18,7 +18,7 @@ export class Rental {
   expected_return_datetime?: Date;
 
   @Prop({ type: Date })
-  actual_return_datetime: Date;
+  actual_return_datetime?: Date;
 
   @Prop({
     required: true,
@@ -32,7 +32,7 @@ export class Rental {
   score: number | null;
 
   @Prop({ type: String })
-  comment: string;
+  comment?: string;
 
   @Prop({ required: false, type: Date })
   rated_at?: Date;

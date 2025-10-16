@@ -8,11 +8,11 @@ export class Pricing {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Vehicle", required: true, index: true })
   vehicle_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })
-  price_per_hour: mongoose.Types.Decimal128;
+  @Prop({ required: true, type: Number })
+  price_per_hour: number;
 
-  @Prop({ type: mongoose.Schema.Types.Decimal128 })
-  price_per_day?: mongoose.Types.Decimal128;
+  @Prop({ type: Number })
+  price_per_day?: number;
 
   @Prop({ required: true, type: Date })
   effective_from: Date;
@@ -20,16 +20,16 @@ export class Pricing {
   @Prop({ type: Date })
   effective_to?: Date;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.Decimal128, default: 0 })
-  deposit_amount: mongoose.Types.Decimal128;
+  @Prop({ required: true, type: Number, default: 0 })
+  deposit_amount: number;
 
-  @Prop({ type: mongoose.Schema.Types.Decimal128 })
-  late_return_fee_per_hour?: mongoose.Types.Decimal128;
+  @Prop({ type: Number })
+  late_return_fee_per_hour?: number;
 
   @Prop({ type: Number })
   mileage_limit_per_day?: number;
 
-  @Prop({ type: mongoose.Schema.Types.Decimal128 })
-  excess_mileage_fee?: mongoose.Types.Decimal128;
+  @Prop({ type: Number })
+  excess_mileage_fee?: number;
 }
 export const PricingSchema = SchemaFactory.createForClass(Pricing);

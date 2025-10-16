@@ -23,7 +23,7 @@ export class VehicleAtStation {
   @Prop({ required: true, type: Number })
   current_mileage: number;
 
-  @Prop({ type: String, enum: Object.values(StatusVehicleAtStation) })
+  @Prop({ type: String, enum: Object.values(StatusVehicleAtStation), default: StatusVehicleAtStation.AVAILABLE })
   status?: StatusVehicleAtStation;
 }
 

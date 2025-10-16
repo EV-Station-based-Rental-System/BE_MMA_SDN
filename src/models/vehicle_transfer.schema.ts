@@ -17,19 +17,19 @@ export class VehicleTransfer {
   picked_up_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ required: false, type: Date })
-  picked_up_at: Date;
+  picked_up_at?: Date;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Staff" })
   dropped_off_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ required: false, type: Date })
-  dropped_off_at: Date;
+  dropped_off_at?: Date;
 
   @Prop({ required: false, type: String })
-  pickup_notes: string;
+  pickup_notes?: string;
 
   @Prop({ required: false, type: String })
-  dropoff_notes: string;
+  dropoff_notes?: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Admin" })
   approved_by_admin_id?: mongoose.Types.ObjectId;
@@ -38,7 +38,7 @@ export class VehicleTransfer {
   created_by_admin_id: mongoose.Types.ObjectId;
 
   @Prop({ required: false, type: Date })
-  approved_at: Date;
+  approved_at?: Date;
 
   @Prop({ type: Date })
   scheduled_pickup_at?: Date;

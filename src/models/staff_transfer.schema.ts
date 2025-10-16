@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
-import { StaffTransferStatus } from "src/common/enums/staff_trasfer.enum";
+import { StaffTransferStatus } from "src/common/enums/staff_transfer.enum";
 
 export type StaffTransferDocument = HydratedDocument<StaffTransfer>;
 
