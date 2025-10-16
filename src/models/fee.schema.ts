@@ -11,12 +11,11 @@ export class Fee {
   @Prop({
     required: true,
     enum: Object.values(FeeType),
-    default: FeeType.DEPOSIT,
     type: String,
   })
   type: FeeType;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: false, type: String })
   description: string;
 
   @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })

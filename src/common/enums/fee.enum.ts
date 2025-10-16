@@ -1,7 +1,5 @@
 export enum FeeType {
-  DEPOSIT = "deposit",
-  RENTAL_CHARGE = "rental_charge",
-  SURCHARGE = "surcharge",
-  DAMAGE = "damage",
+  TOTAL_BOOKING_FEE = "total_booking_fee",
+  OVER_DEPOSIT_FEE = "over_deposit_fee",
   OTHER = "other",
 }

@@ -24,11 +24,8 @@ export class Payment {
   @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })
   amount_paid: mongoose.Types.Decimal128;
 
-  @Prop({ required: true, type: Date, default: Date.now })
-  paid_at: Date;
-
   @Prop({ type: String })
-  provider_reference?: string;
+  transaction_code?: string;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

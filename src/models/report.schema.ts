@@ -9,9 +9,18 @@ export class Report {
   inspection_id: mongoose.Types.ObjectId;
 
   @Prop({ type: String })
-  notes?: string;
+  damage_notes?: string;
 
   @Prop({ required: true, type: Boolean, default: false })
   damage_found: boolean;
+
+  @Prop({ type: Number, default: 0 })
+  damage_price: number;
+
+  @Prop({ required: true, type: Boolean, default: false })
+  is_over_deposit: boolean;
+
+  @Prop({ type: Number, default: 0 })
+  over_deposit_fee_amount: number;
 }
 export const ReportSchema = SchemaFactory.createForClass(Report);
