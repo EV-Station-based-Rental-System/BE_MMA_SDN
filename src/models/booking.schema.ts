@@ -11,9 +11,6 @@ export class Booking {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "VehicleAtStation", required: true, index: true })
   vehicle_at_station_id: mongoose.Types.ObjectId;
 
-  @Prop({ required: true, type: Date, default: Date.now })
-  booking_created_at: Date;
-
   @Prop({ type: Date })
   expected_return_datetime?: Date;
 
@@ -41,5 +38,14 @@ export class Booking {
 
   @Prop({ type: String })
   cancel_reason: string;
+
+  @Prop({ required: true, type: Number, default: 0 })
+  total_booking_fee_amount: number;
+
+  @Prop({ required: true, type: Number, default: 0 })
+  deposit_fee_amount: number;
+
+  @Prop({ required: true, type: Number, default: 0 })
+  rental_fee_amount: number;
 }
 export const BookingSchema = SchemaFactory.createForClass(Booking);

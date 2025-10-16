@@ -25,10 +25,8 @@ Enum "booking_verification_status" {
 }
 
 Enum "fee_type" {
-  "deposit"
-  "rental_charge"
-  "surcharge"
-  "damage"
+  "total_booking_fee"
+  "over_deposit_fee"
   "other"
 }
 
@@ -40,8 +38,6 @@ Enum "payment_status" {
 Enum "payment_method" {
   "unknown"
   "cash"
-  "card"
-  "ewallet"
   "bank_transfer"
 }
 
@@ -51,11 +47,6 @@ Enum "rental_status" {
   "completed"
   "late"
   "cancelled"
-}
-
-Enum "confirmation_type" {
-  "pickup"
-  "dropoff"
 }
 
 Enum "signature_event_type" {
@@ -110,14 +101,6 @@ Enum "signature_type" {
   "digital_cert"
 }
 
-Enum "esign_provider" {
-  "native"
-  "docusign"
-  "adobesign"
-  "signnow"
-  "other"
-}
-
 Table "users" {
   "user_id" INT [pk, increment]
   "role" user_role [not null, default: 'unknown']
@@ -126,6 +109,7 @@ Table "users" {
   "full_name" VARCHAR(200) [not null]
   "phone" VARCHAR(50)
   "created_at" timestamptz [not null, default: `now()`]
+  is_active boolean [not null, default: true]
 }
 
 Table "renters" {
@@ -156,6 +140,7 @@ Table "stations" {
   "address" VARCHAR(500) [not null]
   "latitude" DOUBLEPRECISION
   "longitude" DOUBLEPRECISION
+  is_active boolean [not null, default: true]
 }
 
 Table "vehicles" {
@@ -167,6 +152,8 @@ Table "vehicles" {
   "battery_capacity_kwh" DOUBLEPRECISION
   "range_km" DOUBLEPRECISION
   vin_number varchar(50) [unique, note: 'Vehicle Identification Number']
+  img_url VARCHAR(2000)
+  is_active boolean [not null, default: true]
 }
 
 Table "staff_at_stations" {
@@ -203,14 +190,16 @@ Table "bookings" {
   "booking_id" INT [pk, increment]
   "renter_id" INT [not null]
   "vehicle_at_station_id" INT [not null]
-  "booking_created_at" timestamptz [not null, default: `now()`]
-	expected_return_datetime datetime
-
+  expected_return_datetime timestamptz [not null]
   "status" booking_status [not null , default: 'pending_verification']
-  "verification_status" booking_verification_status [not null, default: 'pending']
-  "verified_by_staff_id" INT
-  "verified_at" timestamptz
-  "cancel_reason" VARCHAR(1000)
+  verification_status booking_verification_status [not null, default: 'pending']
+  verified_by_staff_id INT
+  verified_at timestamptz
+  cancel_reason varchar(500)
+  total_booking_fee_amount numeric(18,2) [not null, default: 0]
+  deposit_fee_amount numeric(18,2) [not null, default: 0]
+  rental_fee_amount numeric(18,2) [not null, default: 0]
+
   Indexes {
     renter_id [name: "ix_bookings_renter"]
     vehicle_at_station_id [name: "ix_bookings_vehicle_at_station"]
@@ -222,8 +211,8 @@ Table "fees" {
   "booking_id" INT [not null]
   "type" fee_type [not null, default: 'deposit']
   "description" VARCHAR(200) [not null]
-  "amount" NUMERIC(18,2) [not null]
-  "currency" VARCHAR(10) [not null, default: 'USD']
+  "rental_fee" NUMERIC(18,2) [not null]
+  "deposit" NUMERIC(18,2) [not null]
   "created_at" timestamptz [not null, default: `now()`]
 
   Indexes {
@@ -236,8 +225,7 @@ Table "payments" {
   "method" payment_method [not null, default: 'unknown']
   "status" payment_status [not null, default: 'paid']
   "amount_paid" NUMERIC(18,2) [not null]
-  "paid_at" timestamptz [not null, default: `now()`]
-  "provider_reference" VARCHAR(200)
+  "transaction_code"  VARCHAR(200)
 }
 
 Table "rentals" {
@@ -248,7 +236,7 @@ Table "rentals" {
 	expected_return_datetime datetime
 	actual_return_datetime datetime
   "status" rental_status [not null, default: 'reserved']
-  "score" INT [not null]
+  "score" INT
   "comment" VARCHAR(2000)
   "rated_at" timestamptz [not null, default: `now()`]
   Indexes {
@@ -259,50 +247,10 @@ Table "rentals" {
 Table "contracts" {
   "contract_id" INT [pk, increment]
   "rental_id" INT [not null]
-  "version" INT [not null, default: 1]
-  "status" contract_status [not null, default: 'issued']
-  "issued_at" timestamptz [not null, default: `now()`]
-  "completed_at" timestamptz
-  "provider" esign_provider [not null, default: 'native']
-  "provider_envelope_id" TEXT
-  "document_url" TEXT [not null]
-  "document_hash" TEXT [not null]
-  "ltv_enabled" BOOLEAN [not null, default: FALSE]
-  "audit_trail_url" TEXT
-  "updated_at" timestamptz [not null, default: `now()`]
-
-  // Indexes {
-  //   (rental_id) [unique, name: "ux_contracts_signed_active"]
-  //   (provider, provider_envelope_id) [name: "ix_contracts_envelope"]
-  // }
+  "document_url" VARCHAR(2000)
+  completed_at timestamptz
+  "create_at" timestamptz [not null, default: `now()`]
 }
-
-
-
-Table "signatures" {
-  "signature_id" INT [pk, increment]
-  "contract_id" INT [not null]
-  "role" party_role [not null]
-  signature_event signature_event_type
-  "type" signature_type [not null, default: 'digital_cert']
-  "signed_at" timestamptz [not null, default: `now()`]
-  "signer_ip" INET
-  "user_agent" TEXT
-  "provider_signature_id" TEXT
-  "signature_image_url" TEXT
-  "cert_subject" TEXT
-  "cert_issuer" TEXT
-  "cert_serial" TEXT
-  "cert_fingerprint_sha256" TEXT
-  "signature_hash" TEXT
-  "evidence_url" TEXT
-
-  Indexes {
-    contract_id [name: "ix_signatures_contract"]
-  }
-}
-
-
 
 Table "inspections" {
   "inspection_id" INT [pk, increment]
@@ -322,8 +270,11 @@ Table "inspections" {
 Table "reports" {
   "report_id" INT [pk, increment]
   "inspection_id" INT [not null]
-  "notes" VARCHAR(2000)
+  "damage_notes" VARCHAR(2000)
   "damage_found" BOOLEAN [not null, default: FALSE]
+  "damage_price" money
+  "is_over_deposit" bool
+  "over_deposit_fee_amount" money
 
   Indexes {
     inspection_id [name: "ix_reports_inspection"]
@@ -331,9 +282,9 @@ Table "reports" {
 }
 
 Table "reports_photo" {
-  "reports_photo_id" UNIQUEIDENTIFIER [pk, not null, default: `NEWSEQUENTIALID()`]
+  "reports_photo_id" INT [pk, increment]
   report_id INT
-  "inspection_id" UNIQUEIDENTIFIER [not null]
+  "inspection_id" INT [not null]
   "url" NVARCHAR(500) [not null]
   "label" NVARCHAR(200)
   "created_at" datetime2(3) [not null, default: `SYSUTCDATETIME()`]
@@ -371,53 +322,6 @@ Table "pricings" {
   }
 }
 
-Table "vehicle_transfers" {
-  "vehicle_transfer_id" INT [pk, increment]
-  "vehicle_id" INT [not null]
-  "from_station_id" INT [not null]
-  "to_station_id" INT [not null]
-
-  "picked_up_by_staff_id" INT
-  "picked_up_at" timestamptz
-  "dropped_off_by_staff_id" INT
-  "dropped_off_at" timestamptz
-  "pickup_notes" VARCHAR(1000)
-  "dropoff_notes" VARCHAR(1000)
-
-  "approved_by_admin_id" INT
-  "created_by_admin_id" INT [not null]
-  "created_at" timestamptz [not null, default: `now()`]
-  "approved_at" timestamptz
-  "scheduled_pickup_at" timestamptz
-  "scheduled_dropoff_at" timestamptz
-  "status" transfer_status [not null, default: 'draft']
-  "notes" VARCHAR(1000)
-
-  Indexes {
-    status [name: "ix_vehicle_transfers_status"]
-    (from_station_id, to_station_id) [name: "ix_vehicle_transfers_from_to"]
-  }
-}
-
-Table "staff_transfers" {
-  "staff_transfer_id" INT [pk, increment]
-  "staff_id" INT [not null]
-  "from_station_id" INT [not null]
-  "to_station_id" INT [not null]
-  "approved_by_admin_id" INT
-  "created_by_admin_id" INT [not null]
-  "created_at" timestamptz [not null, default: `now()`]
-  "approved_at" timestamptz
-  "effective_from" timestamptz [not null]
-  "status" transfer_status [not null, default: 'draft']
-  "notes" VARCHAR(1000)
-
-  Indexes {
-    (staff_id, status) [name: "ix_staff_transfers_staff_status"]
-    to_station_id [name: "ix_staff_transfers_to_station"]
-  }
-}
-
 Ref:"users"."user_id" < "renters"."user_id" [delete: cascade]
 
 Ref:"users"."user_id" < "staff"."user_id" [delete: cascade]
@@ -436,7 +340,6 @@ Ref:"renters"."user_id" < "bookings"."renter_id"
 
 Ref:"vehicle_at_stations"."vehicle_at_station_id" < "bookings"."vehicle_at_station_id"
 
-Ref:"staff"."user_id" < "bookings"."verified_by_staff_id" [delete: set null]
 
 Ref:"bookings"."booking_id" < "fees"."booking_id" [delete: cascade]
 
@@ -448,36 +351,51 @@ Ref:"vehicles"."vehicle_id" < "rentals"."vehicle_id"
 
 Ref:"rentals"."rental_id" - "contracts"."rental_id" [delete: cascade]
 
+
+
 ref: reports.report_id < reports_photo.report_id
 
-Ref:"contracts"."contract_id" < "signatures"."contract_id" [delete: cascade]
+
+// Ref:"contracts"."contract_id" < "signatures"."contract_id" [delete: cascade]
+
+
+
+// Ref:"contracts"."contract_id" < "contract_events"."contract_id" [delete: cascade]
+
+
 
 Ref:"rentals"."rental_id" < "inspections"."rental_id" [delete: cascade]
 
 Ref:"staff"."user_id" < "inspections"."inspector_staff_id" [delete: set null]
-
 Ref:"inspections"."inspection_id" < "reports"."inspection_id" [delete: cascade]
 
 Ref:"renters"."user_id" < "kycs"."renter_id" [delete: cascade]
 
 Ref:"vehicles"."vehicle_id" < "pricings"."vehicle_id" [delete: cascade]
 
-Ref:"stations"."station_id" < "vehicle_transfers"."from_station_id"
+// Ref:"stations"."station_id" < "vehicle_transfers"."from_station_id"
 
-Ref:"stations"."station_id" < "vehicle_transfers"."to_station_id"
+// Ref:"stations"."station_id" < "vehicle_transfers"."to_station_id"
 
-Ref:"admins"."user_id" < "vehicle_transfers"."created_by_admin_id"
+// Ref:"admins"."user_id" < "vehicle_transfers"."created_by_admin_id"
 
-Ref:"admins"."user_id" < "vehicle_transfers"."approved_by_admin_id"
+// Ref:"admins"."user_id" < "vehicle_transfers"."approved_by_admin_id"
 
-Ref: vehicle_transfers.vehicle_id > vehicles.vehicle_id
+// Ref: vehicle_transfers.vehicle_id > vehicles.vehicle_id
+// Ref:"vehicle_transfers"."vehicle_transfer_id" < "vehicle_transfer_items"."vehicle_transfer_id" [delete: cascade]
 
-Ref:"staff"."user_id" < "staff_transfers"."staff_id"
+// Ref:"vehicles"."vehicle_id" < "vehicle_transfer_items"."vehicle_id"
 
-Ref:"stations"."station_id" < "staff_transfers"."from_station_id"
+// Ref:"staff"."user_id" < "vehicle_transfer_items"."picked_up_by_staff_id" [delete: set null]
 
-Ref:"stations"."station_id" < "staff_transfers"."to_station_id"
+// Ref:"staff"."user_id" < "vehicle_transfer_items"."dropped_off_by_staff_id" [delete: set null]
 
-Ref:"admins"."user_id" < "staff_transfers"."created_by_admin_id"
+// Ref:"staff"."user_id" < "staff_transfers"."staff_id"
 
-Ref:"admins"."user_id" < "staff_transfers"."approved_by_admin_id"
+// Ref:"stations"."station_id" < "staff_transfers"."from_station_id"
+
+// Ref:"stations"."station_id" < "staff_transfers"."to_station_id"
+
+// Ref:"admins"."user_id" < "staff_transfers"."created_by_admin_id"
+
+// Ref:"admins"."user_id" < "staff_transfers"."approved_by_admin_id"

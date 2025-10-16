@@ -28,7 +28,7 @@ export class Rental {
   })
   status: RentalStatus;
 
-  @Prop({ required: true, type: Number, default: null })
+  @Prop({ type: Number, default: null })
   score: number | null;
 
   @Prop({ type: String })
