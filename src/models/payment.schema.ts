@@ -21,8 +21,8 @@ export class Payment {
   })
   status: PaymentStatus;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.Decimal128 })
-  amount_paid: mongoose.Types.Decimal128;
+  @Prop({ required: true, type: Number })
+  amount_paid: number;
 
   @Prop({ type: String })
   transaction_code?: string;

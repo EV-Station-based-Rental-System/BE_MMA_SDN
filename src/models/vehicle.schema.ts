@@ -23,7 +23,7 @@ export class Vehicle {
   @Prop({ type: Number })
   range_km?: number;
 
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String, unique: true, sparse: true })
   vin_number?: string;
 
   @Prop({ type: String })
