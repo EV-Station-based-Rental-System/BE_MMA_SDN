@@ -34,10 +34,10 @@ export class Booking {
   verified_by_staff_id?: mongoose.Types.ObjectId;
 
   @Prop({ type: Date })
-  verified_at: Date;
+  verified_at?: Date;
 
   @Prop({ type: String })
-  cancel_reason: string;
+  cancel_reason?: string;
 
   @Prop({ required: true, type: Number, default: 0 })
   total_booking_fee_amount: number;

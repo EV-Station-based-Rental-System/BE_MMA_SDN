@@ -24,4 +24,4 @@ export class Fee {
   @Prop({ required: true, type: String, default: "USD" })
   currency: string;
 }
-export const feeSchema = SchemaFactory.createForClass(Fee);
+export const FeeSchema = SchemaFactory.createForClass(Fee);

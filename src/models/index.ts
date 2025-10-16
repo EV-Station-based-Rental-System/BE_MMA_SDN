@@ -4,7 +4,7 @@ import { Staff, StaffSchema } from "./staff.schema";
 import { User, UserSchema } from "./user.schema";
 import { Booking, BookingSchema } from "./booking.schema";
 import { Contract, ContractSchema } from "./contract.schema";
-import { Fee, feeSchema } from "./fee.schema";
+import { Fee, FeeSchema as FeeSchema } from "./fee.schema";
 import { Inspection, InspectionSchema } from "./inspections.schema";
 import { Kycs, KycsSchema } from "./kycs.schema";
 import { Payment, PaymentSchema } from "./payment.schema";
@@ -26,7 +26,7 @@ export const index = [
   { name: Renter.name, schema: RenterSchema },
   { name: Booking.name, schema: BookingSchema },
   { name: Contract.name, schema: ContractSchema },
-  { name: Fee.name, schema: feeSchema },
+  { name: Fee.name, schema: FeeSchema },
   { name: Inspection.name, schema: InspectionSchema },
   { name: Kycs.name, schema: KycsSchema },
   { name: Payment.name, schema: PaymentSchema },
