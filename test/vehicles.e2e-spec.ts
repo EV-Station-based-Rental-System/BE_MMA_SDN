@@ -6,6 +6,9 @@ import mongoose from "mongoose";
 import request from "supertest";
 import { HttpErrorInterceptor } from "src/common/interceptors/http-error.interceptor";
 import { VehicleModule } from "src/modules/vehicles/vehicles.module";
+import { ConfigModule } from "@nestjs/config";
+import configuration from "src/common/config/config";
+import { applyAuthGuardOverrides } from "./utils/auth-helpers";
 
 const baseUrl = "/vehicle";
 
@@ -35,9 +38,11 @@ describe("VehicleModule (e2e)", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
 
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [MongooseModule.forRoot(await mongoServer.getUri()), VehicleModule],
-    }).compile();
+    const moduleBuilder = Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ isGlobal: true, load: [configuration] }), MongooseModule.forRoot(await mongoServer.getUri()), VehicleModule],
+    });
+
+    const moduleFixture: TestingModule = await applyAuthGuardOverrides(moduleBuilder).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
