@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { CreateVehicleStationDto } from "./dto/create-vehicle_station.dto";
 import { UpdateVehicleStationDto } from "./dto/update-vehicle_station.dto";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
@@ -18,6 +18,7 @@ import { applyPaginationMongo } from "src/common/pagination/applyPagination";
 import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
 import { FacetResult } from "src/common/utils/type";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
+import { NotFoundException } from "src/common/exceptions/not-found.exception";
 
 @Injectable()
 export class VehicleStationService {
@@ -65,7 +66,7 @@ export class VehicleStationService {
     return ResponseList.ok(buildPaginationResponse(data, { total, page: filters.page, take: filters.take }));
   }
 
-  async findOne(id: string): Promise<ResponseDetail<VehicleAtStation | null>> {
+  async findOne(id: string): Promise<ResponseDetail<VehicleAtStation>> {
     const vehicleStation = await this.vehicleStationRepository.findById(id).exec();
     if (!vehicleStation) {
       throw new NotFoundException("Vehicle at station not found");
@@ -73,14 +74,14 @@ export class VehicleStationService {
     return ResponseDetail.ok(vehicleStation);
   }
 
-  async update(id: string, updateVehicleStationDto: UpdateVehicleStationDto): Promise<ResponseDetail<VehicleAtStation | null>> {
+  async update(id: string, updateVehicleStationDto: UpdateVehicleStationDto): Promise<ResponseDetail<VehicleAtStation>> {
     const updatedVehicleStation = await this.vehicleStationRepository.findByIdAndUpdate(id, updateVehicleStationDto, { new: true });
     if (!updatedVehicleStation) {
       throw new NotFoundException("Vehicle at station not found");
     }
     return ResponseDetail.ok(updatedVehicleStation);
   }
-  async changeStatus(id: string, changeStatus: ChangeStatusDto): Promise<ResponseDetail<VehicleAtStation | null>> {
+  async changeStatus(id: string, changeStatus: ChangeStatusDto): Promise<ResponseDetail<VehicleAtStation>> {
     const updatedVehicleStation = await this.vehicleStationRepository.findByIdAndUpdate(id, { status: changeStatus.status }, { new: true });
     if (!updatedVehicleStation) {
       throw new NotFoundException("Vehicle at station not found");
@@ -88,7 +89,7 @@ export class VehicleStationService {
     return ResponseDetail.ok(updatedVehicleStation);
   }
 
-  async remove(id: number): Promise<ResponseMsg> {
+  async remove(id: string): Promise<ResponseMsg> {
     await this.vehicleStationRepository.findByIdAndDelete(id);
     return ResponseMsg.ok("Vehicle at station deleted successfully");
   }

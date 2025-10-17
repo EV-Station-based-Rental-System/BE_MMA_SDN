@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { VehicleStationService } from "./vehicle_station.service";
 import { VehicleStationController } from "./vehicle_station.controller";
-import { MongooseModule } from "@nestjs/mongoose";
 import { VehicleAtStation, VehicleAtStationSchema } from "src/models/vehicle_at_station.schema";
 import { Vehicle, VehicleSchema } from "src/models/vehicle.schema";
 import { Station, StationSchema } from "src/models/station.schema";
+import { MongooseModule } from "@nestjs/mongoose";
 
 @Module({
   imports: [

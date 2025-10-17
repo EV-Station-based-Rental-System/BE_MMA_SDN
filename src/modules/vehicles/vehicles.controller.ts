@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, UseGuards } from "@nestjs/common";
 import { VehicleService } from "./vehicles.service";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
-import { ApiBody, ApiCreatedResponse, ApiExtraModels, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiExtraModels, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
 import { Role } from "src/common/enums/role.enum";
 import { VehiclePaginationDto } from "src/common/pagination/dto/vehicle/vehicle-pagination.dto";
 import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
@@ -10,7 +10,11 @@ import { Roles } from "src/common/decorator/roles.decorator";
 import { ResponseMsg } from "src/common/response/response-message";
 import { Vehicle } from "src/models/vehicle.schema";
 import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
+import { JwtAuthGuard } from "src/common/guards/jwt.guard";
+import { RolesGuard } from "src/common/guards/roles.guard";
 
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 @ApiExtraModels(Vehicle)
 @Controller("vehicle")
 export class VehicleController {
@@ -65,6 +69,8 @@ export class VehicleController {
 
   @Roles(Role.ADMIN)
   @Delete(":id")
+  @ApiOkResponse({ description: "Vehicle hard-deleted", type: ResponseMsg })
+  @ApiErrorResponses()
   hardDelete(@Param("id") id: string) {
     return this.vehicleService.hardDelete(id);
   }

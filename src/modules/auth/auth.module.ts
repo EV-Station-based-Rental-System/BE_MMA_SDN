@@ -1,15 +1,15 @@
 import { Module } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
-import { MongooseModule } from "@nestjs/mongoose";
 import { User, UserSchema } from "src/models/user.schema";
 import { Staff, StaffSchema } from "src/models/staff.schema";
 import { Admin, AdminSchema } from "src/models/admin.schema";
-import { JwtModule } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
 import { Renter, RenterSchema } from "src/models/renter.schema";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { JwtStrategy } from "./strategies/jwt.strategy";
+import { JwtModule } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { MongooseModule } from "@nestjs/mongoose";
 
 @Module({
   imports: [
