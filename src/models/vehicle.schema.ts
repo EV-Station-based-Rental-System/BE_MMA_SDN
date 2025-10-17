@@ -1,20 +1,24 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { ApiSchema } from "@nestjs/swagger";
 import { HydratedDocument } from "mongoose";
 
 export type VehicleDocument = HydratedDocument<Vehicle>;
 
+@ApiSchema({
+  name: "Vehicle"
+})
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Vehicle {
-  @Prop({ required: true, type: String })
+  @Prop({ required: true, type: String, trim: true })
   make: string;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true, type: String, trim: true })
   model: string;
 
-  @Prop({ required: true, type: Number })
+  @Prop({ required: true, type: Number, min: 1900 })
   model_year: number;
 
-  @Prop({ required: true, type: String, default: "EV" })
+  @Prop({ required: true, type: String, default: "EV", trim: true })
   category: string;
 
   @Prop({ type: Number })
@@ -23,10 +27,10 @@ export class Vehicle {
   @Prop({ type: Number })
   range_km?: number;
 
-  @Prop({ type: String, unique: true, sparse: true })
+  @Prop({ type: String, unique: true, sparse: true, trim: true })
   vin_number?: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, trim: true })
   img_url?: string;
 
   @Prop({ type: Boolean, default: true })

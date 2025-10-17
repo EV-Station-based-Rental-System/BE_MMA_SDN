@@ -29,7 +29,7 @@ import { ResponseMsg } from "src/common/response/response-message";
 @ApiBearerAuth()
 @Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Roles(Role.ADMIN, Role.STAFF)
   @Get()
@@ -120,7 +120,7 @@ export class UsersController {
   @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
   @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
   @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
-  hashDelete(@Param("id") id: string) {
-    return this.usersService.hashDelete(id);
+  hardDelete(@Param("id") id: string) {
+    return this.usersService.hardDelete(id);
   }
 }

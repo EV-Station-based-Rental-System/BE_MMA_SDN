@@ -198,7 +198,7 @@ export class UsersService {
     return ResponseMsg.ok("User restored successfully");
   }
 
-  async hashDelete(id: string): Promise<ResponseMsg> {
+  async hardDelete(id: string): Promise<ResponseMsg> {
     const checkBooking = await this.checkUser(id);
     if (checkBooking) {
       throw new ConflictException("Cannot delete user with existing bookings");
