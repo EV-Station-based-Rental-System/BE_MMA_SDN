@@ -6,15 +6,12 @@ export const VehicleAtStationFieldMapping: Record<string, FilterField> = {
     type: "string",
     customWhere: (value: string) => {
       const regex = new RegExp(value, "i");
-      return [
-        { "vehicle.make": regex },
-        { "vehicle.model": regex },
-      ];
+      return [{ "vehicle.make": regex }, { "vehicle.model": regex }];
     },
   },
   model_year: {
     field: "vehicle.model_year",
-    type: "number"
+    type: "number",
   },
   searchStation: {
     field: "searchStation",
@@ -22,6 +19,6 @@ export const VehicleAtStationFieldMapping: Record<string, FilterField> = {
     customWhere(value: string) {
       const regex = new RegExp(value, "i");
       return [{ "station.name": regex }];
-    }
-  }
-}
+    },
+  },
+};

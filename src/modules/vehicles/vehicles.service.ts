@@ -19,7 +19,7 @@ import { buildPaginationResponse } from "src/common/pagination/pagination-respon
 
 @Injectable()
 export class VehicleService {
-  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) { }
+  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) {}
 
   async create(createVehicleDto: CreateVehicleDto): Promise<ResponseDetail<Vehicle>> {
     const newVehicle = new this.vehicleRepository(createVehicleDto);

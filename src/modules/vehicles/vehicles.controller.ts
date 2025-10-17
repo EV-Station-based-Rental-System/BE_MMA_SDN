@@ -14,7 +14,7 @@ import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/res
 @ApiExtraModels(Vehicle)
 @Controller("vehicle")
 export class VehicleController {
-  constructor(private readonly vehicleService: VehicleService) { }
+  constructor(private readonly vehicleService: VehicleService) {}
 
   @Post()
   @Roles(Role.ADMIN, Role.STAFF)
@@ -68,5 +68,4 @@ export class VehicleController {
   hardDelete(@Param("id") id: string) {
     return this.vehicleService.hardDelete(id);
   }
-
 }

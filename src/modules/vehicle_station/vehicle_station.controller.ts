@@ -28,11 +28,10 @@ import { ResponseList } from "src/common/response/response-list";
 import { ChangeStatusDto } from "./dto/changeStatus.dto";
 import { VehicleAtStationPaginationDto } from "src/common/pagination/dto/vehicle_at_station/vehicle_at_station-pagination";
 
-
 @Controller("vehicle-station")
 @ApiBearerAuth()
 export class VehicleStationController {
-  constructor(private readonly vehicleStationService: VehicleStationService) { }
+  constructor(private readonly vehicleStationService: VehicleStationService) {}
 
   @Post()
   @Roles(Role.ADMIN, Role.STAFF)

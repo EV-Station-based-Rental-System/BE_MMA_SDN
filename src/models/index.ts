@@ -11,7 +11,7 @@ import { Payment, PaymentSchema } from "./payment.schema";
 import { Pricing, PricingSchema } from "./pricings.schema";
 import { Rental, RentalSchema } from "./rental.schema";
 import { Report, ReportSchema } from "./report.schema";
-import { ReportsPhoto, ReportsPhotoSchema } from "./reports_photo.schema";;
+import { ReportsPhoto, ReportsPhotoSchema } from "./reports_photo.schema";
 import { StaffAtStation, StaffAtStationSchema } from "./staff_at_station.schema";
 import { StaffTransfer, StaffTransferSchema } from "./staff_transfer.schema";
 import { Station, StationSchema } from "./station.schema";

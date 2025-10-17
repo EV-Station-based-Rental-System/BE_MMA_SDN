@@ -27,4 +27,3 @@ export class ReportDto {
   @IsInt()
   over_deposit_fee_amount: number;
 }
-

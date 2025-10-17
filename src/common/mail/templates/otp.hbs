@@ -1,76 +1,76 @@
-<!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Verification OTP</title>
-  <style>
-    body {
-      background-color: #f4f4f7;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    .container {
-      max-width: 480px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 10px;
-      padding: 30px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-    .header {
-      text-align: center;
-      border-bottom: 2px solid #4CAF50;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-    }
-    .header h2 {
-      color: #4CAF50;
-      margin: 0;
-    }
-    .otp-box {
-      background: #f9f9f9;
-      border: 1px dashed #4CAF50;
-      border-radius: 6px;
-      text-align: center;
-      font-size: 26px;
-      font-weight: bold;
-      letter-spacing: 6px;
-      padding: 16px;
-      color: #333;
-    }
-    .content {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-    .footer {
-      text-align: center;
-      font-size: 13px;
-      color: #999;
-      margin-top: 25px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2>Verification OTP</h2>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verification OTP</title>
+    <style>
+      body {
+        background-color: #f4f4f7;
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        max-width: 480px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        border-bottom: 2px solid #4caf50;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .header h2 {
+        color: #4caf50;
+        margin: 0;
+      }
+      .otp-box {
+        background: #f9f9f9;
+        border: 1px dashed #4caf50;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        letter-spacing: 6px;
+        padding: 16px;
+        color: #333;
+      }
+      .content {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .footer {
+        text-align: center;
+        font-size: 13px;
+        color: #999;
+        margin-top: 25px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>Verification OTP</h2>
+      </div>
 
-    <div class="content">
-      <p>Hello <b>{{email}}</b>,</p>
-      <p>Your OTP code for account verification is:</p>
-      <div class="otp-box">{{code}}</div>
-      <p>This code is valid for <b>5 minutes</b>.
-      If you did not request verification, please ignore this email.</p>
-    </div>
+      <div class="content">
+        <p>Hello <b>{{email}}</b>,</p>
+        <p>Your OTP code for account verification is:</p>
+        <div class="otp-box">{{code}}</div>
+        <p>This code is valid for <b>5 minutes</b>. If you did not request verification, please ignore this email.</p>
+      </div>
 
-    <div class="footer">
-      © {{year}} MyApp. All rights reserved.
+      <div class="footer">
+        ©
+        {{year}}
+        MyApp. All rights reserved.
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

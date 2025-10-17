@@ -32,7 +32,7 @@ export class UsersService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
-  ) { }
+  ) {}
 
   async findAll(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];
@@ -101,7 +101,7 @@ export class UsersService {
           from: this.staffRepository.collection.name,
           localField: "_id",
           foreignField: "user_id",
-          as: "staff"
+          as: "staff",
         },
       },
       {
@@ -109,7 +109,7 @@ export class UsersService {
           from: this.renterRepository.collection.name,
           localField: "_id",
           foreignField: "user_id",
-          as: "renter"
+          as: "renter",
         },
       },
       {
@@ -117,7 +117,7 @@ export class UsersService {
           from: this.adminRepository.collection.name,
           localField: "_id",
           foreignField: "user_id",
-          as: "admin"
+          as: "admin",
         },
       },
       {
@@ -165,11 +165,7 @@ export class UsersService {
   }
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
-    const user = await this.userRepository.findByIdAndUpdate(
-      id,
-      { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone },
-      { new: true }
-    );
+    const user = await this.userRepository.findByIdAndUpdate(id, { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone }, { new: true });
     if (!user) throw new NotFoundException("User not found");
 
     const objectId = new mongoose.Types.ObjectId(id);

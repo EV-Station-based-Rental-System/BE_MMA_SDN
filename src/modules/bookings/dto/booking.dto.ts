@@ -51,4 +51,3 @@ export class BookingDto {
   @IsInt()
   rental_fee_amount: number;
 }
-

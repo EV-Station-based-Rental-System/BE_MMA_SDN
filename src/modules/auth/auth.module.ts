@@ -11,7 +11,6 @@ import { Renter, RenterSchema } from "src/models/renter.schema";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 
-
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -33,4 +32,4 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, LocalStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

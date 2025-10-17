@@ -1,28 +1,29 @@
-export type BaseJwtUserPayload = {
+import { User } from "src/models/user.schema";
+import { Renter } from "src/models/renter.schema";
+import { Staff } from "src/models/staff.schema";
+import { Admin } from "src/models/admin.schema";
+
+/**
+ * Base JWT payload representing a User document with _id
+ */
+export type BaseJwtUserPayload = Pick<User, "email" | "full_name" | "role"> & {
   _id: string;
-  email: string;
-  fullName: string;
-  role: string;
 };
 
-export type RenterJwtUserPayload = BaseJwtUserPayload & {
-  driver_license_no?: string;
-  address?: string;
-  date_of_birth?: Date;
-  risk_score?: number;
-};
+/**
+ * JWT payload for Renter role - combines User fields with Renter-specific fields
+ */
+export type RenterJwtUserPayload = BaseJwtUserPayload & Pick<Renter, "driver_license_no" | "address" | "date_of_birth" | "risk_score">;
 
-export type StaffJwtUserPayload = BaseJwtUserPayload & {
-  employee_code: string;
-  position: string;
-  hire_date: Date;
-};
+/**
+ * JWT payload for Staff role - combines User fields with Staff-specific fields
+ */
+export type StaffJwtUserPayload = BaseJwtUserPayload & Pick<Staff, "employee_code" | "position" | "hire_date">;
 
-export type AdminJwtUserPayload = BaseJwtUserPayload & {
-  title?: string;
-  notes?: string;
-  hire_date: Date;
-};
+/**
+ * JWT payload for Admin role - combines User fields with Admin-specific fields
+ */
+export type AdminJwtUserPayload = BaseJwtUserPayload & Pick<Admin, "title" | "notes" | "hire_date">;
 
 export type FilterField = {
   field: string;

@@ -5,7 +5,7 @@ import { HydratedDocument } from "mongoose";
 export type StationDocument = HydratedDocument<Station>;
 
 @ApiSchema({
-  name: "Station"
+  name: "Station",
 })
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Station {

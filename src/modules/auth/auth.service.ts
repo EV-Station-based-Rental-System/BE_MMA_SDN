@@ -37,7 +37,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   async validateUser(data: LoginDto): Promise<BaseJwtUserPayload | RenterJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload> {
     const checkUser = (await this.userRepository.findOne({ email: data.email })) as User & { _id: string };
@@ -54,7 +54,7 @@ export class AuthService {
     let userPayload: BaseJwtUserPayload = {
       _id: checkUser._id,
       email: checkUser.email,
-      fullName: checkUser.full_name,
+      full_name: checkUser.full_name,
       role: checkUser.role,
     };
 
