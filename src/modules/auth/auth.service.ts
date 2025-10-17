@@ -119,10 +119,7 @@ export class AuthService {
     return { data: this.generateToken(user) };
   }
   generateToken(payload: BaseJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload) {
-    const access_token = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>("jwt.secret"),
-      expiresIn: this.configService.get<string>("jwt.expiresIn"),
-    });
+    const access_token = this.jwtService.sign(payload);
     return { access_token };
   }
 
