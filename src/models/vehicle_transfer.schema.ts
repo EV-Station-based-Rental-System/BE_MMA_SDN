@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { VehicleTransferStatus } from "src/common/enums/vehicle_transfer.enum";
 
+export type VehicleTransferDocument = mongoose.HydratedDocument<VehicleTransfer>;
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class VehicleTransfer {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Vehicle", index: true })

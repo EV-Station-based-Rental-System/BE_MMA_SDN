@@ -11,6 +11,7 @@ import { Renter, RenterSchema } from "src/models/renter.schema";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -20,16 +21,16 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
       { name: Renter.name, schema: RenterSchema },
     ]),
     JwtModule.registerAsync({
-      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>("jwt.secret"),
+        secret: configService.get<string>("jwt.secret")!,
         signOptions: {
-          expiresIn: configService.get<string>("jwt.expiresIn"),
+          expiresIn: configService.get("jwt.expiresIn")!,
         },
       }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, LocalStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }
