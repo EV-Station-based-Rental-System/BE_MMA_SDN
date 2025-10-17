@@ -12,6 +12,5 @@ export class Contract {
 
   @Prop({ required: true, type: String })
   document_url: string;
-
 }
 export const ContractSchema = SchemaFactory.createForClass(Contract);

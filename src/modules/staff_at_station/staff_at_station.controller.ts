@@ -2,7 +2,15 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuard
 import { StaffAtStationService } from "./staff_at_station.service";
 import { CreateStaffAtStationDto } from "./dto/create-staff_at_station.dto";
 import { UpdateStaffAtStationDto } from "./dto/update-staff_at_station.dto";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiQuery, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiQuery,
+  ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 import { StaffAtStationPaginationDto } from "src/common/pagination/dto/staff_at_station/staff_at_station-pagination";
 import { ResponseBadRequest } from "src/common/response/error/response-bad-request";
 import { ResponseUnauthorized } from "src/common/response/error/response-unauthorized";
@@ -23,7 +31,7 @@ import { ChangeRoleDto } from "./dto/changeRole.dto";
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class StaffAtStationController {
-  constructor(private readonly staffAtStationService: StaffAtStationService) { }
+  constructor(private readonly staffAtStationService: StaffAtStationService) {}
   @Post()
   @ApiOkResponse({ description: "Create staff at station", type: ResponseDetail })
   @ApiBadRequestResponse({ description: "Invalid payload", type: ResponseBadRequest })

@@ -8,13 +8,15 @@ import { Station, StationSchema } from "src/models/station.schema";
 import { User, UserSchema } from "src/models/user.schema";
 
 @Module({
-  imports: [MongooseModule.forFeature([
-    { name: StaffAtStation.name, schema: StaffAtStationSchema },
-    { name: Staff.name, schema: StaffSchema },
-    { name: Station.name, schema: StationSchema },
-    { name: User.name, schema: UserSchema },
-  ])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: StaffAtStation.name, schema: StaffAtStationSchema },
+      { name: Staff.name, schema: StaffSchema },
+      { name: Station.name, schema: StationSchema },
+      { name: User.name, schema: UserSchema },
+    ]),
+  ],
   controllers: [StaffAtStationController],
   providers: [StaffAtStationService],
 })
-export class StaffAtStationModule { }
+export class StaffAtStationModule {}

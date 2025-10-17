@@ -29,7 +29,7 @@ import { ResponseMsg } from "src/common/response/response-message";
 @ApiBearerAuth()
 @Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Roles(Role.ADMIN, Role.STAFF)
   @Get()

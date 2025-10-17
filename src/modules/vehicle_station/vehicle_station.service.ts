@@ -19,15 +19,13 @@ import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
 import { FacetResult } from "src/common/utils/type";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 
-
 @Injectable()
 export class VehicleStationService {
   constructor(
     @InjectModel(VehicleAtStation.name) private readonly vehicleStationRepository: Model<VehicleAtStation>,
     @InjectModel(Vehicle.name) private readonly vehicleRepository: Model<Vehicle>,
     @InjectModel(Station.name) private readonly stationRepository: Model<Station>,
-
-  ) { }
+  ) {}
   async create(createVehicleStationDto: CreateVehicleStationDto): Promise<ResponseDetail<VehicleAtStation>> {
     const newVehicleStation = new this.vehicleStationRepository(createVehicleStationDto);
     const savedVehicleStation = await newVehicleStation.save();
@@ -44,7 +42,7 @@ export class VehicleStationService {
           localField: "vehicle_id",
           foreignField: "_id",
           as: "vehicle",
-        }
+        },
       },
       {
         $lookup: {
@@ -52,13 +50,13 @@ export class VehicleStationService {
           localField: "station_id",
           foreignField: "_id",
           as: "station",
-        }
+        },
       },
       { $unwind: { path: "$station", preserveNullAndEmptyArrays: true } },
-    )
+    );
     applyCommonFiltersMongo(pipeline, filters, VehicleAtStationFieldMapping);
-    const allowedSortFields = ['model_year', 'make', 'model', 'station.name', 'status', 'created_at'];
-    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, 'created_at');
+    const allowedSortFields = ["model_year", "make", "model", "station.name", "status", "created_at"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
     applyFacetMongo(pipeline);
     const result = (await this.vehicleStationRepository.aggregate(pipeline)) as FacetResult<VehicleAtStation>;
@@ -76,14 +74,14 @@ export class VehicleStationService {
   }
 
   async update(id: string, updateVehicleStationDto: UpdateVehicleStationDto): Promise<ResponseDetail<VehicleAtStation | null>> {
-    const updatedVehicleStation = await this.vehicleStationRepository.findByIdAndUpdate(id, updateVehicleStationDto, { new: true })
+    const updatedVehicleStation = await this.vehicleStationRepository.findByIdAndUpdate(id, updateVehicleStationDto, { new: true });
     if (!updatedVehicleStation) {
       throw new NotFoundException("Vehicle at station not found");
     }
     return ResponseDetail.ok(updatedVehicleStation);
   }
   async changeStatus(id: string, changeStatus: ChangeStatusDto): Promise<ResponseDetail<VehicleAtStation | null>> {
-    const updatedVehicleStation = await this.vehicleStationRepository.findByIdAndUpdate(id, { status: changeStatus.status }, { new: true })
+    const updatedVehicleStation = await this.vehicleStationRepository.findByIdAndUpdate(id, { status: changeStatus.status }, { new: true });
     if (!updatedVehicleStation) {
       throw new NotFoundException("Vehicle at station not found");
     }
@@ -95,6 +93,6 @@ export class VehicleStationService {
     return ResponseMsg.ok("Vehicle at station deleted successfully");
   }
   private VehicleAtStationMapping() {
-    return
+    return;
   }
 }

@@ -43,4 +43,3 @@ export class PricingDto {
   @IsInt()
   excess_mileage_fee?: number;
 }
-

@@ -24,4 +24,3 @@ export class FeeDto {
   @IsString()
   currency: string;
 }
-

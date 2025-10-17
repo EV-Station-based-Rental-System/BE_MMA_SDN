@@ -7,12 +7,14 @@ import { Vehicle, VehicleSchema } from "src/models/vehicle.schema";
 import { Station, StationSchema } from "src/models/station.schema";
 
 @Module({
-  imports: [MongooseModule.forFeature([
-    { name: VehicleAtStation.name, schema: VehicleAtStationSchema },
-    { name: Vehicle.name, schema: VehicleSchema },
-    { name: Station.name, schema: StationSchema }
-  ])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: VehicleAtStation.name, schema: VehicleAtStationSchema },
+      { name: Vehicle.name, schema: VehicleSchema },
+      { name: Station.name, schema: StationSchema },
+    ]),
+  ],
   controllers: [VehicleStationController],
   providers: [VehicleStationService],
 })
-export class VehicleStationModule { }
+export class VehicleStationModule {}

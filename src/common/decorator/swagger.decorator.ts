@@ -21,8 +21,6 @@ export function ApiErrorResponses() {
     ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden }),
     ApiNotFoundResponse({ description: "Not found", type: ResponseNotFound }),
     ApiConflictResponse({ description: "Conflict", type: ResponseConflict }),
-    ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
+    ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError }),
   );
 }
-
-

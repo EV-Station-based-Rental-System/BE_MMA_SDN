@@ -29,7 +29,7 @@ import { ResponseBadRequest } from "src/common/response/error/response-bad-reque
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   // =====================
   // LOGIN

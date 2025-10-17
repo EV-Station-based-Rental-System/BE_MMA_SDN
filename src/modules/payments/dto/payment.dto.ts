@@ -20,4 +20,3 @@ export class PaymentDto {
   @IsString()
   transaction_code?: string;
 }
-

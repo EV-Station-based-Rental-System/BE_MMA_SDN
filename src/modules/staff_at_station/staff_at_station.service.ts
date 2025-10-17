@@ -28,7 +28,7 @@ export class StaffAtStationService {
     @InjectModel(Staff.name) private readonly staffRepository: Model<Staff>,
     @InjectModel(Station.name) private readonly stationRepository: Model<Station>,
     @InjectModel(User.name) private readonly userRepository: Model<User>,
-  ) { }
+  ) {}
 
   async create(createStaffAtStationDto: CreateStaffAtStationDto): Promise<ResponseDetail<StaffAtStation>> {
     const newStaffAtStation = new this.staffAtStationModel(createStaffAtStationDto);
@@ -38,7 +38,6 @@ export class StaffAtStationService {
 
   async findAll(filters: StaffAtStationPaginationDto): Promise<ResponseList<StaffAtStation>> {
     const pipeline: any[] = [
-
       {
         $lookup: {
           from: this.staffRepository.collection.name,
@@ -49,19 +48,15 @@ export class StaffAtStationService {
       },
       { $unwind: { path: "$staff", preserveNullAndEmptyArrays: true } },
 
-
       {
         $lookup: {
           from: this.userRepository.collection.name,
           let: { userId: "$staff.user_id" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$userId"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$userId"] } } }],
           as: "user",
         },
       },
       { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
-
 
       {
         $lookup: {
@@ -74,15 +69,14 @@ export class StaffAtStationService {
       { $unwind: { path: "$station", preserveNullAndEmptyArrays: true } },
     ];
     applyCommonFiltersMongo(pipeline, filters, StaffAtStationFieldMapping);
-    const allowedSortFields = ['created_at', 'staff.full_name', 'station.name'];
-    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, 'created_at');
+    const allowedSortFields = ["created_at", "staff.full_name", "station.name"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
     applyFacetMongo(pipeline);
     const result = (await this.staffAtStationModel.aggregate(pipeline)) as FacetResult<StaffAtStation>;
     const data = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
     return ResponseList.ok(buildPaginationResponse(data, { total, page: filters.page, take: filters.take }));
-
   }
 
   async findOne(id: string): Promise<ResponseDetail<StaffAtStation>> {

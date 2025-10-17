@@ -46,5 +46,3 @@ export class SwaggerResponseMessageDto extends ResponseMsg {
   @ApiProperty({ example: "Action completed successfully" })
   declare message: string;
 }
-
-

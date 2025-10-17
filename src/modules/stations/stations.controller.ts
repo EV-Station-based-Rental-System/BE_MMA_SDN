@@ -39,7 +39,7 @@ import { Station } from "src/models/station.schema";
 @ApiExtraModels(Station)
 @Controller("station")
 export class StationController {
-  constructor(private readonly stationService: StationService) { }
+  constructor(private readonly stationService: StationService) {}
 
   @Roles(Role.ADMIN)
   @Post()

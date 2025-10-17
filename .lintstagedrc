@@ -1,0 +1,4 @@
+{
+  "!(*.ts)": "prettier --write --ignore-unknown",
+  "*.ts": ["eslint --fix \"{src,apps,libs,test}/**/*.ts\"", "prettier --write --ignore-unknown"]
+}
