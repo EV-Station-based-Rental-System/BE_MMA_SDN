@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import { HydratedDocument } from "mongoose";
 import { PaymentMethod, PaymentStatus } from "src/common/enums/payment.enum";
 
 export type PaymentDocument = HydratedDocument<Payment>;
