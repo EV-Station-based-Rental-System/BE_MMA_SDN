@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: eKYC API (v1 Manual)
+  version: 0.1.0
+paths:
+  /ekyc/draft:
+    post:
+      summary: Create or return active draft
+      responses:
+        "201": { description: Draft created }
+  /ekyc/documents:
+    post:
+      summary: Attach document to draft
+      responses:
+        "201": { description: Document attached }
+  /ekyc/submit:
+    post:
+      summary: Submit draft → pending_review
+      responses:
+        "201": { description: Submitted to pending_review }
+  /ekyc/status:
+    get:
+      summary: Get current submission status
+      responses:
+        "200": { description: Current status }
+  /ekyc/resubmit:
+    post:
+      summary: Create new draft if allowed
+      responses:
+        "201": { description: Draft created }
+  /ekyc/reviews:
+    get:
+      summary: List submissions pending_review (staff)
+      responses:
+        "200": { description: List returned }
+  /ekyc/reviews/{submissionId}/approve:
+    post:
+      summary: Approve submission (staff)
+      parameters:
+        - in: path
+          name: submissionId
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Approved }
+  /ekyc/reviews/{submissionId}/reject:
+    post:
+      summary: Reject submission (staff)
+      parameters:
+        - in: path
+          name: submissionId
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Rejected }
+  /ekyc/station/verify:
+    post:
+      summary: Station verify (approve or approve_with_override)
+      responses:
+        "201": { description: Decision recorded }

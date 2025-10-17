@@ -15,4 +15,9 @@ export default () => ({
   redis: {
     url: process.env.REDIS_URL,
   },
+  features: {
+    bypassOtp: ["1", "true", "yes"].includes(String(process.env.BYPASS_OTP || "").toLowerCase()),
+    bypassEmail: ["1", "true", "yes"].includes(String(process.env.BYPASS_EMAIL || "").toLowerCase()),
+    bypassUpload: ["1", "true", "yes"].includes(String(process.env.BYPASS_UPLOAD || "").toLowerCase()),
+  },
 });

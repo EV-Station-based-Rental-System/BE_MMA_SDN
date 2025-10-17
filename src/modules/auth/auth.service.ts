@@ -131,7 +131,7 @@ export class AuthService {
     }
     const newUser = new this.userRepository({
       email: data.email,
-      password_hash: await hashPassword(data.password),
+      password: await hashPassword(data.password),
       full_name: data.full_name,
       role: Role.RENTER,
     });
@@ -157,7 +157,7 @@ export class AuthService {
     }
     const newUser = new this.userRepository({
       email: data.email,
-      password_hash: await hashPassword(data.password),
+      password: await hashPassword(data.password),
       full_name: data.full_name,
       role: Role.STAFF,
     });
@@ -184,7 +184,7 @@ export class AuthService {
     }
     const newUser = new this.userRepository({
       email: data.email,
-      password_hash: await hashPassword(data.password),
+      password: await hashPassword(data.password),
       full_name: data.full_name,
       role: Role.ADMIN,
     });
@@ -208,15 +208,34 @@ export class AuthService {
   }
 
   async sendOtp(data: SendOtpDto): Promise<ResponseMsg> {
+    const bypass = this.configService.get<boolean>("features.bypassOtp") || this.configService.get<boolean>("features.bypassEmail");
+    if (bypass) {
+      // Optionally set a fixed OTP for dev flows; ignore email sending
+      try {
+        await this.redisClient.set(`otp:${data.email}`, "000000", "EX", 300);
+      } catch (_: any) {
+        console.log(_);
+        // ignore redis issues in bypass mode
+      }
+      return ResponseMsg.ok("Send OTP bypassed (dev mode)");
+    }
+
     const randomCode = this.generateCode();
-    //send email
     await this.mailService.sendOtp(data.email, randomCode);
-    //redis
     await this.redisClient.set(`otp:${data.email}`, randomCode, "EX", 300);
     return ResponseMsg.ok("Send OTP successfully");
   }
 
   async verifyEmail(data: VerifyOtpDto): Promise<ResponseMsg> {
+    const bypass = this.configService.get<boolean>("features.bypassOtp") || this.configService.get<boolean>("features.bypassEmail");
+    if (bypass) {
+      try {
+        await this.redisClient.del(`otp:${data.email}`);
+      } catch (_: any) {
+        console.log(_);
+      }
+      return ResponseMsg.ok("Verify email bypassed (dev mode)");
+    }
     const checkOtp = await this.redisClient.get(`otp:${data.email}`);
     if (!checkOtp || checkOtp !== data.otp) {
       throw new ForbiddenException("Invalid OTP");
