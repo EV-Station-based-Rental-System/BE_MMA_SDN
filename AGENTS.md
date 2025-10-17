@@ -27,6 +27,11 @@ src/modules/vehicles
 
 ## Swagger Response Patterns
 - Mirror the controllers in `vehicles`, `vehicle_station`, and `stations`: pair each handler with `@ApiOperation` plus the matching success decorator (`@ApiCreatedResponse`, `@ApiOkResponse`, `@ApiNoContentResponse`, etc.) and keep return types aligned with the service response (`ResponseDetail`, `ResponseList`, `ResponseMsg`).
+- **HTTP Status Code Defaults**: NestJS returns specific status codes by default for each HTTP method. Align Swagger decorators with these defaults:
+  - `@Post()` → **201 Created** → use `@ApiCreatedResponse`
+  - `@Get()`, `@Put()`, `@Patch()` → **200 OK** → use `@ApiOkResponse`
+  - `@Delete()` → **200 OK** (or override to 204 with `@HttpCode(204)` + `@ApiNoContentResponse`)
+- To override default status codes, use `@HttpCode(statusCode)` from `@nestjs/common` and update the corresponding Swagger decorator to match.
 - Document authentication with `@ApiBearerAuth()` whenever `JwtAuthGuard` protects a route, as done in `VehicleStationController` and `StationController`.
 - Reuse shared error response classes (`ResponseBadRequest`, `ResponseUnauthorized`, `ResponseForbidden`, `ResponseNotFound`, `ResponseConflict`, `ResponseInternalError`) inside the corresponding decorators so Swagger advertises the normalized error shape.
 - Expose query parameters explicitly with `@ApiQuery`, following the pagination examples already present in the station and vehicle modules.
