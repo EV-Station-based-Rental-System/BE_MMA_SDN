@@ -3,7 +3,7 @@
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Note**: This template is filled in by the `/speckit.plan` command. The Constitution Check below enumerates project gates enforced by `.specify/memory/constitution.md`.
 
 ## Summary
 
@@ -31,7 +31,13 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Architecture: Feature scaffolded under `src/modules/<feature>`; thin controllers; plural/singular file naming rules; module registered in `AppModule`; services inject repositories via `@InjectModel`.
+- DTOs & Swagger: DTOs fully validated (`class-validator`), transformed (`class-transformer`), and documented (`@ApiProperty*`); update DTOs use `PartialType`.
+- API Responses: Controllers use `ResponseDetail`/`ResponseList`/`ResponseMsg`; include `@ApiOperation` + correct success decorator; guarded routes include `@ApiBearerAuth()`.
+- Errors & Exceptions: Use project exceptions from `src/common/exceptions` and shared error response classes; `HttpErrorInterceptor` remains enabled.
+- Security: Appropriate `@UseGuards(JwtAuthGuard, RolesGuard)` and `@Roles(Role....)`; strategies live under `src/modules/auth/strategies`.
+- Persistence: Schemas under `src/models/*.schema.ts` with timestamps; exported via `src/models/index.ts`; imported with `MongooseModule.forFeature`; use shared pagination helpers.
+- Configuration: Values loaded via `ConfigModule`; required envs available or stubbed for local; no secrets hardcoded.
 
 ## Project Structure
 
@@ -102,4 +108,3 @@ directories captured above]
 |-----------|------------|-------------------------------------|
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
-
