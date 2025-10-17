@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
-
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Station } from "src/models/station.schema";
+import { Station, StationDocument } from "src/models/station.schema";
 import { CreateStationDto } from "./dto/create-station.dto";
 import { UpdateStationDto } from "./dto/update-station.dto";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
@@ -12,18 +11,20 @@ import { applyCommonFiltersMongo } from "src/common/pagination/applyCommonFilter
 import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
 import { applyPaginationMongo } from "src/common/pagination/applyPagination";
 import { applySortingMongo } from "src/common/pagination/applySorting";
-
 import { FacetResult } from "src/common/utils/type";
 import { StationFieldMapping } from "src/common/pagination/filters/station-filed-mapping";
 import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
+import { ResponseMsg } from "src/common/response/response-message";
 
 @Injectable()
 export class StationService {
-  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) {}
-  async create(createStationDto: CreateStationDto): Promise<Station> {
+  constructor(@InjectModel(Station.name) private stationRepository: Model<StationDocument>) {}
+
+  async create(createStationDto: CreateStationDto): Promise<ResponseDetail<Station>> {
     const createdStation = new this.stationRepository(createStationDto);
-    return await createdStation.save();
+    const station = await createdStation.save();
+    return ResponseDetail.ok(station);
   }
 
   async findAll(filters: StationPaginationDto): Promise<ResponseList<Station>> {
@@ -55,13 +56,13 @@ export class StationService {
     return ResponseDetail.ok(updatedStation);
   }
 
-  async softDelete(id: string): Promise<{ msg: string }> {
+  async softDelete(id: string): Promise<ResponseMsg> {
     await this.stationRepository.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
-    return { msg: "Station soft deleted successfully" };
+    return ResponseMsg.ok("Station soft deleted successfully");
   }
 
-  async hardDelete(id: string): Promise<{ msg: string }> {
+  async hardDelete(id: string): Promise<ResponseMsg> {
     await this.stationRepository.findByIdAndDelete(id);
-    return { msg: "Station hard deleted successfully" };
+    return ResponseMsg.ok("Station hard deleted successfully");
   }
 }
