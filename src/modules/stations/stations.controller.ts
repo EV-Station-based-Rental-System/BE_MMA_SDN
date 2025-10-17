@@ -9,6 +9,7 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
@@ -31,12 +32,14 @@ import { ResponseDetail } from "src/common/response/response-detail-create-updat
 import { ResponseList } from "src/common/response/response-list";
 import { ResponseNotFound } from "src/common/response/error/response-notfound";
 import { ResponseMsg } from "src/common/response/response-message";
+import { Station } from "src/models/station.schema";
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
+@ApiExtraModels(Station)
 @Controller("station")
 export class StationController {
-  constructor(private readonly stationService: StationService) {}
+  constructor(private readonly stationService: StationService) { }
 
   @Roles(Role.ADMIN)
   @Post()
@@ -112,7 +115,7 @@ export class StationController {
   @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
   @ApiNotFoundResponse({ description: "Station not found", type: ResponseNotFound })
   @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
-  hashDelete(@Param("id") id: string) {
-    return this.stationService.hashDelete(id);
+  hardDelete(@Param("id") id: string) {
+    return this.stationService.hardDelete(id);
   }
 }

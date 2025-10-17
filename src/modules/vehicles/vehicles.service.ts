@@ -20,11 +20,13 @@ import { buildPaginationResponse } from "src/common/pagination/pagination-respon
 @Injectable()
 export class VehicleService {
   constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) { }
+
   async create(createVehicleDto: CreateVehicleDto): Promise<ResponseDetail<Vehicle>> {
     const newVehicle = new this.vehicleRepository(createVehicleDto);
     const savedVehicle = await newVehicle.save();
     return ResponseDetail.ok(savedVehicle);
   }
+
   async findAll(filters: VehiclePaginationDto): Promise<ResponseList<Vehicle>> {
     const pipeline: any[] = [];
     applyCommonFiltersMongo(pipeline, filters, VehicleFieldMapping);
@@ -49,6 +51,7 @@ export class VehicleService {
     if (!vehicle) throw new NotFoundException("Vehicle not found");
     return ResponseDetail.ok(vehicle);
   }
+
   async update(id: string, updateVehicleDto: UpdateVehicleDto): Promise<ResponseDetail<Vehicle>> {
     const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(id, updateVehicleDto, { new: true });
     if (!updatedVehicle) {
@@ -56,11 +59,13 @@ export class VehicleService {
     }
     return ResponseDetail.ok(updatedVehicle);
   }
+
   async softDelete(id: string): Promise<ResponseMsg> {
     await this.vehicleRepository.findByIdAndUpdate(id, { is_active: false }, { new: true });
     return ResponseMsg.ok("Vehicle soft-deleted successfully");
   }
-  async hashDelete(id: string): Promise<ResponseMsg> {
+
+  async hardDelete(id: string): Promise<ResponseMsg> {
     await this.vehicleRepository.findByIdAndDelete(id);
     return ResponseMsg.ok("Vehicle hard-deleted successfully");
   }

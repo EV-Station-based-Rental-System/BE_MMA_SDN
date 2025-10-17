@@ -42,10 +42,7 @@ export type MetaOptions = {
   totalSuccess?: number;
   totalFailed?: number;
   totalPending?: number;
-  revenue?: string | number;
   [key: string]: any;
-  // totalMovieAvailable?: number;
-  // totalMovieDeleted?: number;
 };
 
 export type FacetResult<T> = {

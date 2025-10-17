@@ -46,7 +46,7 @@ export class AuthService {
       throw new NotFoundException("User not found");
     }
 
-    const isPasswordValid = await comparePassword(data.password, checkUser.password_hash);
+    const isPasswordValid = await comparePassword(data.password, checkUser.password);
     if (!isPasswordValid) {
       throw new ForbiddenException("Wrong password");
     }
@@ -231,7 +231,7 @@ export class AuthService {
       throw new NotFoundException("User not found");
     }
     const newPasswordHash = await hashPassword(data.new_password);
-    user.password_hash = newPasswordHash;
+    user.password = newPasswordHash;
     await user.save();
     return ResponseMsg.ok("Reset password successfully");
   }

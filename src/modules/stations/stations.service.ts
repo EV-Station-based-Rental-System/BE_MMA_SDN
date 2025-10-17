@@ -20,7 +20,7 @@ import { ResponseDetail } from "src/common/response/response-detail-create-updat
 
 @Injectable()
 export class StationService {
-  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) {}
+  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) { }
   async create(createStationDto: CreateStationDto): Promise<Station> {
     const createdStation = new this.stationRepository(createStationDto);
     return await createdStation.save();
@@ -60,7 +60,7 @@ export class StationService {
     return { msg: "Station soft deleted successfully" };
   }
 
-  async hashDelete(id: string): Promise<{ msg: string }> {
+  async hardDelete(id: string): Promise<{ msg: string }> {
     await this.stationRepository.findByIdAndDelete(id);
     return { msg: "Station hard deleted successfully" };
   }
