@@ -11,6 +11,7 @@ import { VehicleModule } from "./modules/vehicles/vehicles.module";
 import { StationModule } from "./modules/stations/stations.module";
 import { VehicleStationModule } from "./modules/vehicle_station/vehicle_station.module";
 import { StaffAtStationModule } from "./modules/staff_at_station/staff_at_station.module";
+import { ImagekitModule } from "./common/imagekit/imagekit.module";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { StaffAtStationModule } from "./modules/staff_at_station/staff_at_statio
     MailModule,
     RedisModule,
     StationModule,
+    ImagekitModule,
   ],
 })
 export class AppModule {}

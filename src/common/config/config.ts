@@ -15,4 +15,9 @@ export default () => ({
   redis: {
     url: process.env.REDIS_URL,
   },
+  image_kit: {
+    publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+  },
 });
