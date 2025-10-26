@@ -87,7 +87,6 @@ export class UsersController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: "Soft delete user" })
   @ApiOkResponse({ description: "User soft deleted", type: ResponseMsg })
   @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
@@ -100,7 +99,6 @@ export class UsersController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: "Restore user status" })
   @ApiOkResponse({ description: "User status restored", type: ResponseMsg })
   @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
