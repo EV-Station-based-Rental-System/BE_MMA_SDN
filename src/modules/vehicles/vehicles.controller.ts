@@ -13,14 +13,13 @@ import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/res
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import { RolesGuard } from "src/common/guards/roles.guard";
 
-
-@ApiBearerAuth()
 @ApiExtraModels(Vehicle)
 @Controller("vehicle")
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
 
   @Post()
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.STAFF)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBody({ type: CreateVehicleDto })
@@ -52,6 +51,7 @@ export class VehicleController {
   }
 
   @Roles(Role.ADMIN, Role.STAFF)
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(":id")
   @ApiOkResponse({ description: "Vehicle updated", type: SwaggerResponseDetailDto(Vehicle) })
@@ -62,6 +62,7 @@ export class VehicleController {
   }
 
   @Roles(Role.ADMIN)
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOkResponse({ description: "Vehicle soft-deleted", type: ResponseMsg })
   @ApiErrorResponses()
@@ -71,6 +72,7 @@ export class VehicleController {
   }
 
   @Roles(Role.ADMIN)
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(":id")
   @ApiOkResponse({ description: "Vehicle hard-deleted", type: ResponseMsg })
