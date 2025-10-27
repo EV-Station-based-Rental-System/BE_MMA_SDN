@@ -1,5 +1,5 @@
 import { IsString, IsDateString, IsOptional } from "class-validator";
-import { UserDto } from "./user.dto";
+import { UserDto } from "./auth-user.dto";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class RenterDto extends UserDto {

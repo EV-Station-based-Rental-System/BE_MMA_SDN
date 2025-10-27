@@ -1,111 +1,80 @@
-# Implementation Plan: CRUD APIs for Models
+# Implementation Plan: Simple CRUD APIs for All Models
 
-**Branch**: `001-crud-model-apis` | **Date**: 2025-10-27 | **Spec**: specs/001-crud-model-apis/spec.md
+**Branch**: `001-crud-model-apis` | **Date**: 2025-10-27 | **Spec**: `/specs/001-crud-model-apis/spec.md`
 **Input**: Feature specification from `/specs/001-crud-model-apis/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+Note: This plan follows the repository Constitution at `.specify/memory/constitution.md`.
 
 ## Summary
 
-Implement simple, role-aware CRUD REST APIs for Phase 1 entities
-+(User incl. Admin/Staff/Renter details, Vehicle, Station, Booking,
-+Rental, Payment). Endpoints follow NestJS conventions, return shared
-+response wrappers, enforce DTO validation and authorization, provide
-+pagination/sorting/filtering, and honor the deletion policy (prefer
-+soft-delete where supported; otherwise block hard-delete when
-+referenced). OpenAPI contracts included]
+Deliver Phase 1 CRUD APIs for the following entities: User, Vehicle, Station, Booking, Rental, and Payment. Each entity exposes list (pagination, sorting, basic filtering), detail, create, update, and delete endpoints. Controllers remain thin and delegate to services; validation uses DTOs with class-validator/transformer and Swagger stays in sync. Access is enforced via JWT + role guards (Admin/Staff/Renter) per spec. Persistence uses Mongoose 8 schemas under `src/models` and shared pagination/sorting helpers. Deletion policy prefers soft-delete where supported; otherwise block hard-delete when referenced.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: TypeScript 5.7; ES2023 target  
-**Primary Dependencies**: NestJS 11, @nestjs/mongoose 11, Mongoose 8,
-@nestjs/swagger 11, class-validator/transformer, @nestjs/jwt, ioredis  
-**Storage**: MongoDB (Mongoose)  
-**Testing**: Jest (unit/integration), Supertest (e2e)  
-**Target Platform**: Linux server (Node.js)
-**Project Type**: single backend  
-**Performance Goals**: List endpoints return within 2s at default page sizes; max page size 100  
-**Constraints**: JWT auth + role guards; soft-delete where supported; block hard-delete when referenced; validated DTOs; consistent wrappers  
-**Scale/Scope**: Phase 1 entities (6 sets of CRUD endpoints) with pagination and filtering on key fields
+**Language/Version**: TypeScript 5.7 (ES2023)
+**Runtime**: Node.js (Linux server)
+**Primary Dependencies**: NestJS 11, @nestjs/mongoose 11, Mongoose 8, @nestjs/swagger 11, class-validator, class-transformer, passport + JWT, rxjs
+**Storage**: MongoDB via Mongoose
+**Testing**: Jest (unit + e2e), Supertest, mongodb-memory-server
+**Target Platform**: Linux server (container-friendly)
+**Project Type**: Single backend service (NestJS)
+**Performance Goals**: List endpoints return within 2s for default page sizes; `take` capped at 100; stable default sorting
+**Constraints**: Global ValidationPipe (whitelist, forbidNonWhitelisted, transform); shared pagination/sorting helpers; soft-delete where available; consistent response wrappers and error classes
+**Scale/Scope**: Phase 1 scope only: User, Vehicle, Station, Booking, Rental, Payment
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+Gate status: PASS (pre‑research). Re‑checked after design: PASS.
 
-- I. Modular Nest Architecture & Thin Controllers
-  - New modules/controllers placed under `src/modules/<entity>`; thin
-    controllers delegating to services.
-- II. Strict DTO Validation & Transformation with Swagger Sync
-  - All DTOs use class-validator/transformer; Swagger decorators for
-    all fields and bodies.
-- III. Consistent API Documentation & Response Wrappers
-  - Use ApiOperation/ApiOk/ApiCreated; `SwaggerResponseDetailDto` /
-    `SwaggerResponseListDto` and `ResponseMsg` for message-only.
-- IV. Security & Access Control by Default
-  - `@UseGuards(JwtAuthGuard, RolesGuard)`; `@Roles(...)` per role
-    matrix; `@ApiBearerAuth()` on guarded routes.
-- V. Persistence Discipline & Shared Utilities
-  - Use existing schemas, pagination helpers, sorting whitelist,
-    and common utilities.
-- VI. Controllers & Services Pattern (Vehicles/Stations Standard)
-  - Follow same conventions for base paths, decorators, and
-    response patterns.
+- Modular Nest architecture: modules under `src/modules/<feature>` with thin controllers and singular base paths (Principle I). Plan adheres.
+- DTO validation + Swagger sync: explicit DTOs with class‑validator, class‑transformer, `PartialType` for updates, and `@ApiProperty*` on fields (Principle II). Plan adheres.
+- API docs + response wrappers: use `SwaggerResponseDetailDto`, `SwaggerResponseListDto`, `ResponseMsg`, with proper status mappings and `@ApiExtraModels` (Principle III). Plan adheres.
+- Security & access control: apply `JwtAuthGuard`, `RolesGuard`, `@Roles(...)`, `@ApiBearerAuth()` on guarded routes (Principle IV). Plan adheres.
+- Persistence discipline: schemas in `src/models`, exported via `src/models/index.ts`, injected via `@InjectModel`, reuse shared pagination/sorting helpers with whitelists (Principle V). Plan adheres.
+- Controllers & services pattern: follows Vehicles/Stations standards for CRUD flows and exceptions (Principle VI). Plan adheres.
+- Configuration & env: use global `ConfigModule`; required keys set for local dev (MONGO_URI, JWT_* , MAIL_*, REDIS_URL). Plan adheres.
 
-Gate evaluation: PASS. No deviations required.
+No deviations from the Constitution. Complexity Tracking not required.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+specs/001-crud-model-apis/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output (OpenAPI)
+└── checklists/          # Requirements checks (if any)
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```text
 src/
-├── models/                 # Existing Mongoose schemas
-├── modules/                # Controllers/Services per entity
-│   ├── stations/
-│   ├── vehicles/
-│   ├── users/
-│   └── ... (to add bookings, rentals, payments)
-└── common/                 # Pagination, responses, guards, exceptions
+├── app.module.ts
+├── main.ts
+├── models/                     # Mongoose schemas (exported via index.ts)
+├── common/                     # shared utils, enums, guards, interceptors, response wrappers, pagination
+└── modules/
+    ├── vehicles/
+    ├── stations/
+    ├── users/
+    ├── bookings/
+    ├── rentals/                # to be completed per Phase 1
+    └── payments/               # to be completed per Phase 1
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+test/
+├── app.e2e-spec.ts
+├── vehicles.e2e-spec.ts
+└── jest-e2e.json
 ```
 
-**Structure Decision**: Single backend project. Add missing modules for
-Booking, Rental, Payment under `src/modules/` following vehicle/station
-patterns
+**Structure Decision**: Single backend service using NestJS modules under `src/modules` with Mongoose schemas in `src/models` and shared utilities in `src/common`. Documentation for this feature lives under `specs/001-crud-model-apis`.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+No violations; section not applicable.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

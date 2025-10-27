@@ -30,8 +30,8 @@ export class StationService {
   async findAll(filters: StationPaginationDto): Promise<ResponseList<Station>> {
     const pipeline: any[] = [];
     applyCommonFiltersMongo(pipeline, filters, StationFieldMapping);
-    const allowedSortFields = ["name", "create_at"];
-    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "create_at");
+    const allowedSortFields = ["name", "created_at"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
     applyFacetMongo(pipeline);
     const result = (await this.stationRepository.aggregate(pipeline)) as FacetResult<Station>;

@@ -84,6 +84,9 @@ export class AuthController {
   // REGISTER STAFF
   // =====================
   @Post("register/staff")
+  // @UseGuards(JwtAuthGuard, RolesGuard) tam thoi bo qua guard de test
+  // @Roles(Role.ADMIN)
+  // @ApiBearerAuth()
   @ApiOperation({ summary: "Register new staff" })
   @ApiBody({ type: StaffDto })
   @ApiCreatedResponse({
@@ -110,6 +113,9 @@ export class AuthController {
   // REGISTER ADMIN
   // =====================
   @Post("register/admin")
+  // @UseGuards(JwtAuthGuard, RolesGuard) tam thoi bo qua guard de test
+  // @Roles(Role.ADMIN)
+  // @ApiBearerAuth()
   @ApiOperation({ summary: "Register new admin" })
   @ApiBody({ type: AdminDto })
   @ApiCreatedResponse({

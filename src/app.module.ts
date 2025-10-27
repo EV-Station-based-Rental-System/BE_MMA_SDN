@@ -12,6 +12,9 @@ import { StationModule } from "./modules/stations/stations.module";
 import { VehicleStationModule } from "./modules/vehicle_station/vehicle_station.module";
 import { StaffAtStationModule } from "./modules/staff_at_station/staff_at_station.module";
 import { ImagekitModule } from "./common/imagekit/imagekit.module";
+import { BookingsModule } from "./modules/bookings/bookings.module";
+import { RentalsModule } from "./modules/rentals/rentals.module";
+import { PaymentsModule } from "./modules/payments/payments.module";
 
 @Module({
   imports: [
@@ -36,6 +39,9 @@ import { ImagekitModule } from "./common/imagekit/imagekit.module";
     RedisModule,
     StationModule,
     ImagekitModule,
+    BookingsModule,
+    RentalsModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}

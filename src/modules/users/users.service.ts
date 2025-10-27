@@ -9,6 +9,7 @@ import { Staff } from "src/models/staff.schema";
 import { User } from "src/models/user.schema";
 import { UpdateStaffDto } from "./dto/staff.dto";
 import { UpdateRenterDto } from "./dto/renter.dto";
+import { UpdateUserDto } from "./dto/manage-user.dto";
 import { UserWithRoleExtra } from "src/common/interfaces/user.interface";
 import { ConflictException } from "src/common/exceptions/conflict.exception";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
@@ -23,6 +24,7 @@ import { FacetResult } from "src/common/utils/type";
 import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
+import { hashPassword } from "src/common/utils/helper";
 import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
 
 @Injectable()
@@ -34,6 +36,64 @@ export class UsersService {
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
   ) {}
+
+  // Account creation is handled in Auth module
+
+  async findAllUsers(filters: UserPaginationDto): Promise<ResponseList<User>> {
+    const pipeline: any[] = [];
+
+    applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
+    const allowedSortFields = ["full_name", "email", "phone", "created_at"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
+    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
+    applyFacetMongo(pipeline);
+
+    const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<User>;
+    const users = result[0]?.data || [];
+    const total = result[0]?.meta?.[0]?.total || 0;
+
+    return ResponseList.ok(buildPaginationResponse(users, { total, page: filters.page, take: filters.take }));
+  }
+
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<ResponseDetail<User>> {
+    const payload: Partial<User> = {};
+
+    if (updateUserDto.email) {
+      const normalizedEmail = updateUserDto.email.toLowerCase();
+      const existingUser = await this.userRepository.findOne({ email: normalizedEmail, _id: { $ne: id } });
+      if (existingUser) {
+        throw new ConflictException("Email already exists");
+      }
+      payload.email = normalizedEmail;
+    }
+
+    if (updateUserDto.password) {
+      payload.password = await hashPassword(updateUserDto.password);
+    }
+
+    if (updateUserDto.full_name !== undefined) {
+      payload.full_name = updateUserDto.full_name;
+    }
+
+    if (updateUserDto.role !== undefined) {
+      payload.role = updateUserDto.role;
+    }
+
+    if (updateUserDto.phone !== undefined) {
+      payload.phone = updateUserDto.phone;
+    }
+
+    if (updateUserDto.is_active !== undefined) {
+      payload.is_active = updateUserDto.is_active;
+    }
+
+    const updatedUser = await this.userRepository.findByIdAndUpdate(id, payload, { new: true });
+    if (!updatedUser) {
+      throw new NotFoundException("User not found");
+    }
+
+    return ResponseDetail.ok(updatedUser);
+  }
 
   async findAllUser(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];

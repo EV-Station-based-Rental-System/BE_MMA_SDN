@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { UserDto } from "./user.dto";
+import { UserDto } from "./auth-user.dto";
 import { IsString, IsOptional } from "class-validator";
 
 export class AdminDto extends UserDto {

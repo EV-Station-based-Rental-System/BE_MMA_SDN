@@ -16,8 +16,8 @@
 - Users: `GET/POST /user`, `GET/PUT/DELETE /user/{id}`
 - Vehicles: `GET/POST /vehicle`, `GET/PUT/DELETE /vehicle/{id}`
 - Stations: `GET/POST /station`, `GET/PUT/DELETE /station/{id}`
-- Bookings: `GET/POST /booking`, `GET/PUT/DELETE /booking/{id}`
-- Rentals: `GET/POST /rental`, `GET/PUT/DELETE /rental/{id}`
+- Bookings: `GET/POST /booking`, `GET/PUT/DELETE /booking/{id}`, renter self-service `GET /booking/me`, `PATCH /booking/{id}/cancel`
+- Rentals: `GET/POST /rental`, `GET/PUT/DELETE /rental/{id}`, renter self-service `GET /rental/me`
 - Payments: `GET/POST /payment`, `GET/PUT/DELETE /payment/{id}`
 
 ## Pagination & Sorting

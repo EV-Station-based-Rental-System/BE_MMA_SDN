@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsString, IsDateString, IsOptional } from "class-validator";
-import { UpdateUserDto } from "./user.dto";
+import { UpdateUserDto } from "./manage-user.dto";
 
 export class UpdateRenterDto extends UpdateUserDto {
   @ApiPropertyOptional({ description: "Driver license number", example: "AB123456", required: false })

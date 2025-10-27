@@ -1,17 +1,20 @@
-import { Controller, Get, Body, Patch, Param, Delete, Put, UseGuards, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Put, Query, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { UpdateRenterDto } from "./dto/renter.dto";
 import { UpdateStaffDto } from "./dto/staff.dto";
+import { UpdateUserDto } from "./dto/manage-user.dto";
 import { Roles } from "src/common/decorator/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import {
+  ApiBody,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiExtraModels,
   ApiQuery,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
@@ -25,12 +28,49 @@ import { ResponseInternalError } from "src/common/response/error/response-intern
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
 import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
+import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
+import { User } from "src/models/user.schema";
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
-@Controller("users")
+@ApiExtraModels(User)
+@Controller("user")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Roles(Role.ADMIN, Role.STAFF)
+  @Get()
+  @ApiOperation({ summary: "List users" })
+  @ApiOkResponse({ description: "List of users", type: SwaggerResponseListDto(User) })
+  @ApiBadRequestResponse({ description: "Invalid query", type: ResponseBadRequest })
+  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
+  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
+  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
+  listUsers(@Query() query: UserPaginationDto) {
+    const { page = 1, take = 10, ...restFilters } = query;
+    return this.usersService.findAllUsers({
+      page,
+      take: Math.min(take, 100),
+      ...restFilters,
+    });
+  }
+
+  @Roles(Role.ADMIN)
+  // Account creation is handled in Auth module
+  @Roles(Role.ADMIN)
+  @Put(":id")
+  @ApiOperation({ summary: "Update user" })
+  @ApiOkResponse({ description: "User updated", type: SwaggerResponseDetailDto(User) })
+  @ApiBadRequestResponse({ description: "Invalid payload", type: ResponseBadRequest })
+  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
+  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
+  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
+  @ApiBody({ type: UpdateUserDto })
+  update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateUser(id, updateUserDto);
+  }
 
   @Roles(Role.ADMIN, Role.STAFF)
   @Get("renter")
@@ -131,7 +171,7 @@ export class UsersController {
   }
 
   @Roles(Role.ADMIN)
-  @Delete(":id")
+  @Delete("hard/:id")
   @ApiOperation({ summary: "Hard delete user" })
   @ApiOkResponse({ description: "User hard deleted", type: ResponseMsg })
   @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
