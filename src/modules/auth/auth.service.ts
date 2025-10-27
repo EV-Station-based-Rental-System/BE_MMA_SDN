@@ -131,7 +131,7 @@ export class AuthService {
     }
     const newUser = new this.userRepository({
       email: data.email,
-      password_hash: await hashPassword(data.password),
+      password: await hashPassword(data.password),
       full_name: data.full_name,
       role: Role.RENTER,
     });
@@ -157,7 +157,7 @@ export class AuthService {
     }
     const newUser = new this.userRepository({
       email: data.email,
-      password_hash: await hashPassword(data.password),
+      password: await hashPassword(data.password),
       full_name: data.full_name,
       role: Role.STAFF,
     });
@@ -184,7 +184,7 @@ export class AuthService {
     }
     const newUser = new this.userRepository({
       email: data.email,
-      password_hash: await hashPassword(data.password),
+      password: await hashPassword(data.password),
       full_name: data.full_name,
       role: Role.ADMIN,
     });
