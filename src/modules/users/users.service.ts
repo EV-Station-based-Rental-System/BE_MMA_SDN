@@ -23,6 +23,7 @@ import { FacetResult } from "src/common/utils/type";
 import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
+import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
 
 @Injectable()
 export class UsersService {
@@ -34,18 +35,12 @@ export class UsersService {
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
   ) {}
 
-  async findAll(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
+  async findAllUser(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];
 
+    // Only get renter users
     pipeline.push(
-      {
-        $lookup: {
-          from: this.staffRepository.collection.name,
-          localField: "_id",
-          foreignField: "user_id",
-          as: "staff",
-        },
-      },
+      { $match: { role: "renter" } },
       {
         $lookup: {
           from: this.renterRepository.collection.name,
@@ -55,32 +50,46 @@ export class UsersService {
         },
       },
       {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$renter", 0] },
+        },
+      },
+      { $project: { renter: 0 } },
+    );
+
+    applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
+    const allowedSortFields = ["full_name", "email", "phone", "created_at"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
+    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
+    applyFacetMongo(pipeline);
+
+    const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<UserWithRoleExtra>;
+    const users = result[0]?.data || [];
+    const total = result[0]?.meta?.[0]?.total || 0;
+
+    return ResponseList.ok(buildPaginationResponse(users, { total, page: filters.page, take: filters.take }));
+  }
+
+  async findAllStaff(filters: StaffPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
+    const pipeline: any[] = [
+      { $match: { role: "staff" } },
+      {
         $lookup: {
-          from: this.adminRepository.collection.name,
+          from: this.staffRepository.collection.name,
           localField: "_id",
           foreignField: "user_id",
-          as: "admin",
+          as: "staff",
         },
       },
       {
         $addFields: {
-          roleExtra: {
-            $switch: {
-              branches: [
-                { case: { $eq: ["$role", "staff"] }, then: { $arrayElemAt: ["$staff", 0] } },
-                { case: { $eq: ["$role", "renter"] }, then: { $arrayElemAt: ["$renter", 0] } },
-                { case: { $eq: ["$role", "admin"] }, then: { $arrayElemAt: ["$admin", 0] } },
-              ],
-              default: null,
-            },
-          },
+          roleExtra: { $arrayElemAt: ["$staff", 0] },
         },
       },
-      { $project: { staff: 0, renter: 0, admin: 0 } },
-    );
+      { $project: { staff: 0 } },
+    ];
 
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
-
     const allowedSortFields = ["full_name", "email", "phone", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
@@ -113,21 +122,12 @@ export class UsersService {
         },
       },
       {
-        $lookup: {
-          from: this.adminRepository.collection.name,
-          localField: "_id",
-          foreignField: "user_id",
-          as: "admin",
-        },
-      },
-      {
         $addFields: {
           roleExtra: {
             $switch: {
               branches: [
                 { case: { $eq: ["$role", "staff"] }, then: { $arrayElemAt: ["$staff", 0] } },
                 { case: { $eq: ["$role", "renter"] }, then: { $arrayElemAt: ["$renter", 0] } },
-                { case: { $eq: ["$role", "admin"] }, then: { $arrayElemAt: ["$admin", 0] } },
               ],
               default: null,
             },
