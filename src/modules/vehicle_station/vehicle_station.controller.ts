@@ -31,7 +31,7 @@ export class VehicleStationController {
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.STAFF)
+  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
   @ApiOkResponse({ description: "List of vehicles at all stations", type: SwaggerResponseListDto(VehicleAtStation) })
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
@@ -46,7 +46,7 @@ export class VehicleStationController {
   }
 
   @Get(":id")
-  @Roles(Role.ADMIN, Role.STAFF)
+  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
   @ApiOkResponse({ description: "Vehicle at station found", type: SwaggerResponseDetailDto(VehicleAtStation) })
   @ApiErrorResponses()
   findOne(@Param("id") id: string) {

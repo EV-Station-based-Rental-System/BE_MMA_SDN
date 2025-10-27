@@ -24,6 +24,7 @@ import { ResponseForbidden } from "src/common/response/error/response-forbidden"
 import { ResponseInternalError } from "src/common/response/error/response-internal-error";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
+import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
@@ -32,8 +33,27 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Roles(Role.ADMIN, Role.STAFF)
-  @Get()
-  @ApiOperation({ summary: "Get all users for admin" })
+  @Get("renter")
+  @ApiOperation({ summary: "Get all renter " })
+  @ApiOkResponse({ description: "List of renter", type: ResponseList })
+  @ApiBadRequestResponse({ description: "Invalid query", type: ResponseBadRequest })
+  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
+  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
+  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
+  async findAllUser(@Query() query: UserPaginationDto) {
+    const { page = 1, take = 10, ...restFilters } = query;
+    return await this.usersService.findAllUser({
+      page,
+      take: Math.min(take, 100),
+      ...restFilters,
+    });
+  }
+
+  @Roles(Role.ADMIN)
+  @Get("staff")
+  @ApiOperation({ summary: "Get all staff " })
   @ApiOkResponse({ description: "List of users", type: ResponseList })
   @ApiBadRequestResponse({ description: "Invalid query", type: ResponseBadRequest })
   @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
@@ -41,9 +61,9 @@ export class UsersController {
   @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
-  async findAll(@Query() query: UserPaginationDto) {
+  async findAllStaff(@Query() query: StaffPaginationDto) {
     const { page = 1, take = 10, ...restFilters } = query;
-    return await this.usersService.findAll({
+    return await this.usersService.findAllStaff({
       page,
       take: Math.min(take, 100),
       ...restFilters,
@@ -87,7 +107,6 @@ export class UsersController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: "Soft delete user" })
   @ApiOkResponse({ description: "User soft deleted", type: ResponseMsg })
   @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
@@ -100,7 +119,6 @@ export class UsersController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: "Restore user status" })
   @ApiOkResponse({ description: "User status restored", type: ResponseMsg })
   @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
