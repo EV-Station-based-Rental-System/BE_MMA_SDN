@@ -46,6 +46,9 @@ importers:
       class-validator:
         specifier: ^0.14.2
         version: 0.14.2
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       imagekit:
         specifier: ^6.0.0
         version: 6.0.0
@@ -86,6 +89,9 @@ importers:
       "@eslint/js":
         specifier: ^9.18.0
         version: 9.37.0
+      "@faker-js/faker":
+        specifier: ^10.1.0
+        version: 10.1.0
       "@nestjs/cli":
         specifier: ^11.0.0
         version: 11.0.10(@types/node@22.18.11)
@@ -695,6 +701,10 @@ packages:
   "@eslint/plugin-kit@0.4.0":
     resolution: { integrity: sha512-sB5uyeq+dwCWyPi31B2gQlVlo+j5brPlWx4yZBrEaRo/nhdDE8Xke1gsGgtiBdaBTxuTkceLVuVt/pclrasb0A== }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
+
+  "@faker-js/faker@10.1.0":
+    resolution: { integrity: sha512-C3mrr3b5dRVlKPJdfrAXS8+dq+rq8Qm5SNRazca0JKgw1HQERFmrVb0towvMmw5uu8hHKNiQasMaR/tydf3Zsg== }
+    engines: { node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: ">=10" }
 
   "@humanfs/core@0.19.1":
     resolution: { integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA== }
@@ -2386,6 +2396,10 @@ packages:
 
   dotenv@16.4.7:
     resolution: { integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ== }
+    engines: { node: ">=12" }
+
+  dotenv@17.2.3:
+    resolution: { integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w== }
     engines: { node: ">=12" }
 
   dunder-proto@1.0.1:
@@ -5755,6 +5769,8 @@ snapshots:
       "@eslint/core": 0.16.0
       levn: 0.4.1
 
+  "@faker-js/faker@10.1.0": {}
+
   "@humanfs/core@0.19.1": {}
 
   "@humanfs/node@0.16.7":
@@ -7771,6 +7787,8 @@ snapshots:
       dotenv: 16.4.7
 
   dotenv@16.4.7: {}
+
+  dotenv@17.2.3: {}
 
   dunder-proto@1.0.1:
     dependencies:
