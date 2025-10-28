@@ -24,6 +24,8 @@ import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
 import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
+import { Station } from "src/models/station.schema";
+import { Kycs } from "src/models/kycs.schema";
 
 @Injectable()
 export class UsersService {
@@ -33,6 +35,8 @@ export class UsersService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
+    @InjectModel(Station.name) private stationRepository: Model<Station>,
+    @InjectModel(Kycs.name) private kycsRepository: Model<Kycs>,
   ) {}
 
   async findAllUser(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
@@ -51,7 +55,21 @@ export class UsersService {
       },
       {
         $addFields: {
-          roleExtra: { $arrayElemAt: ["$renter", 0] },
+          renter: { $arrayElemAt: ["$renter", 0] },
+        },
+      },
+      {
+        $lookup: {
+          from: this.kycsRepository.collection.name,
+          localField: "renter._id",
+          foreignField: "renter_id",
+          as: "kycs",
+        },
+      },
+      {
+        $addFields: {
+          roleExtra: "$renter",
+          kycs: { $ifNull: ["$kycs", []] },
         },
       },
       { $project: { renter: 0 } },
@@ -102,17 +120,9 @@ export class UsersService {
     return ResponseList.ok(buildPaginationResponse(users, { total, page: filters.page, take: filters.take }));
   }
 
-  async findOne(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+  private async findOneRenter(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
     const users = await this.userRepository.aggregate<UserWithRoleExtra>([
-      { $match: { _id: new mongoose.Types.ObjectId(id) } },
-      {
-        $lookup: {
-          from: this.staffRepository.collection.name,
-          localField: "_id",
-          foreignField: "user_id",
-          as: "staff",
-        },
-      },
+      { $match: { _id: new mongoose.Types.ObjectId(id), role: "renter" } },
       {
         $lookup: {
           from: this.renterRepository.collection.name,
@@ -122,23 +132,85 @@ export class UsersService {
         },
       },
       {
-        $addFields: {
-          roleExtra: {
-            $switch: {
-              branches: [
-                { case: { $eq: ["$role", "staff"] }, then: { $arrayElemAt: ["$staff", 0] } },
-                { case: { $eq: ["$role", "renter"] }, then: { $arrayElemAt: ["$renter", 0] } },
-              ],
-              default: null,
-            },
-          },
+        $lookup: {
+          from: this.kycsRepository.collection.name,
+          localField: "renter._id",
+          foreignField: "renter_id",
+          as: "kycs",
         },
       },
-      { $project: { staff: 0, renter: 0, admin: 0 } },
+      {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$renter", 0] },
+          kycs: { $ifNull: ["$kycs", []] },
+        },
+      },
+      { $project: { renter: 0 } },
     ]);
 
-    if (users.length === 0) throw new NotFoundException("User not found");
+    if (users.length === 0) throw new NotFoundException("Renter not found");
     return ResponseDetail.ok(users[0]);
+  }
+
+  private async findOneStaff(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+    const users = await this.userRepository.aggregate<UserWithRoleExtra>([
+      { $match: { _id: new mongoose.Types.ObjectId(id), role: "staff" } },
+      {
+        $lookup: {
+          from: this.staffRepository.collection.name,
+          localField: "_id",
+          foreignField: "user_id",
+          as: "staff",
+        },
+      },
+      {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$staff", 0] },
+        },
+      },
+      { $project: { staff: 0 } },
+    ]);
+
+    if (users.length === 0) throw new NotFoundException("Staff not found");
+    return ResponseDetail.ok(users[0]);
+  }
+  private async findOneAdmin(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+    const users = await this.userRepository.aggregate<UserWithRoleExtra>([
+      { $match: { _id: new mongoose.Types.ObjectId(id), role: "admin" } },
+      {
+        $lookup: {
+          from: this.adminRepository.collection.name,
+          localField: "_id",
+          foreignField: "user_id",
+          as: "admin",
+        },
+      },
+      {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$admin", 0] },
+        },
+      },
+      { $project: { admin: 0 } },
+    ]);
+
+    if (users.length === 0) throw new NotFoundException("Admin not found");
+    return ResponseDetail.ok(users[0]);
+  }
+
+  async findOne(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+    const baseUser = await this.userRepository.findById(id);
+    if (!baseUser) throw new NotFoundException("User not found");
+
+    switch (baseUser.role) {
+      case Role.RENTER:
+        return this.findOneRenter(id);
+      case Role.STAFF:
+        return this.findOneStaff(id);
+      case Role.ADMIN:
+        return this.findOneAdmin(id);
+      default:
+        throw new NotFoundException("Unsupported role");
+    }
   }
 
   async updateRenter(id: string, updateRenterDto: UpdateRenterDto): Promise<ResponseDetail<UserWithRoleExtra | null>> {
@@ -153,7 +225,6 @@ export class UsersService {
     const renter = await this.renterRepository.findOneAndUpdate(
       { user_id: objectId },
       {
-        driver_license_no: updateRenterDto.driver_license_no,
         address: updateRenterDto.address,
         date_of_birth: updateRenterDto.date_of_birth,
       },
@@ -165,13 +236,18 @@ export class UsersService {
   }
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
+    // check station
+    const checkStation = await this.stationRepository.findById(updateStaffDto.station_id);
+    if (!checkStation) throw new NotFoundException("Station not found");
+
     const user = await this.userRepository.findByIdAndUpdate(id, { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone }, { new: true });
     if (!user) throw new NotFoundException("User not found");
 
     const objectId = new mongoose.Types.ObjectId(id);
+
     const staff = await this.staffRepository.findOneAndUpdate(
       { user_id: objectId },
-      { position: updateStaffDto.position },
+      { position: updateStaffDto.position, station_id: updateStaffDto.station_id },
       { new: true, upsert: true },
     );
 

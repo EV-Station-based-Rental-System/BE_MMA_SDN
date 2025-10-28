@@ -11,6 +11,9 @@ export class Booking {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "VehicleAtStation", required: true, index: true })
   vehicle_at_station_id: mongoose.Types.ObjectId;
 
+  @Prop({ required: true, type: Date })
+  rental_start_datetime: Date;
+
   @Prop({ type: Date })
   expected_return_datetime?: Date;
 

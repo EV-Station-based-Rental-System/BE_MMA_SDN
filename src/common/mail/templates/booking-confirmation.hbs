@@ -1,0 +1,148 @@
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Booking Confirmation</title>
+    <style>
+      body {
+        background-color: #f4f4f7;
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        border-bottom: 2px solid #4caf50;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .header h2 {
+        color: #4caf50;
+        margin: 0;
+      }
+      .booking-box {
+        background: #f9f9f9;
+        border-left: 4px solid #4caf50;
+        border-radius: 6px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .booking-info {
+        margin: 10px 0;
+        font-size: 15px;
+      }
+      .booking-info strong {
+        color: #4caf50;
+        display: inline-block;
+        min-width: 200px;
+      }
+      .amount-box {
+        background: #fff;
+        border: 2px solid #4caf50;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .amount-box .total {
+        font-size: 28px;
+        font-weight: bold;
+        color: #4caf50;
+      }
+      .amount-detail {
+        font-size: 14px;
+        color: #666;
+        margin-top: 10px;
+      }
+      .content {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .footer {
+        text-align: center;
+        font-size: 13px;
+        color: #999;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+      }
+      .success-badge {
+        display: inline-block;
+        background: #4caf50;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>🎉 Booking Confirmed!</h2>
+      </div>
+
+      <div class="content">
+        <p>Hello <b>{{renterName}}</b>,</p>
+        <p>Your EV rental booking has been successfully confirmed and paid!</p>
+        <div class="success-badge">✓ PAYMENT SUCCESSFUL</div>
+      </div>
+
+      <div class="booking-box">
+        <h3 style="margin-top: 0; color: #4caf50;">Booking Details</h3>
+        <div class="booking-info">
+          <strong>Booking ID:</strong>
+          {{bookingId}}
+        </div>
+        <div class="booking-info">
+          <strong>Rental Start Date:</strong>
+          {{rentalStartDate}}
+        </div>
+        {{#if expectedReturnDate}}
+          <div class="booking-info">
+            <strong>Expected Return Date:</strong>
+            {{expectedReturnDate}}
+          </div>
+        {{/if}}
+        {{#if transactionCode}}
+          <div class="booking-info">
+            <strong>Transaction Code:</strong>
+            {{transactionCode}}
+          </div>
+        {{/if}}
+      </div>
+
+      <div class="amount-box">
+        <div class="total">{{totalAmount}} VND</div>
+        <div class="amount-detail">
+          <div>Rental Fee: {{rentalFee}} VND</div>
+          <div>Deposit Fee: {{depositFee}} VND</div>
+        </div>
+      </div>
+
+      <div class="content">
+        <p>Your vehicle is now reserved and ready for pickup on the scheduled date.</p>
+        <p>Please bring your ID and driver's license for verification.</p>
+        <p>If you have any questions, please contact our support team.</p>
+      </div>
+
+      <div class="footer">
+        ©
+        {{year}}
+        EV Rental System. All rights reserved.
+      </div>
+    </div>
+  </body>
+</html>

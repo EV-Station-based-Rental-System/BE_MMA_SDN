@@ -13,9 +13,6 @@ export class Renter {
   user_id: mongoose.Types.ObjectId;
 
   @Prop({ type: String })
-  driver_license_no?: string;
-
-  @Prop({ type: String })
   address?: string;
 
   @Prop({ type: Date })

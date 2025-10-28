@@ -20,4 +20,13 @@ export default () => ({
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
     urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
   },
+  momo: {
+    accessKey: process.env.MOMO_ACCESS_KEY,
+    secretKey: process.env.MOMO_SECRET_KEY,
+    ipnUrl: process.env.MOMO_IPN_URL,
+    redirectUrl: process.env.MOMO_REDIRECT_URL,
+    partnerCode: process.env.MOMO_PARTNER_CODE,
+    queryUrl: process.env.MOMO_QUERY_URL,
+    requestCreate: process.env.MOMO_REQUEST_CREATE,
+  },
 });

@@ -7,6 +7,9 @@ export class Staff {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true })
   user_id: mongoose.Types.ObjectId;
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Station", required: true })
+  station_id: mongoose.Types.ObjectId;
+
   @Prop({ required: true, unique: true, type: String })
   employee_code: string;
 

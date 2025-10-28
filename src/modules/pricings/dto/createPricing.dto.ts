@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDateString, IsInt, IsMongoId, IsOptional } from "class-validator";
 
-export class PricingDto {
-  @ApiProperty({ description: "Vehicle ID", example: "64f1c2a7e5a9b2d4f8e1a2b6" })
+export class CreatePricingDto {
+  @ApiProperty({ description: "Vehicle ID", example: "vehicle_id" })
   @IsMongoId()
   vehicle_id: string;
 

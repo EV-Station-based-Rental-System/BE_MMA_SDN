@@ -24,6 +24,7 @@ import Redis from "ioredis/built/Redis";
 import { ResetPasswordDto } from "./dto/resetPassword.dto";
 import { ConflictException } from "src/common/exceptions/conflict.exception";
 import { ResponseMsg } from "src/common/response/response-message";
+import { Station } from "src/models/station.schema";
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,7 @@ export class AuthService {
     @InjectModel(Staff.name) private staffRepository: Model<Staff>,
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
+    @InjectModel(Station.name) private stationRepository: Model<Station>,
 
     @Inject("REDIS_CLIENT") private readonly redisClient: Redis,
     private jwtService: JwtService,
@@ -91,7 +93,6 @@ export class AuthService {
           userPayload = {
             ...userPayload,
             address: renter.address,
-            driver_license_no: renter.driver_license_no,
             date_of_birth: renter.date_of_birth,
             risk_score: renter.risk_score,
           } as RenterJwtUserPayload;
@@ -140,7 +141,6 @@ export class AuthService {
     const newRenter = new this.renterRepository({
       user_id: newUser._id,
       address: data.address,
-      driver_license_no: data.driver_license_no,
       date_of_birth: data.date_of_birth,
     });
 
@@ -150,6 +150,11 @@ export class AuthService {
   }
 
   async createStaff(data: StaffDto): Promise<ResponseMsg> {
+    // check station
+    const checkStation = await this.stationRepository.findById(data.station_id);
+    if (!checkStation) {
+      throw new NotFoundException("Station not found");
+    }
     // check email
     const checkUser = await this.userRepository.findOne({ email: data.email });
     if (checkUser) {
@@ -165,6 +170,7 @@ export class AuthService {
 
     const newStaff = new this.staffRepository({
       user_id: newUser._id,
+      station_id: data.station_id,
       employee_code: this.generateCode(),
       position: data.position,
       hire_date: new Date(),
