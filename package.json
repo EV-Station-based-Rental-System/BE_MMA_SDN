@@ -21,11 +21,12 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "sync-indexes": "ts-node --project tsconfig.json tools/sync-indexes.ts",
-    "dbml:generate-spec": "ts-node --project tsconfig.json tools/dbml-to-spec.ts",
-    "code:current-model-map": "ts-node --project tsconfig.json tools/current-model-map.ts",
-    "docs:model-diff": "ts-node --project tsconfig.json tools/model-diff.ts",
-    "lint-staged-script": "node ./node_modules/lint-staged/bin/lint-staged.js"
+    "lint-staged-script": "node ./node_modules/lint-staged/bin/lint-staged.js",
+    "tool:mock-data": "ts-node --project tsconfig.build.json -r tsconfig-paths/register tools/mock-data-generator.ts",
+    "tool:sync-indexes": "ts-node --project tsconfig.json tools/sync-indexes.ts",
+    "tool:dbml-to-spec": "ts-node --project tsconfig.json tools/dbml-to-spec.ts",
+    "tool:current-model-map": "ts-node --project tsconfig.json tools/current-model-map.ts",
+    "tool:model-diff": "ts-node --project tsconfig.json tools/model-diff.ts"
   },
   "dependencies": {
     "@dbml/core": "^3.14.1",
@@ -42,6 +43,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "dotenv": "^17.2.3",
     "imagekit": "^6.0.0",
     "ioredis": "^5.8.1",
     "mongoose": "^8.19.1",
@@ -57,6 +59,7 @@
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@faker-js/faker": "^10.1.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",

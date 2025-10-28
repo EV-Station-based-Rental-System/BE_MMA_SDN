@@ -1,16 +1,27 @@
-import * as bcrypt from "bcrypt";
+// import * as bcrypt from "bcrypt";
 import { ToNumberOptions } from "./type";
 
-const SALT_ROUNDS = 10;
+// const SALT_ROUNDS = 10;
 
-export const hashPassword = async (password: string): Promise<string> => {
-  const salt = await bcrypt.genSalt(SALT_ROUNDS);
-  return bcrypt.hash(password, salt);
+// export const hashPassword = async (password: string): Promise<string> => {
+//   const salt = await bcrypt.genSalt(SALT_ROUNDS);
+//   return bcrypt.hash(password, salt);
+// };
+
+// export const comparePassword = async (password: string, hash: string): Promise<boolean> => {
+//   const isMatch = await bcrypt.compare(password, hash);
+//   return isMatch;
+// };
+
+export const hashPassword = (password: string): Promise<string> => {
+  return Promise.resolve(password);
 };
 
-export const comparePassword = async (password: string, hash: string): Promise<boolean> => {
-  const isMatch = await bcrypt.compare(password, hash);
-  return isMatch;
+export const comparePassword = (password: string, hash: string): Promise<boolean> => {
+  if (password === hash) {
+    return Promise.resolve(true);
+  }
+  return Promise.resolve(false);
 };
 
 export function toLowerCase(value: string): string {

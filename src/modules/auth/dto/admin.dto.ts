@@ -11,5 +11,5 @@ export class AdminDto extends UserDto {
   @ApiPropertyOptional({ example: "Some note", description: "Your note" })
   @IsOptional()
   @IsString()
-  note?: string;
+  notes?: string;
 }

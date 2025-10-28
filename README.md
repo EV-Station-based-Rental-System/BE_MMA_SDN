@@ -57,6 +57,23 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
+## Generate Mock Data
+
+The project includes a comprehensive mock data generator that creates realistic test data for all database models. This is useful for development, testing, and demonstration purposes.
+
+```bash
+# Generate mock data for the database
+$ pnpm run mock-data
+```
+
+The mock data generator will:
+- Clear existing data from the database
+- Generate realistic data for all models including Users, Vehicles, Stations, Bookings, Rentals, Payments, etc.
+- Create proper relationships between entities
+- Use consistent faker seeds for reproducible results
+
+**Note:** Make sure your MongoDB database is running and properly configured via the `MONGO_URI` environment variable before running the mock data generator.
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

@@ -1,12 +1,11 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.2 → 1.0.3
-- Modified principles: VI (Model<Document> typing); IV (vehicles guarded like stations)
-- Added sections: VI. Controllers & Services Pattern (Vehicles/Stations Standard)
+- Version change: 1.0.3 → 1.0.4
+- Modified principles: None
+- Added sections: None
 - Removed sections: None
-- Templates requiring updates: None
-- Follow-up TODOs:
-  - TODO(RATIFICATION_DATE): Set original adoption date when approved by maintainers
+- Templates requiring updates: None (validated)
+- Follow-up TODOs: None
 -->
 
 # BE_MMA_SDN Constitution
@@ -148,4 +147,4 @@ Rationale: Keeps delivery predictable and enforces compliance early in the cycle
   - MINOR: New principle or materially expanded guidance.
   - PATCH: Clarifications, wording, or non‑semantic refinements.
 
-**Version**: 1.0.3 | **Ratified**: 2025-10-18 | **Last Amended**: 2025-10-18
+**Version**: 1.0.4 | **Ratified**: 2025-10-18 | **Last Amended**: 2025-10-27

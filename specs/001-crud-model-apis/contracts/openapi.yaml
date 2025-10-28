@@ -1,0 +1,333 @@
+openapi: 3.1.0
+info:
+  title: Phase 1 CRUD APIs
+  version: 0.1.0
+  description: CRUD endpoints for User, Vehicle, Station, Booking, Rental, Payment
+servers:
+  - url: http://localhost:3001
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ResponseMsg:
+      type: object
+      properties:
+        message:
+          type: string
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        take:
+          type: integer
+    ResponseListUser:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+    ResponseDetailUser:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/User"
+    User:
+      type: object
+      properties:
+        _id: { type: string }
+        email: { type: string }
+        full_name: { type: string }
+        role: { type: string, enum: [unknown, renter, staff, admin] }
+        is_active: { type: boolean }
+        phone: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+    ResponseListVehicle:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vehicle"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+    ResponseDetailVehicle:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Vehicle"
+    Vehicle:
+      type: object
+      properties:
+        _id: { type: string }
+        make: { type: string }
+        model: { type: string }
+        model_year: { type: integer }
+        category: { type: string }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+    ResponseListStation:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Station"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+    ResponseDetailStation:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Station"
+    Station:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        address: { type: string }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+    ResponseListBooking:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Booking"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+    ResponseDetailBooking:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Booking"
+    Booking:
+      type: object
+      properties:
+        _id: { type: string }
+        renter_id: { type: string }
+        vehicle_at_station_id: { type: string }
+        status: { type: string }
+        verification_status: { type: string }
+        created_at: { type: string, format: date-time }
+    ResponseListRental:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rental"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+    ResponseDetailRental:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Rental"
+    Rental:
+      type: object
+      properties:
+        _id: { type: string }
+        booking_id: { type: string }
+        vehicle_id: { type: string }
+        status: { type: string }
+        created_at: { type: string, format: date-time }
+    ResponseListPayment:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+    ResponseDetailPayment:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Payment"
+    Payment:
+      type: object
+      properties:
+        _id: { type: string }
+        method: { type: string }
+        status: { type: string }
+        amount_paid: { type: number }
+        created_at: { type: string, format: date-time }
+parameters:
+  PageParam:
+    name: page
+    in: query
+    schema: { type: integer, minimum: 1, default: 1 }
+  TakeParam:
+    name: take
+    in: query
+    schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+paths:
+  /user:
+    get:
+      summary: List users
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListUser" } } } }
+    post:
+      summary: Create user
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailUser" } } } }
+  /user/{id}:
+    get:
+      summary: Get user
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailUser" } } } }
+    put:
+      summary: Update user
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailUser" } } } }
+    delete:
+      summary: Delete user (soft where supported)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }
+  /vehicle:
+    get:
+      summary: List vehicles
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListVehicle" } } } }
+    post:
+      summary: Create vehicle
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailVehicle" } } } }
+  /vehicle/{id}:
+    get:
+      summary: Get vehicle
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailVehicle" } } } }
+    put:
+      summary: Update vehicle
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailVehicle" } } } }
+    delete:
+      summary: Delete vehicle (soft)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }
+  /station:
+    get:
+      summary: List stations
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListStation" } } } }
+    post:
+      summary: Create station
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailStation" } } } }
+  /station/{id}:
+    get:
+      summary: Get station
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailStation" } } } }
+    put:
+      summary: Update station
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailStation" } } } }
+    delete:
+      summary: Delete station (soft)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }
+  /booking:
+    get:
+      summary: List bookings
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListBooking" } } } }
+    post:
+      summary: Create booking
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailBooking" } } } }
+  /booking/{id}:
+    get:
+      summary: Get booking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailBooking" } } } }
+    put:
+      summary: Update booking
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailBooking" } } } }
+    delete:
+      summary: Delete booking (hard if no references)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }
+  /rental:
+    get:
+      summary: List rentals
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListRental" } } } }
+    post:
+      summary: Create rental
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailRental" } } } }
+  /rental/{id}:
+    get:
+      summary: Get rental
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailRental" } } } }
+    put:
+      summary: Update rental
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailRental" } } } }
+    delete:
+      summary: Delete rental (hard if no references)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }
+  /payment:
+    get:
+      summary: List payments
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListPayment" } } } }
+    post:
+      summary: Create payment
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailPayment" } } } }
+  /payment/{id}:
+    get:
+      summary: Get payment
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailPayment" } } } }
+    put:
+      summary: Update payment
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailPayment" } } } }
+    delete:
+      summary: Delete payment (hard)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }

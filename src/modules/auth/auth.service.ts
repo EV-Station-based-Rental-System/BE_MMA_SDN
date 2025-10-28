@@ -199,7 +199,7 @@ export class AuthService {
     const newAdmin = new this.adminRepository({
       user_id: newUser._id,
       title: data.title,
-      note: data.note,
+      notes: data.notes,
       hire_date: new Date(),
     });
 

@@ -49,4 +49,4 @@ import { RentalModule } from "./modules/rentals/rental.module";
     ImagekitModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
