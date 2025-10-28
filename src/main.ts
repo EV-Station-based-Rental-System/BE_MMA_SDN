@@ -36,11 +36,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
 
-  await app.listen(3001, () => console.log("Server is running on port http://localhost:3001/api"));
-  // const port = Number(process.env.PORT ?? 3001);
-  // const host = process.env.HOST ?? "0.0.0.0";
-  // await app.listen(port, host);
-  // console.log(`Server is running: http://${host}:${port}/api`);
+  const port = Number(process.env.PORT ?? 3001);
+  const host = process.env.HOST ?? "0.0.0.0";
+  await app.listen(port, host);
+  console.log(`Server is running: http://${host}:${port}/api`);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
