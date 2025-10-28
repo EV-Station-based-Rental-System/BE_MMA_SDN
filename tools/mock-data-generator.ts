@@ -12,9 +12,6 @@ import { StatusVehicleAtStation } from "../src/common/enums/vehicle_at_station.e
 import { FeeType } from "../src/common/enums/fee.enum";
 import { InspectionType } from "../src/common/enums/inspection.enum";
 import { KycStatus, KycType } from "../src/common/enums/kyc.enum";
-import { StaffTransferStatus } from "../src/common/enums/staff_transfer.enum";
-import { VehicleTransferStatus } from "../src/common/enums/vehicle_transfer.enum";
-
 import { User, UserSchema } from "../src/models/user.schema";
 import { Admin, AdminSchema } from "../src/models/admin.schema";
 import { Staff, StaffSchema } from "../src/models/staff.schema";
@@ -31,10 +28,7 @@ import { Kycs, KycsSchema } from "../src/models/kycs.schema";
 import { Inspection, InspectionSchema } from "../src/models/inspections.schema";
 import { Report, ReportSchema } from "../src/models/report.schema";
 import { ReportsPhoto, ReportsPhotoSchema } from "../src/models/reports_photo.schema";
-import { StaffAtStation, StaffAtStationSchema } from "../src/models/staff_at_station.schema";
-import { StaffTransfer, StaffTransferSchema } from "../src/models/staff_transfer.schema";
 import { Contract, ContractSchema } from "../src/models/contract.schema";
-import { VehicleTransfer, VehicleTransferSchema } from "../src/models/vehicle_transfer.schema";
 
 interface MockDataIds {
   users: mongoose.Types.ObjectId[];
@@ -86,15 +80,7 @@ class MockDataGenerator {
   private ReportModel = (mongoose.models[Report.name] as mongoose.Model<Report>) || mongoose.model<Report>(Report.name, ReportSchema);
   private ReportsPhotoModel =
     (mongoose.models[ReportsPhoto.name] as mongoose.Model<ReportsPhoto>) || mongoose.model<ReportsPhoto>(ReportsPhoto.name, ReportsPhotoSchema);
-  private StaffAtStationModel =
-    (mongoose.models[StaffAtStation.name] as mongoose.Model<StaffAtStation>) ||
-    mongoose.model<StaffAtStation>(StaffAtStation.name, StaffAtStationSchema);
-  private StaffTransferModel =
-    (mongoose.models[StaffTransfer.name] as mongoose.Model<StaffTransfer>) || mongoose.model<StaffTransfer>(StaffTransfer.name, StaffTransferSchema);
   private ContractModel = (mongoose.models[Contract.name] as mongoose.Model<Contract>) || mongoose.model<Contract>(Contract.name, ContractSchema);
-  private VehicleTransferModel =
-    (mongoose.models[VehicleTransfer.name] as mongoose.Model<VehicleTransfer>) ||
-    mongoose.model<VehicleTransfer>(VehicleTransfer.name, VehicleTransferSchema);
 
   constructor() {
     faker.seed(12345); // For consistent results
@@ -149,10 +135,8 @@ class MockDataGenerator {
     await this.generateInspections();
     await this.generateReports();
     await this.generateReportsPhotos();
-    await this.generateStaffAtStations();
-    await this.generateStaffTransfers();
+
     await this.generateContracts();
-    await this.generateVehicleTransfers();
 
     console.log("Mock data generation completed!");
   }
@@ -576,53 +560,6 @@ class MockDataGenerator {
     console.log(`Generated ${reportsPhotos.length} report photos`);
   }
 
-  private async generateStaffAtStations(): Promise<void> {
-    console.log("Generating staff at stations...");
-    const staffAtStations = [];
-
-    // Assign staff to stations
-    for (const staffId of this.ids.staff) {
-      const stationId = faker.helpers.arrayElement(this.ids.stations);
-      const startDate = faker.date.past({ years: 2 });
-
-      const staffAtStation = new this.StaffAtStationModel({
-        staff_id: staffId,
-        station_id: stationId,
-        start_time: startDate,
-        end_time: faker.helpers.maybe(() => faker.date.future({ years: 1 }), { probability: 0.1 }),
-        role_at_station: faker.helpers.arrayElement(["Manager", "Technician", "Attendant", "Supervisor"]),
-      });
-
-      staffAtStations.push(await staffAtStation.save());
-    }
-
-    console.log(`Generated ${staffAtStations.length} staff at stations`);
-  }
-
-  private async generateStaffTransfers(): Promise<void> {
-    console.log("Generating staff transfers...");
-    const staffTransfers = [];
-    const transferCount = 20;
-
-    for (let i = 0; i < transferCount; i++) {
-      const staffTransfer = new this.StaffTransferModel({
-        staff_id: faker.helpers.arrayElement(this.ids.staff),
-        from_station_id: faker.helpers.arrayElement(this.ids.stations),
-        to_station_id: faker.helpers.arrayElement(this.ids.stations),
-        created_by_admin_id: faker.helpers.arrayElement(this.ids.admins),
-        approved_by_admin_id: faker.helpers.maybe(() => faker.helpers.arrayElement(this.ids.admins), { probability: 0.5 }),
-        approved_at: faker.helpers.maybe(() => faker.date.recent(), { probability: 0.5 }),
-        effective_from: faker.date.future(),
-        status: faker.helpers.arrayElement(Object.values(StaffTransferStatus)),
-        notes: faker.helpers.maybe(() => faker.lorem.sentences(2), { probability: 0.6 }),
-      });
-
-      staffTransfers.push(await staffTransfer.save());
-    }
-
-    console.log(`Generated ${staffTransfers.length} staff transfers`);
-  }
-
   private async generateContracts(): Promise<void> {
     console.log("Generating contracts...");
     const contracts = [];
@@ -639,31 +576,6 @@ class MockDataGenerator {
     }
 
     console.log(`Generated ${contracts.length} contracts`);
-  }
-
-  private async generateVehicleTransfers(): Promise<void> {
-    console.log("Generating vehicle transfers...");
-    const vehicleTransfers = [];
-    const transferCount = 30;
-
-    for (let i = 0; i < transferCount; i++) {
-      const vehicleTransfer = new this.VehicleTransferModel({
-        vehicle_id: faker.helpers.arrayElement(this.ids.vehicles),
-        from_station_id: faker.helpers.arrayElement(this.ids.stations),
-        to_station_id: faker.helpers.arrayElement(this.ids.stations),
-        created_by_admin_id: faker.helpers.arrayElement(this.ids.admins),
-        approved_by_admin_id: faker.helpers.maybe(() => faker.helpers.arrayElement(this.ids.admins), { probability: 0.6 }),
-        approved_at: faker.helpers.maybe(() => faker.date.recent(), { probability: 0.6 }),
-        scheduled_pickup_at: faker.helpers.maybe(() => faker.date.future(), { probability: 0.5 }),
-        scheduled_dropoff_at: faker.helpers.maybe(() => faker.date.future(), { probability: 0.5 }),
-        status: faker.helpers.arrayElement(Object.values(VehicleTransferStatus)),
-        notes: faker.helpers.maybe(() => faker.lorem.sentences(2), { probability: 0.6 }),
-      });
-
-      vehicleTransfers.push(await vehicleTransfer.save());
-    }
-
-    console.log(`Generated ${vehicleTransfers.length} vehicle transfers`);
   }
 
   private hashPassword(password: string): string {
