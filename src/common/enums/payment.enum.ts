@@ -7,4 +7,5 @@ export enum PaymentMethod {
 export enum PaymentStatus {
   PAID = "paid",
   REFUNDED = "refunded",
+  PENDING = "pending",
 }

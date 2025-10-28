@@ -22,10 +22,4 @@ export class CreateStationDto {
   @Type(() => Number)
   @IsNumber({ allowNaN: false, allowInfinity: false }, { each: false })
   longitude?: number;
-
-  // Optional: only if you want clients to control active status on create
-  // @ApiPropertyOptional({ description: "Is active", example: true, default: true })
-  // @IsOptional()
-  // @IsBoolean()
-  // is_active?: boolean;
 }

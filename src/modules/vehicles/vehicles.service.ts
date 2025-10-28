@@ -29,6 +29,9 @@ export class VehicleService {
 
   async findAll(filters: VehiclePaginationDto): Promise<ResponseList<Vehicle>> {
     const pipeline: any[] = [];
+
+    pipeline.push({});
+
     applyCommonFiltersMongo(pipeline, filters, VehicleFieldMapping);
     const allowedSortFields = ["model_year", "create_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "create_at");

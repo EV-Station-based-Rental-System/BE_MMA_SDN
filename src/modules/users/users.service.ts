@@ -16,14 +16,13 @@ import { UserPaginationDto } from "src/common/pagination/dto/user/user-paginatio
 import { UserFieldMapping } from "src/common/pagination/filters/user-field-mapping";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 import { applyCommonFiltersMongo } from "src/common/pagination/applyCommonFilters";
-import { applyPaginationMongo } from "src/common/pagination/applyPagination";
 import { applySortingMongo } from "src/common/pagination/applySorting";
-import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
-import { FacetResult } from "src/common/utils/type";
 import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
 import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
+import { Station } from "src/models/station.schema";
+import { Kycs } from "src/models/kycs.schema";
 
 @Injectable()
 export class UsersService {
@@ -33,6 +32,8 @@ export class UsersService {
     @InjectModel(Admin.name) private adminRepository: Model<Admin>,
     @InjectModel(Renter.name) private renterRepository: Model<Renter>,
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
+    @InjectModel(Station.name) private stationRepository: Model<Station>,
+    @InjectModel(Kycs.name) private kycsRepository: Model<Kycs>,
   ) {}
 
   async findAllUser(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
@@ -51,23 +52,61 @@ export class UsersService {
       },
       {
         $addFields: {
-          roleExtra: { $arrayElemAt: ["$renter", 0] },
+          renter: { $arrayElemAt: ["$renter", 0] },
+        },
+      },
+      {
+        $lookup: {
+          from: this.kycsRepository.collection.name,
+          localField: "renter._id",
+          foreignField: "renter_id",
+          as: "kycs",
+        },
+      },
+      {
+        $addFields: {
+          roleExtra: "$renter",
+          kycs: { $ifNull: ["$kycs", []] },
         },
       },
       { $project: { renter: 0 } },
     );
 
+    // apply filters (this will push $match / $addFields / $project etc)
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
+
+    // sorting - apply before facet so both branches are consistent (data uses sort; meta doesn't need sort but no harm)
     const allowedSortFields = ["full_name", "email", "phone", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
-    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
-    applyFacetMongo(pipeline);
 
-    const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<UserWithRoleExtra>;
-    const users = result[0]?.data || [];
-    const total = result[0]?.meta?.[0]?.total || 0;
+    // Build facet manually to ensure meta.total is counted BEFORE pagination
+    const page = Math.max(1, Number(filters.page) || 1);
+    const take = Math.max(1, Number(filters.take) || 10);
+    const skip = (page - 1) * take;
 
-    return ResponseList.ok(buildPaginationResponse(users, { total, page: filters.page, take: filters.take }));
+    pipeline.push({
+      $facet: {
+        data: [
+          // apply sort again in data branch to be explicit (applySortingMongo already pushed $sort; repetition is safe but you can remove one)
+          // { $sort: ... } // if applySortingMongo already added $sort, not needed here
+          { $skip: skip },
+          { $limit: take },
+        ],
+        meta: [{ $count: "total" }],
+      },
+    });
+
+    // After facet, transform result to expected shape
+    const result = await this.userRepository.aggregate(pipeline);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const facet = result[0] || { data: [], meta: [] };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const users = facet.data || [];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const total = facet.meta && facet.meta[0] && facet.meta[0].total ? facet.meta[0].total : 0;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
+    return ResponseList.ok(buildPaginationResponse(users, { total, page, take }));
   }
 
   async findAllStaff(filters: StaffPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
@@ -90,29 +129,36 @@ export class UsersService {
     ];
 
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
+
     const allowedSortFields = ["full_name", "email", "phone", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
-    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
-    applyFacetMongo(pipeline);
 
-    const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<UserWithRoleExtra>;
-    const users = result[0]?.data || [];
-    const total = result[0]?.meta?.[0]?.total || 0;
+    const page = Math.max(1, Number(filters.page) || 1);
+    const take = Math.max(1, Number(filters.take) || 10);
+    const skip = (page - 1) * take;
 
-    return ResponseList.ok(buildPaginationResponse(users, { total, page: filters.page, take: filters.take }));
+    pipeline.push({
+      $facet: {
+        data: [{ $skip: skip }, { $limit: take }],
+        meta: [{ $count: "total" }],
+      },
+    });
+
+    const result = await this.userRepository.aggregate(pipeline);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const facet = result[0] || { data: [], meta: [] };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const users = facet.data || [];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const total = facet.meta && facet.meta[0] && facet.meta[0].total ? facet.meta[0].total : 0;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
+    return ResponseList.ok(buildPaginationResponse(users, { total, page, take }));
   }
 
-  async findOne(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+  private async findOneRenter(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
     const users = await this.userRepository.aggregate<UserWithRoleExtra>([
-      { $match: { _id: new mongoose.Types.ObjectId(id) } },
-      {
-        $lookup: {
-          from: this.staffRepository.collection.name,
-          localField: "_id",
-          foreignField: "user_id",
-          as: "staff",
-        },
-      },
+      { $match: { _id: new mongoose.Types.ObjectId(id), role: "renter" } },
       {
         $lookup: {
           from: this.renterRepository.collection.name,
@@ -122,23 +168,85 @@ export class UsersService {
         },
       },
       {
-        $addFields: {
-          roleExtra: {
-            $switch: {
-              branches: [
-                { case: { $eq: ["$role", "staff"] }, then: { $arrayElemAt: ["$staff", 0] } },
-                { case: { $eq: ["$role", "renter"] }, then: { $arrayElemAt: ["$renter", 0] } },
-              ],
-              default: null,
-            },
-          },
+        $lookup: {
+          from: this.kycsRepository.collection.name,
+          localField: "renter._id",
+          foreignField: "renter_id",
+          as: "kycs",
         },
       },
-      { $project: { staff: 0, renter: 0, admin: 0 } },
+      {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$renter", 0] },
+          kycs: { $ifNull: ["$kycs", []] },
+        },
+      },
+      { $project: { renter: 0 } },
     ]);
 
-    if (users.length === 0) throw new NotFoundException("User not found");
+    if (users.length === 0) throw new NotFoundException("Renter not found");
     return ResponseDetail.ok(users[0]);
+  }
+
+  private async findOneStaff(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+    const users = await this.userRepository.aggregate<UserWithRoleExtra>([
+      { $match: { _id: new mongoose.Types.ObjectId(id), role: "staff" } },
+      {
+        $lookup: {
+          from: this.staffRepository.collection.name,
+          localField: "_id",
+          foreignField: "user_id",
+          as: "staff",
+        },
+      },
+      {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$staff", 0] },
+        },
+      },
+      { $project: { staff: 0 } },
+    ]);
+
+    if (users.length === 0) throw new NotFoundException("Staff not found");
+    return ResponseDetail.ok(users[0]);
+  }
+  private async findOneAdmin(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+    const users = await this.userRepository.aggregate<UserWithRoleExtra>([
+      { $match: { _id: new mongoose.Types.ObjectId(id), role: "admin" } },
+      {
+        $lookup: {
+          from: this.adminRepository.collection.name,
+          localField: "_id",
+          foreignField: "user_id",
+          as: "admin",
+        },
+      },
+      {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$admin", 0] },
+        },
+      },
+      { $project: { admin: 0 } },
+    ]);
+
+    if (users.length === 0) throw new NotFoundException("Admin not found");
+    return ResponseDetail.ok(users[0]);
+  }
+
+  async findOne(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+    const baseUser = await this.userRepository.findById(id);
+    if (!baseUser) throw new NotFoundException("User not found");
+
+    switch (baseUser.role) {
+      case Role.RENTER:
+        return this.findOneRenter(id);
+      case Role.STAFF:
+        return this.findOneStaff(id);
+      case Role.ADMIN:
+        return this.findOneAdmin(id);
+      default:
+        throw new NotFoundException("Unsupported role");
+    }
   }
 
   async updateRenter(id: string, updateRenterDto: UpdateRenterDto): Promise<ResponseDetail<UserWithRoleExtra | null>> {
@@ -153,7 +261,6 @@ export class UsersService {
     const renter = await this.renterRepository.findOneAndUpdate(
       { user_id: objectId },
       {
-        driver_license_no: updateRenterDto.driver_license_no,
         address: updateRenterDto.address,
         date_of_birth: updateRenterDto.date_of_birth,
       },
@@ -165,13 +272,18 @@ export class UsersService {
   }
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
+    // check station
+    const checkStation = await this.stationRepository.findById(updateStaffDto.station_id);
+    if (!checkStation) throw new NotFoundException("Station not found");
+
     const user = await this.userRepository.findByIdAndUpdate(id, { full_name: updateStaffDto.full_name, phone: updateStaffDto.phone }, { new: true });
     if (!user) throw new NotFoundException("User not found");
 
     const objectId = new mongoose.Types.ObjectId(id);
+
     const staff = await this.staffRepository.findOneAndUpdate(
       { user_id: objectId },
-      { position: updateStaffDto.position },
+      { position: updateStaffDto.position, station_id: updateStaffDto.station_id },
       { new: true, upsert: true },
     );
 

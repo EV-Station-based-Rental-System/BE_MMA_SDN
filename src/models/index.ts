@@ -12,12 +12,9 @@ import { Pricing, PricingSchema } from "./pricings.schema";
 import { Rental, RentalSchema } from "./rental.schema";
 import { Report, ReportSchema } from "./report.schema";
 import { ReportsPhoto, ReportsPhotoSchema } from "./reports_photo.schema";
-import { StaffAtStation, StaffAtStationSchema } from "./staff_at_station.schema";
-import { StaffTransfer, StaffTransferSchema } from "./staff_transfer.schema";
 import { Station, StationSchema } from "./station.schema";
 import { VehicleAtStation, VehicleAtStationSchema } from "./vehicle_at_station.schema";
 import { Vehicle, VehicleSchema } from "./vehicle.schema";
-import { VehicleTransfer, VehicleTransferSchema } from "./vehicle_transfer.schema";
 
 export const index = [
   { name: User.name, schema: UserSchema },
@@ -34,10 +31,7 @@ export const index = [
   { name: Rental.name, schema: RentalSchema },
   { name: Report.name, schema: ReportSchema },
   { name: ReportsPhoto.name, schema: ReportsPhotoSchema },
-  { name: StaffAtStation.name, schema: StaffAtStationSchema },
-  { name: StaffTransfer.name, schema: StaffTransferSchema },
   { name: Station.name, schema: StationSchema },
   { name: VehicleAtStation.name, schema: VehicleAtStationSchema },
-  { name: VehicleTransfer.name, schema: VehicleTransferSchema },
   { name: Vehicle.name, schema: VehicleSchema },
 ];

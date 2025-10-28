@@ -8,10 +8,6 @@ export class RenterDto extends UserDto {
     example: "123456789",
     required: false,
   })
-  @IsOptional()
-  @IsString({ message: "Driver license number must be a string" })
-  driver_license_no?: string;
-
   @ApiProperty({
     description: "Address of the renter (optional)",
     example: "123 FPT",

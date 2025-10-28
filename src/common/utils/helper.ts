@@ -61,3 +61,21 @@ export function toNumber(value: string, opts: ToNumberOptions = {}): number {
 
   return newValue;
 }
+
+export function calculateRentalDays(startDate: Date | string, endDate: Date | string): number {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    throw new Error("Invalid date format");
+  }
+
+  if (end <= start) {
+    throw new Error("End date must be after start date");
+  }
+
+  const diffMs = end.getTime() - start.getTime();
+  const days = diffMs / (1000 * 60 * 60 * 24);
+
+  return Math.ceil(days);
+}

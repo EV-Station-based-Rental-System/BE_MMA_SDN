@@ -7,4 +7,9 @@ export class StaffDto extends UserDto {
   @IsString()
   @IsNotEmpty()
   position: string;
+
+  @ApiProperty({ example: "station_id", description: "Station ID (ObjectId as string)" })
+  @IsString()
+  @IsNotEmpty()
+  station_id: string;
 }

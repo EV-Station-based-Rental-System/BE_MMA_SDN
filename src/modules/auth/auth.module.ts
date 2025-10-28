@@ -10,6 +10,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
+import { Station, StationSchema } from "src/models/station.schema";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MongooseModule } from "@nestjs/mongoose";
       { name: Staff.name, schema: StaffSchema },
       { name: Admin.name, schema: AdminSchema },
       { name: Renter.name, schema: RenterSchema },
+      { name: Station.name, schema: StationSchema },
     ]),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({

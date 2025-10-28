@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsInt, IsMongoId, IsOptional, IsString } from "class-validator";
 import { FeeType } from "src/common/enums/fee.enum";
 
-export class FeeDto {
+export class CreateFeeDto {
   @ApiProperty({ description: "Booking ID", example: "64f1c2a7e5a9b2d4f8e1a2b7" })
   @IsMongoId()
   booking_id: string;

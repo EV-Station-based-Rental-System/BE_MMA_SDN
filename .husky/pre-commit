@@ -1,1 +1,1 @@
-pnpm run lint-staged-script && pnpm run test --passWithNoTests && pnpm run build
+pnpm run lint-staged-script && pnpm run lint && pnpm run test --passWithNoTests && pnpm run build
