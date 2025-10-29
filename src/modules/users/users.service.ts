@@ -66,7 +66,7 @@ export class UsersService {
       {
         $addFields: {
           roleExtra: "$renter",
-          kycs: { $ifNull: ["$kycs", []] },
+          kycs: { $arrayElemAt: ["$kycs", 0] },
         },
       },
       { $project: { renter: 0 } },
@@ -178,7 +178,7 @@ export class UsersService {
       {
         $addFields: {
           roleExtra: { $arrayElemAt: ["$renter", 0] },
-          kycs: { $ifNull: ["$kycs", []] },
+          kycs: { $arrayElemAt: ["$kycs", 0] },
         },
       },
       { $project: { renter: 0 } },
