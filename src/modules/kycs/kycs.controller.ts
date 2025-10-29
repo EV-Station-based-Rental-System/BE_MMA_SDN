@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Param, Delete, Put, UseGuards } from "@nestjs/common";
+import { Controller, Post, Body, Patch, Param, Delete, Put, UseGuards, Req } from "@nestjs/common";
 import { KycsService } from "./kycs.service";
 import { CreateKycsDto } from "./dto/createKycs.dto";
 import { UpdateKycsDto } from "./dto/updateKycs.dto";
@@ -8,6 +8,7 @@ import { ResponseMsg } from "src/common/response/response-message";
 import { Kycs } from "src/models/kycs.schema";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
+import { RenterJwtUserPayload } from "src/common/utils/type";
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -16,8 +17,8 @@ export class KycsController {
   constructor(private readonly kycsService: KycsService) {}
 
   @Post()
-  create(@Body() createKycsDto: CreateKycsDto): Promise<ResponseDetail<Kycs>> {
-    return this.kycsService.create(createKycsDto);
+  create(@Body() createKycsDto: CreateKycsDto, @Req() req: { user: RenterJwtUserPayload }): Promise<ResponseDetail<Kycs>> {
+    return this.kycsService.create(createKycsDto, req.user);
   }
 
   @Put(":id")

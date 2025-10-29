@@ -36,5 +36,5 @@ export class CreateVehicleDto {
   @ApiProperty({ description: "Image URL", example: "http://example.com/car.jpg", required: false })
   @IsOptional()
   @IsString()
-  image_url?: string;
+  img_url?: string;
 }

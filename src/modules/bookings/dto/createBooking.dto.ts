@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString, IsEnum, IsMongoId } from "class-validator";
+import { IsDateString, IsEnum, IsMongoId, IsNumber } from "class-validator";
 import { PaymentMethod } from "src/common/enums/payment.enum";
 
 export class CreateBookingDto {
@@ -12,8 +12,14 @@ export class CreateBookingDto {
   payment_method: PaymentMethod;
 
   @ApiProperty({
+    description: "Total amount for the booking",
+    example: 100000,
+  })
+  @IsNumber()
+  total_amount: number;
+  @ApiProperty({
     description: "VehicleAtStation ID",
-    example: "64f1c2a7e5a9b2d4f8e1a2b4",
+    example: "vehicle_at_station_id",
   })
   @IsMongoId()
   vehicle_at_station_id: string;

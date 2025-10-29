@@ -89,7 +89,6 @@ export abstract class AbstractPaymentService {
     // 1. Update payment status to PAID
     await this.changeStatusPaymentToPaid(payment.transaction_code || "");
 
-    console.log("Step 2: Getting payment with populated data");
     // 2. Get booking info with populated data
     const paymentWithDetails = await this.getPaymentByTransactionCode(payment.transaction_code || "");
 

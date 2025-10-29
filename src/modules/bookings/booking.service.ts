@@ -73,7 +73,7 @@ export class BookingService {
     }
     return true;
   };
-  private checkRenterExist = async (userId: string): Promise<UserWithRenterRole> => {
+  checkRenterExist = async (userId: string): Promise<UserWithRenterRole> => {
     const user = await this.userService.findOne(userId);
     if (!user || !user.data) {
       throw new NotFoundException("Renter not found");
@@ -170,12 +170,12 @@ export class BookingService {
       rental_fee_amount,
     };
   };
-  private async getPaymentCode(paymentMethod: PaymentMethod, totalAmount: number): Promise<{ orderId: string; payUrl: string }> {
-    switch (paymentMethod) {
+  private async getPaymentCode(createBookingDto: CreateBookingDto): Promise<{ orderId: string; payUrl: string }> {
+    switch (createBookingDto.payment_method) {
       case PaymentMethod.CASH:
         return { orderId: `CASH_${Date.now()}`, payUrl: "" };
       case PaymentMethod.BANK_TRANSFER:
-        return this.momoService.create(totalAmount.toString());
+        return this.momoService.create(createBookingDto.total_amount.toString());
       default:
         throw new BadRequestException("Unsupported payment method");
     }
@@ -244,6 +244,10 @@ export class BookingService {
       new Date(createBookingDto.rental_start_datetime),
       new Date(createBookingDto.expected_return_datetime),
     );
+    // check calculated total amount matches client sent amount
+    if (vehicleAtStationData.total_booking_fee_amount !== createBookingDto.total_amount) {
+      throw new BadRequestException("Total amount mismatch. Please refresh and try again.");
+    }
 
     // Step 4: Create booking record with PENDING_VERIFICATION status
     const newBooking = new this.bookingRepository({
@@ -280,7 +284,7 @@ export class BookingService {
     await this.feeService.create(depositFeeRecord);
 
     // Step 7: Initialize payment gateway (use backend calculated amount)
-    const paymentCode = await this.getPaymentCode(createBookingDto.payment_method, vehicleAtStationData.total_booking_fee_amount);
+    const paymentCode = await this.getPaymentCode(createBookingDto);
 
     // Step 8: Create payment record with PENDING status
     const paymentRecord: CreatePaymentDto = {
