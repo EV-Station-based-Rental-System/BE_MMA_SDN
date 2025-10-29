@@ -11,6 +11,7 @@ import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { KycStatus } from "src/common/enums/kyc.enum";
 import { BookingService } from "../bookings/booking.service";
 import { RenterJwtUserPayload } from "src/common/utils/type";
+import { ConflictException } from "src/common/exceptions/conflict.exception";
 
 @Injectable()
 export class KycsService {
@@ -21,7 +22,16 @@ export class KycsService {
   ) {}
 
   async create(createKycsDto: CreateKycsDto, user: RenterJwtUserPayload): Promise<ResponseDetail<Kycs>> {
+    // check renter exist
     const renter = await this.bookingService.checkRenterExist(user._id);
+    // check for existing APPROVED KYC
+    const approvedKyc = await this.kycsRepository.findOne({
+      renter_id: renter.roleExtra._id,
+      status: KycStatus.APPROVED,
+    });
+    if (approvedKyc) {
+      throw new ConflictException("An approved KYC document already exists for this renter and  approved");
+    }
     const newKyc = new this.kycsRepository({
       ...createKycsDto,
       renter_id: renter.roleExtra._id,

@@ -54,12 +54,9 @@ export class BookingService {
 
     // Type guard: since role is RENTER, roleExtra must be Renter type
     const renterData = user.data.roleExtra as Renter & { _id: Types.ObjectId };
-    const kyc = await this.kycsRepository.findOne({ renter_id: renterData._id });
+    const kyc = await this.kycsRepository.findOne({ renter_id: renterData._id, status: KycStatus.APPROVED });
     if (!kyc) {
       throw new NotFoundException("KYC not found");
-    }
-    if (kyc.status !== KycStatus.APPROVED) {
-      throw new NotFoundException("KYC not approved");
     }
     const currentDate = new Date();
     if (kyc.verified_at) {
@@ -173,7 +170,7 @@ export class BookingService {
   private async getPaymentCode(createBookingDto: CreateBookingDto): Promise<{ orderId: string; payUrl: string }> {
     switch (createBookingDto.payment_method) {
       case PaymentMethod.CASH:
-        return { orderId: `CASH_${Date.now()}`, payUrl: "" };
+        return { orderId: `CASH_${Date.now()}`, payUrl: "Payment Cash Success" };
       case PaymentMethod.BANK_TRANSFER:
         return this.momoService.create(createBookingDto.total_amount.toString());
       default:
@@ -244,12 +241,16 @@ export class BookingService {
       new Date(createBookingDto.rental_start_datetime),
       new Date(createBookingDto.expected_return_datetime),
     );
-    // check calculated total amount matches client sent amount
+    // Step 4: check calculated total amount matches client sent amount
     if (vehicleAtStationData.total_booking_fee_amount !== createBookingDto.total_amount) {
       throw new BadRequestException("Total amount mismatch. Please refresh and try again.");
     }
-
-    // Step 4: Create booking record with PENDING_VERIFICATION status
+    // Step 5: Initialize payment gateway (use backend calculated amount)
+    const paymentCode = await this.getPaymentCode(createBookingDto);
+    if (!paymentCode || !paymentCode.orderId || !paymentCode.payUrl) {
+      throw new BadRequestException("Failed to initialize payment");
+    }
+    // Step 6: Create booking record with PENDING_VERIFICATION status
     const newBooking = new this.bookingRepository({
       renter_id: renterUser.roleExtra._id,
       vehicle_at_station_id: createBookingDto.vehicle_at_station_id,
@@ -261,10 +262,10 @@ export class BookingService {
     });
     await newBooking.save();
 
-    // Step 5: Update vehicle status from AVAILABLE to PENDING (waiting for payment)
+    // Step 6: Update vehicle status from AVAILABLE to PENDING (waiting for payment)
     await this.vehicleStationService.changeStatus(createBookingDto.vehicle_at_station_id, { status: StatusVehicleAtStation.PENDING });
 
-    // Step 6: Create fee records (split into rental fee and deposit fee)
+    // Step 7: Create fee records
     const rentalFeeRecord: CreateFeeDto = {
       booking_id: newBooking._id.toString(),
       amount: vehicleAtStationData.rental_fee_amount,
@@ -274,6 +275,7 @@ export class BookingService {
     };
     await this.feeService.create(rentalFeeRecord);
 
+    // Step 7: Create deposit fee record
     const depositFeeRecord: CreateFeeDto = {
       booking_id: newBooking._id.toString(),
       amount: vehicleAtStationData.deposit_fee_amount,
@@ -282,9 +284,6 @@ export class BookingService {
       currency: "VND",
     };
     await this.feeService.create(depositFeeRecord);
-
-    // Step 7: Initialize payment gateway (use backend calculated amount)
-    const paymentCode = await this.getPaymentCode(createBookingDto);
 
     // Step 8: Create payment record with PENDING status
     const paymentRecord: CreatePaymentDto = {
@@ -314,11 +313,9 @@ export class BookingService {
     }
 
     // Step 3: Validate booking status
-    // Only allow verification for VERIFIED bookings (payment confirmed)
     if (booking.status !== BookingStatus.VERIFIED) {
       throw new BadRequestException("Booking must be in VERIFIED status (payment confirmed) before staff verification");
     }
-    // Only allow verification for PENDING_VERIFICATION bookings
 
     // Step 4: Handle different verification statuses
     await this.handleVerificationStatusChange(booking, changeStatus, staffUser.roleExtra._id);
