@@ -9,14 +9,22 @@ import { ResponseDetail } from "src/common/response/response-detail-create-updat
 import { ResponseMsg } from "src/common/response/response-message";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { KycStatus } from "src/common/enums/kyc.enum";
+import { BookingService } from "../bookings/booking.service";
+import { RenterJwtUserPayload } from "src/common/utils/type";
 
 @Injectable()
 export class KycsService {
-  constructor(@InjectModel(Kycs.name) private readonly kycsRepository: Model<Kycs>) {}
+  constructor(
+    @InjectModel(Kycs.name) private readonly kycsRepository: Model<Kycs>,
 
-  async create(createKycsDto: CreateKycsDto): Promise<ResponseDetail<Kycs>> {
+    private readonly bookingService: BookingService,
+  ) {}
+
+  async create(createKycsDto: CreateKycsDto, user: RenterJwtUserPayload): Promise<ResponseDetail<Kycs>> {
+    const renter = await this.bookingService.checkRenterExist(user._id);
     const newKyc = new this.kycsRepository({
       ...createKycsDto,
+      renter_id: renter.roleExtra._id,
       status: KycStatus.SUBMITTED,
       submitted_at: new Date(),
     });

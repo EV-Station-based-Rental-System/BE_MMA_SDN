@@ -1,16 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsString, IsOptional, IsDateString, IsMongoId } from "class-validator";
+import { IsEnum, IsNotEmpty, IsString, IsOptional, IsDateString } from "class-validator";
 import { KycType } from "src/common/enums/kyc.enum";
 
 export class CreateKycsDto {
-  @ApiProperty({
-    description: "ID của người thuê (renter)",
-    example: "renter_id",
-  })
-  @IsNotEmpty()
-  @IsMongoId()
-  renter_id: string;
-
   @ApiProperty({
     description: "Loại giấy tờ KYC",
     enum: KycType,
