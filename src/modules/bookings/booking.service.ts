@@ -1,11 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
+import mongoose, { Model, Types } from "mongoose";
 import { Booking } from "src/models/booking.schema";
 import { Kycs } from "src/models/kycs.schema";
 import { Renter } from "src/models/renter.schema";
 import { CreateBookingDto } from "./dto/createBooking.dto";
-import { AdminJwtUserPayload, RenterJwtUserPayload, StaffJwtUserPayload, VehicleAtStationResponse } from "src/common/utils/type";
+import { FacetResult, RenterJwtUserPayload, StaffJwtUserPayload, VehicleAtStationResponse } from "src/common/utils/type";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { KycStatus } from "src/common/enums/kyc.enum";
 import { StatusVehicleAtStation } from "src/common/enums/vehicle_at_station.enum";
@@ -27,6 +27,16 @@ import { Staff } from "src/models/staff.schema";
 import { BookingStatus, BookingVerificationStatus } from "src/common/enums/booking.enum";
 import { ChangeStatusBookingDto } from "./dto/changeStatus.dto";
 import { RentalService } from "../rentals/rental.service";
+import { User } from "src/models/user.schema";
+import { CashService } from "../payments/cash/cash.service";
+import { BookingPaginationDto } from "src/common/pagination/dto/booking/booking-pagination";
+import { BookingFieldMapping } from "src/common/pagination/filters/booking-field-mapping";
+import { applyCommonFiltersMongo } from "src/common/pagination/applyCommonFilters";
+import { applySortingMongo } from "src/common/pagination/applySorting";
+import { applyPaginationMongo } from "src/common/pagination/applyPagination";
+import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
+import { ResponseList } from "src/common/response/response-list";
+import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 
 @Injectable()
 export class BookingService {
@@ -40,6 +50,9 @@ export class BookingService {
     private paymentService: PaymentService,
     private readonly userService: UsersService,
     private readonly rentalService: RentalService,
+
+    @Inject(forwardRef(() => CashService))
+    private readonly cashService: CashService,
   ) {}
 
   private checkRenterKycStatusAndExpired = async (userId: string): Promise<boolean> => {
@@ -85,14 +98,14 @@ export class BookingService {
     if (!user.data.roleExtra) {
       throw new NotFoundException("Renter profile not found");
     }
-
+    const userData = user.data as User & { _id: Types.ObjectId };
     // Type assertion: since role is RENTER, roleExtra must be Renter with _id
     const renterData = user.data.roleExtra as Renter & { _id: Types.ObjectId };
 
     return {
-      ...user.data,
+      ...userData,
       roleExtra: renterData,
-    } as UserWithRenterRole;
+    } as unknown as UserWithRenterRole;
   };
   checkStaffExists = async (userId: string): Promise<UserWithStaffRole> => {
     const user = await this.userService.findOne(userId);
@@ -170,7 +183,7 @@ export class BookingService {
   private async getPaymentCode(createBookingDto: CreateBookingDto): Promise<{ orderId: string; payUrl: string }> {
     switch (createBookingDto.payment_method) {
       case PaymentMethod.CASH:
-        return { orderId: `CASH_${Date.now()}`, payUrl: "Payment Cash Success" };
+        return this.cashService.create();
       case PaymentMethod.BANK_TRANSFER:
         return this.momoService.create(createBookingDto.total_amount.toString());
       default:
@@ -241,6 +254,7 @@ export class BookingService {
       new Date(createBookingDto.rental_start_datetime),
       new Date(createBookingDto.expected_return_datetime),
     );
+    console.log(vehicleAtStationData.total_booking_fee_amount);
     // Step 4: check calculated total amount matches client sent amount
     if (vehicleAtStationData.total_booking_fee_amount !== createBookingDto.total_amount) {
       throw new BadRequestException("Total amount mismatch. Please refresh and try again.");
@@ -259,6 +273,7 @@ export class BookingService {
       total_booking_fee_amount: vehicleAtStationData.total_booking_fee_amount,
       deposit_fee_amount: vehicleAtStationData.deposit_fee_amount,
       rental_fee_amount: vehicleAtStationData.rental_fee_amount,
+      status: createBookingDto.payment_method === PaymentMethod.CASH ? BookingStatus.VERIFIED : BookingStatus.PENDING_VERIFICATION,
     });
     await newBooking.save();
 
@@ -297,15 +312,9 @@ export class BookingService {
     // Step 9: Return payment URL
     return ResponseDetail.ok({ payUrl: paymentCode.payUrl });
   }
-
-  async confirmBooking(
-    id: string,
-    user: StaffJwtUserPayload | AdminJwtUserPayload,
-    changeStatus: ChangeStatusBookingDto,
-  ): Promise<ResponseDetail<Booking>> {
+  async confirmBooking(id: string, user: StaffJwtUserPayload, changeStatus: ChangeStatusBookingDto): Promise<ResponseDetail<Booking>> {
     // Step 1: Validate staff exists
     const staffUser = await this.checkStaffExists(user._id);
-
     // Step 2: Find booking
     const booking = await this.bookingRepository.findById(id);
     if (!booking) {
@@ -324,5 +333,299 @@ export class BookingService {
     await booking.save();
 
     return ResponseDetail.ok(booking);
+  }
+
+  async getAllBookings(filters: BookingPaginationDto): Promise<ResponseList<Booking>> {
+    const pipeline: any[] = [];
+    const currentDate = new Date();
+    pipeline.push(
+      {
+        $lookup: {
+          from: "renters",
+          localField: "renter_id",
+          foreignField: "_id",
+          as: "renter",
+        },
+      },
+      {
+        $unwind: { path: "$renter", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "renter.user_id",
+          foreignField: "_id",
+          as: "renter.user",
+        },
+      },
+      {
+        $unwind: { path: "$renter.user", preserveNullAndEmptyArrays: true },
+      },
+
+      {
+        $lookup: {
+          from: "staffs",
+          localField: "verified_by_staff_id",
+          foreignField: "_id",
+          as: "verified_by_staff",
+        },
+      },
+      {
+        $unwind: { path: "$verified_by_staff", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "verified_by_staff.user_id",
+          foreignField: "_id",
+          as: "verified_by_staff.user",
+        },
+      },
+      {
+        $unwind: { path: "$verified_by_staff.user", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "payments",
+          localField: "_id",
+          foreignField: "booking_id",
+          as: "payments",
+        },
+      },
+      {
+        $lookup: {
+          from: "fees",
+          localField: "_id",
+          foreignField: "booking_id",
+          as: "fees",
+        },
+      },
+      {
+        $lookup: {
+          from: "vehicle_at_station",
+          localField: "vehicle_at_station_id",
+          foreignField: "_id",
+          as: "vehicle_at_station",
+          pipeline: [
+            {
+              $lookup: {
+                from: "vehicles",
+                localField: "vehicle_id",
+                foreignField: "_id",
+                as: "vehicle",
+              },
+            },
+            {
+              $addFields: {
+                vehicle: { $arrayElemAt: ["$vehicle", 0] },
+              },
+            },
+
+            {
+              $lookup: {
+                from: "stations",
+                localField: "station_id",
+                foreignField: "_id",
+                as: "station",
+              },
+            },
+            {
+              $addFields: {
+                station: { $arrayElemAt: ["$station", 0] },
+              },
+            },
+
+            {
+              $lookup: {
+                from: "pricings",
+                localField: "vehicle_id",
+                foreignField: "vehicle_id",
+                as: "pricing_all",
+              },
+            },
+            {
+              $addFields: {
+                pricing: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$pricing_all",
+                        as: "price",
+                        cond: {
+                          $and: [
+                            { $lte: ["$$price.effective_from", currentDate] },
+                            {
+                              $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+            {
+              $project: { pricing_all: 0 },
+            },
+          ],
+        },
+      },
+    );
+    applyCommonFiltersMongo(pipeline, filters, BookingFieldMapping);
+    const allowedSortFields = ["total_booking_fee_amount", "create_at", "status"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
+    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
+    applyFacetMongo(pipeline);
+    const result = (await this.bookingRepository.aggregate(pipeline)) as FacetResult<Booking>;
+    const data = result[0]?.data || [];
+    const total = result[0]?.meta?.[0]?.total || 0;
+
+    return ResponseList.ok(buildPaginationResponse(data, { total, page: filters.page, take: filters.take }));
+  }
+  async getBookingById(id: string): Promise<ResponseDetail<Booking | null>> {
+    const pipeline: any[] = [];
+    const currentDate = new Date();
+    pipeline.push(
+      {
+        $match: { _id: new mongoose.Types.ObjectId(id) },
+      },
+      {
+        $lookup: {
+          from: "renters",
+          localField: "renter_id",
+          foreignField: "_id",
+          as: "renter",
+        },
+      },
+      {
+        $unwind: { path: "$renter", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "renter.user_id",
+          foreignField: "_id",
+          as: "renter.user",
+        },
+      },
+      {
+        $unwind: { path: "$renter.user", preserveNullAndEmptyArrays: true },
+      },
+
+      {
+        $lookup: {
+          from: "staffs",
+          localField: "verified_by_staff_id",
+          foreignField: "_id",
+          as: "verified_by_staff",
+        },
+      },
+      {
+        $unwind: { path: "$verified_by_staff", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "verified_by_staff.user_id",
+          foreignField: "_id",
+          as: "verified_by_staff.user",
+        },
+      },
+      {
+        $unwind: { path: "$verified_by_staff.user", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "payments",
+          localField: "_id",
+          foreignField: "booking_id",
+          as: "payments",
+        },
+      },
+      {
+        $lookup: {
+          from: "fees",
+          localField: "_id",
+          foreignField: "booking_id",
+          as: "fees",
+        },
+      },
+      {
+        $lookup: {
+          from: "vehicle_at_station",
+          localField: "vehicle_at_station_id",
+          foreignField: "_id",
+          as: "vehicle_at_station",
+          pipeline: [
+            {
+              $lookup: {
+                from: "vehicles",
+                localField: "vehicle_id",
+                foreignField: "_id",
+                as: "vehicle",
+              },
+            },
+            {
+              $addFields: {
+                vehicle: { $arrayElemAt: ["$vehicle", 0] },
+              },
+            },
+
+            {
+              $lookup: {
+                from: "stations",
+                localField: "station_id",
+                foreignField: "_id",
+                as: "station",
+              },
+            },
+            {
+              $addFields: {
+                station: { $arrayElemAt: ["$station", 0] },
+              },
+            },
+
+            {
+              $lookup: {
+                from: "pricings",
+                localField: "vehicle_id",
+                foreignField: "vehicle_id",
+                as: "pricing_all",
+              },
+            },
+            {
+              $addFields: {
+                pricing: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$pricing_all",
+                        as: "price",
+                        cond: {
+                          $and: [
+                            { $lte: ["$$price.effective_from", currentDate] },
+                            {
+                              $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+            {
+              $project: { pricing_all: 0 },
+            },
+          ],
+        },
+      },
+    );
+    const result = (await this.bookingRepository.aggregate(pipeline)) as FacetResult<Booking>;
+    return ResponseDetail.ok(result[0]?.data[0] || null);
   }
 }

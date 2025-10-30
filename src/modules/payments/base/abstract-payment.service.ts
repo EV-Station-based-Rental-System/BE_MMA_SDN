@@ -23,6 +23,25 @@ export abstract class AbstractPaymentService {
     protected readonly emailService: MailService,
   ) {}
 
+  async getPaymentById(paymentId: string): Promise<Payment & { _id: mongoose.Types.ObjectId }> {
+    const payment = await this.paymentRepository
+      .findById(paymentId)
+      .populate({
+        path: "booking_id",
+        populate: {
+          path: "renter_id",
+          populate: {
+            path: "user_id",
+          },
+        },
+      })
+      .lean()
+      .exec();
+    if (!payment) {
+      throw new NotFoundException("Payment not found");
+    }
+    return payment as Payment & { _id: mongoose.Types.ObjectId };
+  }
   async getPaymentByTransactionCode(transactionCode: string) {
     const payment = await this.paymentRepository
       .findOne({ transaction_code: transactionCode })
@@ -117,12 +136,7 @@ export abstract class AbstractPaymentService {
     }
   }
 
-  async handleReturnFail(): Promise<void> {
-    // Không làm gì cả, giữ nguyên status PENDING
-    // Payment status: PENDING
-    // Booking status: PENDING_VERIFICATION
-    // Vehicle status: PENDING
-  }
+  async handleReturnFail(): Promise<void> {}
 
   async handleSendEmail(
     payment: Payment & {

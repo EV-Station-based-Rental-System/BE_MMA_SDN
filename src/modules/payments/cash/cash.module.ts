@@ -1,13 +1,12 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
+import { CashService } from "./cash.service";
 import { MongooseModule } from "@nestjs/mongoose";
-import { Payment, PaymentSchema } from "src/models/payment.schema";
-import { PaymentService } from "./payment.service";
-import { VehicleAtStation, VehicleAtStationSchema } from "src/models/vehicle_at_station.schema";
 import { Booking, BookingSchema } from "src/models/booking.schema";
+import { Payment, PaymentSchema } from "src/models/payment.schema";
 import { Renter, RenterSchema } from "src/models/renter.schema";
 import { User, UserSchema } from "src/models/user.schema";
-import { CashModule } from "./cash/cash.module";
-import { PaymentController } from "./payment.controller";
+import { VehicleAtStation, VehicleAtStationSchema } from "src/models/vehicle_at_station.schema";
+import { BookingModule } from "src/modules/bookings/booking.module";
 
 @Module({
   imports: [
@@ -18,10 +17,9 @@ import { PaymentController } from "./payment.controller";
       { name: Renter.name, schema: RenterSchema },
       { name: User.name, schema: UserSchema },
     ]),
-    CashModule,
+    forwardRef(() => BookingModule),
   ],
-  controllers: [PaymentController],
-  providers: [PaymentService],
-  exports: [PaymentService],
+  providers: [CashService],
+  exports: [CashService],
 })
-export class PaymentModule {}
+export class CashModule {}

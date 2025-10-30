@@ -16,7 +16,7 @@ import { KycsModule } from "./modules/kycs/kycs.module";
 import { BookingModule } from "./modules/bookings/booking.module";
 import { PaymentModule } from "./modules/payments/payment.module";
 import { InspectionsModule } from "./modules/inspections/inspections.module";
-import { RentalModule } from "./modules/rentals/rental.module";
+import { ContractModule } from "./modules/contract/contract.module";
 
 @Module({
   imports: [
@@ -41,7 +41,7 @@ import { RentalModule } from "./modules/rentals/rental.module";
     BookingModule,
     PaymentModule,
     InspectionsModule,
-    RentalModule,
+    ContractModule,
 
     MailModule,
     RedisModule,
@@ -49,4 +49,4 @@ import { RentalModule } from "./modules/rentals/rental.module";
     ImagekitModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

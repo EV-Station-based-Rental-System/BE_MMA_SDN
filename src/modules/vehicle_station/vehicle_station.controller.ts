@@ -14,14 +14,14 @@ import { VehicleAtStation } from "src/models/vehicle_at_station.schema";
 import { VehicleAtStationPaginationDto } from "src/common/pagination/dto/vehicle_at_station/vehicle_at_station-pagination";
 import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
 @ApiExtraModels(VehicleAtStation)
 @Controller("vehicle-station")
 export class VehicleStationController {
   constructor(private readonly vehicleStationService: VehicleStationService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.STAFF)
   @ApiCreatedResponse({ description: "Create vehicle at station", type: SwaggerResponseDetailDto(VehicleAtStation) })
   @ApiErrorResponses()
@@ -31,7 +31,6 @@ export class VehicleStationController {
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
   @ApiOkResponse({ description: "List of vehicles at all stations", type: SwaggerResponseListDto(VehicleAtStation) })
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
@@ -46,7 +45,6 @@ export class VehicleStationController {
   }
 
   @Get(":id")
-  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
   @ApiOkResponse({ description: "Vehicle at station found", type: SwaggerResponseDetailDto(VehicleAtStation) })
   @ApiErrorResponses()
   findOne(@Param("id") id: string) {
@@ -54,7 +52,9 @@ export class VehicleStationController {
   }
 
   @Put(":id")
+  @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOkResponse({ description: "Vehicle status changed successfully", type: SwaggerResponseDetailDto(VehicleAtStation) })
   @ApiErrorResponses()
   @ApiBody({ type: UpdateVehicleStationDto })
@@ -64,6 +64,8 @@ export class VehicleStationController {
 
   @Patch("changeStatus/:id")
   @Roles(Role.ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ description: "Vehicle status changed successfully", type: SwaggerResponseDetailDto(VehicleAtStation) })
   @ApiErrorResponses()
   @ApiBody({ type: ChangeStatusDto })
@@ -73,6 +75,8 @@ export class VehicleStationController {
 
   @Delete(":id")
   @Roles(Role.ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ description: "Vehicle at station deleted successfully", type: ResponseMsg })
   @ApiErrorResponses()
   remove(@Param("id") id: string) {
