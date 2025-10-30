@@ -12,7 +12,7 @@ import { Station } from "src/models/station.schema";
 import { applyCommonFiltersMongo } from "src/common/pagination/applyCommonFilters";
 import { VehicleAtStationPaginationDto } from "src/common/pagination/dto/vehicle_at_station/vehicle_at_station-pagination";
 import { ResponseList } from "src/common/response/response-list";
-import { VehicleAtStationFieldMapping } from "src/common/pagination/filters/vehicle_at_station-filed-mapping";
+
 import { applySortingMongo } from "src/common/pagination/applySorting";
 import { applyPaginationMongo } from "src/common/pagination/applyPagination";
 import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
@@ -20,6 +20,7 @@ import { FacetResult, VehicleAtStationAggregateResult, VehicleAtStationResponse 
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { Pricing } from "src/models/pricings.schema";
+import { VehicleAtStationFieldMapping } from "src/common/pagination/filters/vehicle_at_station-field-mapping";
 
 @Injectable()
 export class VehicleStationService {

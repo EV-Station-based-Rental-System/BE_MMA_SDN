@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Booking, BookingSchema } from "src/models/booking.schema";
 import { Kycs, KycsSchema } from "src/models/kycs.schema";
@@ -16,6 +16,7 @@ import { BookingService } from "./booking.service";
 import { BookingController } from "./booking.controller";
 import { UsersModule } from "../users/users.module";
 import { RentalModule } from "../rentals/rental.module";
+import { CashModule } from "../payments/cash/cash.module";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { RentalModule } from "../rentals/rental.module";
       { name: Station.name, schema: StationSchema },
       { name: Pricing.name, schema: PricingSchema },
     ]),
+    forwardRef(() => CashModule),
     VehicleStationModule,
     FeeModule,
     PaymentModule,

@@ -49,13 +49,18 @@ export class InspectionsController {
     schema: {
       type: "object",
       properties: {
+        label: {
+          type: "string",
+          description: "Nhãn mô tả cho ảnh (ví dụ: Ảnh trước khi thuê, Ảnh sau khi trả, etc.) - Optional",
+          example: "Ảnh trước khi thuê",
+        },
         file: {
           type: "string",
           format: "binary",
           description: "Image file (jpg, jpeg, png, gif, webp) - Max 5MB",
         },
       },
-      required: ["file", "label"],
+      required: ["file"],
     },
   })
   async uploadPhoto(

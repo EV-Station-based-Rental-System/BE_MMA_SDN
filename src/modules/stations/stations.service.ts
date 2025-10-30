@@ -12,10 +12,11 @@ import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
 import { applyPaginationMongo } from "src/common/pagination/applyPagination";
 import { applySortingMongo } from "src/common/pagination/applySorting";
 import { FacetResult } from "src/common/utils/type";
-import { StationFieldMapping } from "src/common/pagination/filters/station-filed-mapping";
+
 import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
+import { StationFieldMapping } from "src/common/pagination/filters/station-field-mapping";
 
 @Injectable()
 export class StationService {

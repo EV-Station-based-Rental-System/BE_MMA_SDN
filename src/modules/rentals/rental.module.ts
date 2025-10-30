@@ -5,7 +5,6 @@ import { RentalService } from "./rental.service";
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Rental.name, schema: RentalSchema }])],
-  controllers: [],
   providers: [RentalService],
   exports: [RentalService],
 })
