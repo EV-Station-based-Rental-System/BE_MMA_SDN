@@ -139,7 +139,7 @@ export class BookingService {
     deposit_fee_amount: number;
     rental_fee_amount: number;
   }> => {
-    const vehicle = await this.vehicleService.findOneWithPricing(vehicleId);
+    const vehicle = await this.vehicleService.findOneWithPricingAndStation(vehicleId);
     if (!vehicle) {
       throw new NotFoundException("Vehicle not found");
     }
@@ -162,7 +162,7 @@ export class BookingService {
     // Calculate fees (rental_fee = price_per_day * days, NOT days * rental_fee)
     const rentalDays = calculateRentalDays(startTime, endTime);
     const deposit_fee_amount = vehicle.pricing ? vehicle.pricing.deposit_amount : 0;
-    const rental_fee_amount = vehicle.pricing ? vehicle.pricing.price_per_day * rentalDays : 0;
+    const rental_fee_amount = vehicle.pricing?.price_per_day ? vehicle.pricing.price_per_day * rentalDays : 0;
     const total_booking_fee_amount = rental_fee_amount + deposit_fee_amount;
 
     return {

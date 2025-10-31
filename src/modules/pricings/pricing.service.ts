@@ -6,6 +6,7 @@ import { Vehicle } from "src/models/vehicle.schema";
 import { CreatePricingDto } from "./dto/createPricing.dto";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
+import { ResponseList } from "src/common/response/response-list";
 
 @Injectable()
 export class PricingService {
@@ -39,5 +40,25 @@ export class PricingService {
       throw new NotFoundException("Pricing not found");
     }
     return ResponseMsg.ok("Pricing deleted successfully");
+  }
+
+  async getPricingHistoryByVehicle(vehicleId: string): Promise<ResponseList<Pricing>> {
+    // Check if vehicle exists
+    const vehicle = await this.vehicleRepository.findById(vehicleId);
+    if (!vehicle) {
+      throw new NotFoundException("Vehicle not found");
+    }
+
+    // Get all pricing records for this vehicle, sorted from newest to oldest
+    const pricings = await this.pricingRepository.find({ vehicle_id: vehicleId }).sort({ effective_from: -1 }).exec();
+
+    return ResponseList.ok<Pricing>({
+      data: pricings,
+      meta: {
+        total: pricings.length,
+        page: 1,
+        take: pricings.length,
+      },
+    });
   }
 }
