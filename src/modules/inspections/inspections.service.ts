@@ -162,7 +162,7 @@ export class InspectionsService {
     } else if (inspection.type === InspectionType.POST_RENTAL) {
       // Post-rental hoàn thành → Xe đã được trả lại
       rental.status = RentalStatus.COMPLETED;
-      rental.actual_return_datetime = new Date(); // Cập nhật thời gian trả xe thực tế
+      rental.actual_return_datetime = new Date();
     }
 
     await rental.save();

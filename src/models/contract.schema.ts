@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
 export type ContractDocument = HydratedDocument<Contract>;
-@Schema({ timestamps: { createdAt: "created_at", updatedAt: "updated_at" } })
+@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Contract {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Rental", unique: true })
   rental_id: mongoose.Types.ObjectId;
