@@ -20,31 +20,39 @@ import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { Roles } from "src/common/decorator/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
-import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
 import { Inspection } from "src/models/inspections.schema";
 import { Report } from "src/models/report.schema";
 import { ReportsPhoto } from "src/models/reports_photo.schema";
 import { StaffJwtUserPayload } from "src/common/utils/type";
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiExtraModels, ApiOkResponse } from "@nestjs/swagger";
+import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
+import { SwaggerResponseDetailDto } from "src/common/response/swagger-generic.dto";
 
+@ApiExtraModels(Inspection, Report, ReportsPhoto)
 @Controller("inspection")
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
 export class InspectionsController {
   constructor(private readonly inspectionsService: InspectionsService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @ApiCreatedResponse({ description: "Inspection created", type: SwaggerResponseDetailDto(Inspection) })
+  @ApiErrorResponses()
+  @ApiBody({ type: CreateInspectionDto })
   async create(@Body() createInspectionDto: CreateInspectionDto, @Req() req: { user: StaffJwtUserPayload }) {
     return this.inspectionsService.create(createInspectionDto, req.user);
   }
 
   @Post(":id/upload-photo")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
   @UseInterceptors(FileInterceptor("file"))
+  @ApiCreatedResponse({ description: "Photo uploaded successfully", type: SwaggerResponseDetailDto(ReportsPhoto) })
+  @ApiErrorResponses()
   @ApiConsumes("multipart/form-data")
-  @ApiOperation({ summary: "Upload inspection photo to ImageKit" })
   @ApiBody({
     schema: {
       type: "object",
@@ -79,27 +87,38 @@ export class InspectionsController {
         }),
     )
     file: any,
-  ): Promise<ResponseDetail<ReportsPhoto>> {
+  ) {
     return this.inspectionsService.uploadPhoto(inspectionId, file, label);
   }
 
   @Get(":id/photos")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN, Role.RENTER)
-  async getPhotos(@Param("id") id: string): Promise<ResponseDetail<ReportsPhoto[]>> {
+  @ApiOkResponse({ description: "List of inspection photos", type: SwaggerResponseDetailDto(Array<ReportsPhoto>) })
+  @ApiErrorResponses()
+  async getPhotos(@Param("id") id: string) {
     return this.inspectionsService.getPhotos(id);
   }
 
+  // TODO chỗ này cần sửa lại để ra cái report
   @Post(":id/complete")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
-  async completeInspection(
-    @Param("id") id: string,
-    @Body() completeDto: CompleteInspectionDto,
-  ): Promise<ResponseDetail<{ inspection: Inspection; report?: Report }>> {
+  @ApiCreatedResponse({ description: "Inspection completed", type: SwaggerResponseDetailDto(Object) })
+  @ApiErrorResponses()
+  @ApiBody({ type: CompleteInspectionDto })
+  async completeInspection(@Param("id") id: string, @Body() completeDto: CompleteInspectionDto) {
     return this.inspectionsService.completeInspection(id, completeDto);
   }
 
   @Delete(":id")
   @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: "Inspection deleted", type: ResponseMsg })
+  @ApiErrorResponses()
   async remove(@Param("id") id: string): Promise<ResponseMsg> {
     return this.inspectionsService.remove(id);
   }

@@ -10,23 +10,15 @@ import { AdminDto } from "./dto/admin.dto";
 import { VerifyOtpDto } from "src/common/mail/dto/verifyOtp.dto";
 import { SendOtpDto } from "src/common/mail/dto/sendEmail.dto";
 import { ResetPasswordDto } from "./dto/resetPassword.dto";
-import {
-  ApiBody,
-  ApiConflictResponse,
-  ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
-  ApiNotFoundResponse,
-  ApiBadRequestResponse,
-  ApiTags,
-  ApiOperation,
-} from "@nestjs/swagger";
-import { ResponseDetail } from "src/common/response/response-detail-create-update";
-import { ResponseNotFound } from "src/common/response/error/response-notfound";
-import { ResponseConflict } from "src/common/response/error/response-conflict";
-import { ResponseInternalError } from "src/common/response/error/response-internal-error";
-import { ResponseBadRequest } from "src/common/response/error/response-bad-request";
+import { ApiBody, ApiCreatedResponse, ApiTags, ApiExtraModels } from "@nestjs/swagger";
+import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
+import { Renter } from "src/models/renter.schema";
+import { Staff } from "src/models/staff.schema";
+import { Admin } from "src/models/admin.schema";
+import { ResponseMsg } from "src/common/response/response-message";
 
 @ApiTags("Auth")
+@ApiExtraModels(Renter, Staff, Admin)
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -34,22 +26,24 @@ export class AuthController {
   // =====================
   // LOGIN
   // =====================
-  @UseGuards(LocalGuard)
   @Post("login")
-  @ApiOperation({ summary: "Login with email and password" })
-  @ApiBody({ type: LoginDto })
+  @UseGuards(LocalGuard)
   @ApiCreatedResponse({
     description: "Login successful. Returns JWT access token.",
-    type: ResponseDetail,
+    schema: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            access_token: { type: "string" },
+          },
+        },
+      },
+    },
   })
-  @ApiNotFoundResponse({
-    description: "User not found or invalid credentials",
-    type: ResponseNotFound,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Server error",
-    type: ResponseInternalError,
-  })
+  @ApiErrorResponses()
+  @ApiBody({ type: LoginDto })
   login(@Request() req: { user: RenterJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload }) {
     return this.authService.login(req.user);
   }
@@ -58,24 +52,9 @@ export class AuthController {
   // REGISTER RENTER
   // =====================
   @Post("register/renter")
-  @ApiOperation({ summary: "Register new renter user" })
+  @ApiCreatedResponse({ description: "Renter created successfully", type: ResponseMsg })
+  @ApiErrorResponses()
   @ApiBody({ type: RenterDto })
-  @ApiCreatedResponse({
-    description: "Renter created successfully",
-    type: ResponseDetail,
-  })
-  @ApiConflictResponse({
-    description: "Email already exists",
-    type: ResponseConflict,
-  })
-  @ApiBadRequestResponse({
-    description: "Invalid renter payload",
-    type: ResponseBadRequest,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Server error",
-    type: ResponseInternalError,
-  })
   async createRenter(@Body() body: RenterDto) {
     return this.authService.createRenter(body);
   }
@@ -87,24 +66,9 @@ export class AuthController {
   // @UseGuards(JwtAuthGuard, RolesGuard) tam thoi bo qua guard de test
   // @Roles(Role.ADMIN)
   // @ApiBearerAuth()
-  @ApiOperation({ summary: "Register new staff" })
+  @ApiCreatedResponse({ description: "Staff created successfully", type: ResponseMsg })
+  @ApiErrorResponses()
   @ApiBody({ type: StaffDto })
-  @ApiCreatedResponse({
-    description: "Staff created successfully",
-    type: ResponseDetail,
-  })
-  @ApiConflictResponse({
-    description: "Email already exists",
-    type: ResponseConflict,
-  })
-  @ApiBadRequestResponse({
-    description: "Invalid staff payload",
-    type: ResponseBadRequest,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Server error",
-    type: ResponseInternalError,
-  })
   async createStaff(@Body() body: StaffDto) {
     return this.authService.createStaff(body);
   }
@@ -116,24 +80,9 @@ export class AuthController {
   // @UseGuards(JwtAuthGuard, RolesGuard) tam thoi bo qua guard de test
   // @Roles(Role.ADMIN)
   // @ApiBearerAuth()
-  @ApiOperation({ summary: "Register new admin" })
+  @ApiCreatedResponse({ description: "Admin created successfully", type: ResponseMsg })
+  @ApiErrorResponses()
   @ApiBody({ type: AdminDto })
-  @ApiCreatedResponse({
-    description: "Admin created successfully",
-    type: ResponseDetail,
-  })
-  @ApiConflictResponse({
-    description: "Email already exists",
-    type: ResponseConflict,
-  })
-  @ApiBadRequestResponse({
-    description: "Invalid admin payload",
-    type: ResponseBadRequest,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Server error",
-    type: ResponseInternalError,
-  })
   async createAdmin(@Body() body: AdminDto) {
     return this.authService.createAdmin(body);
   }
@@ -142,20 +91,9 @@ export class AuthController {
   // SEND OTP
   // =====================
   @Post("send-otp")
-  @ApiOperation({ summary: "Send OTP to email for verification" })
+  @ApiCreatedResponse({ description: "OTP sent successfully", type: ResponseMsg })
+  @ApiErrorResponses()
   @ApiBody({ type: SendOtpDto })
-  @ApiCreatedResponse({
-    description: "OTP sent successfully",
-    type: ResponseDetail,
-  })
-  @ApiNotFoundResponse({
-    description: "Email not registered",
-    type: ResponseNotFound,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Server error",
-    type: ResponseInternalError,
-  })
   async sendOtp(@Body() body: SendOtpDto) {
     return this.authService.sendOtp(body);
   }
@@ -164,20 +102,9 @@ export class AuthController {
   // VERIFY EMAIL
   // =====================
   @Post("verify-email")
-  @ApiOperation({ summary: "Verify email using OTP" })
+  @ApiCreatedResponse({ description: "Email verified successfully", type: ResponseMsg })
+  @ApiErrorResponses()
   @ApiBody({ type: VerifyOtpDto })
-  @ApiCreatedResponse({
-    description: "Email verified successfully",
-    type: ResponseDetail,
-  })
-  @ApiBadRequestResponse({
-    description: "Invalid or expired OTP",
-    type: ResponseBadRequest,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Server error",
-    type: ResponseInternalError,
-  })
   async verifyEmail(@Body() body: VerifyOtpDto) {
     return this.authService.verifyEmail(body);
   }
@@ -186,20 +113,9 @@ export class AuthController {
   // RESET PASSWORD
   // =====================
   @Post("reset-password")
-  @ApiOperation({ summary: "Reset password using verified email" })
+  @ApiCreatedResponse({ description: "Password reset successfully", type: ResponseMsg })
+  @ApiErrorResponses()
   @ApiBody({ type: ResetPasswordDto })
-  @ApiCreatedResponse({
-    description: "Password reset successfully",
-    type: ResponseDetail,
-  })
-  @ApiBadRequestResponse({
-    description: "Invalid payload or unverified email",
-    type: ResponseBadRequest,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Server error",
-    type: ResponseInternalError,
-  })
   async resetPassword(@Body() body: ResetPasswordDto) {
     return this.authService.resetPassword(body);
   }

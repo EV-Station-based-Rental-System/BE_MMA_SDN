@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiExtraModels, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
 import { BookingService } from "./booking.service";
 import { CreateBookingDto } from "./dto/createBooking.dto";
 import { RenterJwtUserPayload, StaffJwtUserPayload } from "src/common/utils/type";
@@ -9,28 +9,55 @@ import { Roles } from "src/common/decorator/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { BookingPaginationDto } from "src/common/pagination/dto/booking/booking-pagination";
+import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
+import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
+import { Booking } from "src/models/booking.schema";
 
+@ApiExtraModels(Booking)
 @Controller("bookings")
-@ApiBearerAuth()
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
-  @Roles(Role.RENTER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiCreatedResponse({
+    description: "Booking created",
+    schema: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            payUrl: { type: "string" },
+          },
+        },
+      },
+    },
+  })
+  @ApiErrorResponses()
+  @ApiBody({ type: CreateBookingDto })
   createBooking(@Body() createBookingDto: CreateBookingDto, @Req() req: { user: RenterJwtUserPayload }) {
     return this.bookingService.createBooking(createBookingDto, req.user);
   }
+
+  @Patch("confirm/:id")
   @Roles(Role.STAFF)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Patch("confirm/:id")
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: "Booking confirmed", type: SwaggerResponseDetailDto(Booking) })
+  @ApiErrorResponses()
+  @ApiBody({ type: ChangeStatusBookingDto })
   confirmBooking(@Param("id") id: string, @Req() req: { user: StaffJwtUserPayload }, @Body() changeStatusDto: ChangeStatusBookingDto) {
     return this.bookingService.confirmBooking(id, req.user, changeStatusDto);
   }
 
-  @Roles(Role.STAFF, Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN)
+  @ApiOkResponse({ description: "List of bookings", type: SwaggerResponseListDto(Booking) })
+  @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
   async getAllBookings(@Query() filters: BookingPaginationDto) {
@@ -38,9 +65,12 @@ export class BookingController {
     return this.bookingService.getAllBookings({ page, take: Math.min(take, 100), ...restFilters });
   }
 
-  @Roles(Role.STAFF, Role.ADMIN, Role.RENTER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(":id")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN, Role.RENTER)
+  @ApiOkResponse({ description: "Booking details", type: SwaggerResponseDetailDto(Booking) })
+  @ApiErrorResponses()
   async getBookingById(@Param("id") id: string) {
     return this.bookingService.getBookingById(id);
   }

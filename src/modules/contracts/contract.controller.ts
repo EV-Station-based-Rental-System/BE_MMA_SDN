@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiConsumes, ApiOperation, ApiBody, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiConsumes, ApiBody, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiExtraModels } from "@nestjs/swagger";
 import { ContractService } from "./contract.service";
 import { CreateContractDto } from "./dto/createContract.dto";
 import { UpdateContractDto } from "./dto/updateContract.dto";
@@ -20,18 +20,24 @@ import { Roles } from "src/common/decorator/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import { RolesGuard } from "src/common/guards/roles.guard";
+import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
+import { SwaggerResponseDetailDto } from "src/common/response/swagger-generic.dto";
+import { ResponseMsg } from "src/common/response/response-message";
+import { Contract } from "src/models/contract.schema";
 
-@Controller()
-@Roles(Role.ADMIN, Role.STAFF)
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
+@ApiExtraModels(Contract)
+@Controller("contracts")
 export class ContractController {
   constructor(private readonly contractService: ContractService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF)
   @UseInterceptors(FileInterceptor("file"))
+  @ApiCreatedResponse({ description: "Contract created", type: SwaggerResponseDetailDto(Contract) })
+  @ApiErrorResponses()
   @ApiConsumes("multipart/form-data")
-  @ApiOperation({ summary: "Create contract with document upload" })
   @ApiBody({
     schema: {
       type: "object",
@@ -75,9 +81,13 @@ export class ContractController {
   }
 
   @Put(":id")
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @UseInterceptors(FileInterceptor("file"))
+  @ApiOkResponse({ description: "Contract updated", type: SwaggerResponseDetailDto(Contract) })
+  @ApiErrorResponses()
   @ApiConsumes("multipart/form-data")
-  @ApiOperation({ summary: "Update contract with optional new document" })
   @ApiBody({
     schema: {
       type: "object",
@@ -117,7 +127,11 @@ export class ContractController {
   }
 
   @Delete(":id")
-  @ApiOperation({ summary: "Delete contract" })
+  @Roles(Role.ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: "Contract deleted", type: ResponseMsg })
+  @ApiErrorResponses()
   remove(@Param("id") id: string) {
     return this.contractService.remove(id);
   }

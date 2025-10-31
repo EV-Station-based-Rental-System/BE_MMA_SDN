@@ -9,6 +9,7 @@ import { ImagekitService } from "src/common/imagekit/imagekit.service";
 import { BadRequestException } from "src/common/exceptions/bad-request.exception";
 import { Rental } from "src/models/rental.schema";
 import { RentalStatus } from "src/common/enums/rental.enum";
+import { ResponseMsg } from "src/common/response/response-message";
 
 @Injectable()
 export class ContractService {
@@ -97,12 +98,12 @@ export class ContractService {
     return ResponseDetail.ok(updatedContract);
   }
 
-  async remove(id: string): Promise<ResponseDetail<{ message: string }>> {
+  async remove(id: string): Promise<ResponseMsg> {
     const contract = await this.contractRepository.findByIdAndDelete(id);
     if (!contract) {
       throw new BadRequestException("Contract not found");
     }
 
-    return ResponseDetail.ok({ message: "Contract deleted successfully" });
+    return ResponseMsg.ok("Contract deleted successfully");
   }
 }
