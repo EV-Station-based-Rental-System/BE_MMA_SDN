@@ -13,6 +13,7 @@ import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/res
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
+import { CreateVehicleWithStationAndPricingDto } from "./dto/create-vehicle-with-station-pricing.dto";
 
 @ApiExtraModels(Vehicle, VehicleWithPricingAndStation)
 @Controller("vehicle")
@@ -28,6 +29,20 @@ export class VehicleController {
   @ApiBody({ type: CreateVehicleDto })
   create(@Body() createVehicleDto: CreateVehicleDto) {
     return this.vehicleService.create(createVehicleDto);
+  }
+
+  @Post("with-station-and-pricing")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF)
+  @ApiCreatedResponse({
+    description: "Vehicle created along with station and pricing",
+    type: SwaggerResponseDetailDto(VehicleWithPricingAndStation),
+  })
+  @ApiErrorResponses()
+  @ApiBody({ type: CreateVehicleWithStationAndPricingDto })
+  createWithStationAndPricing(@Body() createDto: CreateVehicleWithStationAndPricingDto) {
+    return this.vehicleService.createWithStationAndPricing(createDto);
   }
 
   @Get()
