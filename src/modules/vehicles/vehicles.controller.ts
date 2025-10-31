@@ -12,8 +12,9 @@ import { Vehicle } from "src/models/vehicle.schema";
 import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import { RolesGuard } from "src/common/guards/roles.guard";
+import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
 
-@ApiExtraModels(Vehicle)
+@ApiExtraModels(Vehicle, VehicleWithPricingAndStation)
 @Controller("vehicle")
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
@@ -30,7 +31,7 @@ export class VehicleController {
   }
 
   @Get()
-  @ApiOkResponse({ description: "List of vehicles", type: SwaggerResponseListDto(Vehicle) })
+  @ApiOkResponse({ description: "List of vehicles", type: SwaggerResponseListDto(VehicleWithPricingAndStation) })
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
@@ -44,7 +45,7 @@ export class VehicleController {
   }
 
   @Get(":id")
-  @ApiOkResponse({ description: "Vehicle details", type: SwaggerResponseDetailDto(Vehicle) })
+  @ApiOkResponse({ description: "Vehicle details", type: SwaggerResponseDetailDto(VehicleWithPricingAndStation) })
   @ApiErrorResponses()
   findOne(@Param("id") id: string) {
     return this.vehicleService.findOne(id);
