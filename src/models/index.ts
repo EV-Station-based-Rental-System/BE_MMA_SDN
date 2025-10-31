@@ -13,7 +13,6 @@ import { Rental, RentalSchema } from "./rental.schema";
 import { Report, ReportSchema } from "./report.schema";
 import { ReportsPhoto, ReportsPhotoSchema } from "./reports_photo.schema";
 import { Station, StationSchema } from "./station.schema";
-import { VehicleAtStation, VehicleAtStationSchema } from "./vehicle_at_station.schema";
 import { Vehicle, VehicleSchema } from "./vehicle.schema";
 
 export const index = [
@@ -32,6 +31,5 @@ export const index = [
   { name: Report.name, schema: ReportSchema },
   { name: ReportsPhoto.name, schema: ReportsPhotoSchema },
   { name: Station.name, schema: StationSchema },
-  { name: VehicleAtStation.name, schema: VehicleAtStationSchema },
   { name: Vehicle.name, schema: VehicleSchema },
 ];

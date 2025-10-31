@@ -8,7 +8,6 @@ import { Fee, FeeSchema } from "src/models/fee.schema";
 import { Vehicle, VehicleSchema } from "src/models/vehicle.schema";
 import { Station, StationSchema } from "src/models/station.schema";
 import { Pricing, PricingSchema } from "src/models/pricings.schema";
-import { VehicleStationModule } from "../vehicle_station/vehicle_station.module";
 import { FeeModule } from "../fees/fee.module";
 import { PaymentModule } from "../payments/payment.module";
 import { MomoModule } from "../payments/momo/momo.module";
@@ -17,6 +16,7 @@ import { BookingController } from "./booking.controller";
 import { UsersModule } from "../users/users.module";
 import { RentalModule } from "../rentals/rental.module";
 import { CashModule } from "../payments/cash/cash.module";
+import { VehicleModule } from "../vehicles/vehicles.module";
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { CashModule } from "../payments/cash/cash.module";
       { name: Pricing.name, schema: PricingSchema },
     ]),
     forwardRef(() => CashModule),
-    VehicleStationModule,
+    VehicleModule,
     FeeModule,
     PaymentModule,
     MomoModule,
