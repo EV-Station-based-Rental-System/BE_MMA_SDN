@@ -117,7 +117,7 @@ export class InspectionsService {
     return ResponseDetail.ok(newPhoto);
   }
 
-  async getPhotos(inspectionId: string): Promise<ResponseDetail<ReportsPhoto[]>> {
+  async getPhotos(inspectionId: string): Promise<ResponseDetail<Array<ReportsPhoto>>> {
     const inspection = await this.inspectionRepository.findById(inspectionId);
     if (!inspection) {
       throw new NotFoundException("Inspection not found");
