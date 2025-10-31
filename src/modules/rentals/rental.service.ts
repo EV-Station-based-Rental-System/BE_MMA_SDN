@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateRentalDto } from "./dto/createRental.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Rental } from "src/models/rental.schema";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { FacetResult, RentalAggregateResult, ReturnRentalMapping } from "src/common/utils/type";
@@ -307,6 +307,7 @@ export class RentalService {
   async getRentalById(id: string): Promise<ResponseDetail<ReturnRentalMapping>> {
     const pipeline: any[] = [];
     pipeline.push(
+      { $match: { _id: new Types.ObjectId(id) } },
       // --- Join Booking ---
       {
         $lookup: {

@@ -13,7 +13,7 @@ export class RentalPaginationDto extends BasePaginationDto {
   search?: string;
 
   @ApiPropertyOptional({
-    description: "Trạng thái rental (reserved, in_progress, completed, cancelled)",
+    description: "Trạng thái rental (reserved, in_progress, completed, cancelled, late)",
     enum: RentalStatus,
     example: RentalStatus.RESERVED,
   })

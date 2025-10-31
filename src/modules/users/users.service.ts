@@ -156,7 +156,7 @@ export class UsersService {
     return ResponseList.ok(buildPaginationResponse(users, { total, page, take }));
   }
 
-  private async findOneRenter(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
+  async findOneRenter(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {
     const users = await this.userRepository.aggregate<UserWithRoleExtra>([
       { $match: { _id: new mongoose.Types.ObjectId(id), role: "renter" } },
       {

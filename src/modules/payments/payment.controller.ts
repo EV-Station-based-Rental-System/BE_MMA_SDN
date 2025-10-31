@@ -11,7 +11,7 @@ import { ApiBearerAuth } from "@nestjs/swagger";
 @ApiBearerAuth()
 export class PaymentController {
   constructor(private readonly cashService: CashService) {}
-  @Roles(Role.STAFF, Role.ADMIN)
+  @Roles(Role.STAFF)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch("confirm-cash/:id")
   confirmBookingByCash(@Param("id") id: string, @Req() req: { user: StaffJwtUserPayload }) {

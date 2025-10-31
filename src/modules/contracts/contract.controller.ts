@@ -1,11 +1,30 @@
-import { Body, Controller, Post, UseInterceptors, UploadedFile, ParseFilePipeBuilder, HttpStatus, Put, Param, Delete } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
+  HttpStatus,
+  Put,
+  Param,
+  Delete,
+  UseGuards,
+} from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiConsumes, ApiOperation, ApiBody } from "@nestjs/swagger";
+import { ApiConsumes, ApiOperation, ApiBody, ApiBearerAuth } from "@nestjs/swagger";
 import { ContractService } from "./contract.service";
 import { CreateContractDto } from "./dto/createContract.dto";
 import { UpdateContractDto } from "./dto/updateContract.dto";
+import { Roles } from "src/common/decorator/roles.decorator";
+import { Role } from "src/common/enums/role.enum";
+import { JwtAuthGuard } from "src/common/guards/jwt.guard";
+import { RolesGuard } from "src/common/guards/roles.guard";
 
 @Controller()
+@Roles(Role.ADMIN, Role.STAFF)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class ContractController {
   constructor(private readonly contractService: ContractService) {}
 
