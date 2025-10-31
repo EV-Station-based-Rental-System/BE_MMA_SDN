@@ -76,10 +76,6 @@
   },
   "javascript.updateImportsOnFileMove.enabled": "always",
   "json.schemaDownload.enable": true,
-  "typescript.tsdk": "node_modules\\typescript\\lib",
   "workbench.tree.indent": 15,
-  "workbench.tree.renderIndentGuides": "always",
-  "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  }
+  "workbench.tree.renderIndentGuides": "always"
 }

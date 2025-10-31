@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument } from "mongoose";
+
 import { Role } from "src/common/enums/role.enum";
 
-export type UserDocument = HydratedDocument<User>;
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class User {
   save() {

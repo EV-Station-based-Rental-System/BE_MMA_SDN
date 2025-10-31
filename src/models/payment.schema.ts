@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose from "mongoose";
 import { PaymentMethod, PaymentStatus } from "src/common/enums/payment.enum";
 
-export type PaymentDocument = HydratedDocument<Payment>;
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Payment {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Booking", required: true, index: true })

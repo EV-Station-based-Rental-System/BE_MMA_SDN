@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Station, StationDocument } from "src/models/station.schema";
+import { Station } from "src/models/station.schema";
 import { CreateStationDto } from "./dto/create-station.dto";
 import { UpdateStationDto } from "./dto/update-station.dto";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
@@ -20,7 +20,7 @@ import { StationFieldMapping } from "src/common/pagination/filters/station-field
 
 @Injectable()
 export class StationService {
-  constructor(@InjectModel(Station.name) private stationRepository: Model<StationDocument>) {}
+  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) {}
 
   async create(createStationDto: CreateStationDto): Promise<ResponseDetail<Station>> {
     const createdStation = new this.stationRepository(createStationDto);
@@ -31,8 +31,8 @@ export class StationService {
   async findAll(filters: StationPaginationDto): Promise<ResponseList<Station>> {
     const pipeline: any[] = [];
     applyCommonFiltersMongo(pipeline, filters, StationFieldMapping);
-    const allowedSortFields = ["name", "create_at"];
-    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "create_at");
+    const allowedSortFields = ["name", "created_at"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
     applyFacetMongo(pipeline);
     const result = (await this.stationRepository.aggregate(pipeline)) as FacetResult<Station>;

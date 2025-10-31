@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
-export type RenterDocument = HydratedDocument<Renter>;
+import mongoose from "mongoose";
+
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Renter {
   @Prop({

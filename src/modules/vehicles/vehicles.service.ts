@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Vehicle, VehicleDocument } from "src/models/vehicle.schema";
+import { Vehicle } from "src/models/vehicle.schema";
 import { Model } from "mongoose";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { FacetResult } from "src/common/utils/type";
@@ -19,7 +19,7 @@ import { buildPaginationResponse } from "src/common/pagination/pagination-respon
 
 @Injectable()
 export class VehicleService {
-  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<VehicleDocument>) {}
+  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) {}
 
   async create(createVehicleDto: CreateVehicleDto): Promise<ResponseDetail<Vehicle>> {
     const newVehicle = new this.vehicleRepository(createVehicleDto);

@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { BookingStatus, BookingVerificationStatus } from "src/common/enums/booking.enum";
-
-export type BookingDocument = mongoose.HydratedDocument<Booking>;
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Booking {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Renter", required: true, index: true })

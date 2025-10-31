@@ -2,8 +2,6 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { StatusVehicleAtStation } from "src/common/enums/vehicle_at_station.enum";
 
-export type VehicleAtStationDocument = mongoose.HydratedDocument<VehicleAtStation>;
-
 @Schema({
   collection: "vehicle_at_station",
   timestamps: { createdAt: "created_at", updatedAt: false },

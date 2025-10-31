@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
-
-export type ReportsPhotoDocument = HydratedDocument<ReportsPhoto>;
+import mongoose from "mongoose";
 
 @Schema({
   collection: "reports_photo",

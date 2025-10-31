@@ -52,6 +52,26 @@ components:
         is_active: { type: boolean }
         phone: { type: string, nullable: true }
         created_at: { type: string, format: date-time }
+    CreateUserInput:
+      type: object
+      required: [email, password, full_name, role]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 6 }
+        full_name: { type: string }
+        role: { type: string, enum: [unknown, renter, staff, admin] }
+        phone: { type: string }
+        is_active: { type: boolean }
+    UpdateUserInput:
+      type: object
+      description: Partial update payload (all fields optional)
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 6 }
+        full_name: { type: string }
+        role: { type: string, enum: [unknown, renter, staff, admin] }
+        phone: { type: string }
+        is_active: { type: boolean }
     ResponseListVehicle:
       type: object
       properties:
@@ -121,6 +141,12 @@ components:
         status: { type: string }
         verification_status: { type: string }
         created_at: { type: string, format: date-time }
+    CancelBookingInput:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: Reason provided by renter when cancelling
     ResponseListRental:
       type: object
       properties:
@@ -183,6 +209,12 @@ paths:
         "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListUser" } } } }
     post:
       summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserInput"
       responses:
         "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailUser" } } } }
   /user/{id}:
@@ -194,6 +226,12 @@ paths:
     put:
       summary: Update user
       parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserInput"
       responses:
         "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailUser" } } } }
     delete:
@@ -279,6 +317,24 @@ paths:
       parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
       responses:
         "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }
+  /booking/me:
+    get:
+      summary: List bookings for current renter
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListBooking" } } } }
+  /booking/{id}/cancel:
+    patch:
+      summary: Cancel booking for current renter
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelBookingInput"
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseDetailBooking" } } } }
   /rental:
     get:
       summary: List rentals
@@ -305,6 +361,12 @@ paths:
       parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
       responses:
         "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseMsg" } } } }
+  /rental/me:
+    get:
+      summary: List rentals for current renter
+      parameters: [{ $ref: "#/parameters/PageParam" }, { $ref: "#/parameters/TakeParam" }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ResponseListRental" } } } }
   /payment:
     get:
       summary: List payments
