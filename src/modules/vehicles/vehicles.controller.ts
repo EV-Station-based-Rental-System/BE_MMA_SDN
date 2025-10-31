@@ -20,11 +20,11 @@ export class VehicleController {
 
   @Post()
   @ApiBearerAuth()
-  @Roles(Role.ADMIN, Role.STAFF)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBody({ type: CreateVehicleDto })
+  @Roles(Role.ADMIN, Role.STAFF)
   @ApiCreatedResponse({ description: "Vehicle created", type: SwaggerResponseDetailDto(Vehicle) })
   @ApiErrorResponses()
+  @ApiBody({ type: CreateVehicleDto })
   create(@Body() createVehicleDto: CreateVehicleDto) {
     return this.vehicleService.create(createVehicleDto);
   }
@@ -50,31 +50,31 @@ export class VehicleController {
     return this.vehicleService.findOne(id);
   }
 
-  @Roles(Role.ADMIN, Role.STAFF)
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(":id")
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOkResponse({ description: "Vehicle updated", type: SwaggerResponseDetailDto(Vehicle) })
-  @ApiBody({ type: UpdateVehicleDto })
   @ApiErrorResponses()
+  @ApiBody({ type: UpdateVehicleDto })
   update(@Param("id") id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
     return this.vehicleService.update(id, updateVehicleDto);
   }
 
+  @Patch("soft-delete/:id")
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ description: "Vehicle soft-deleted", type: ResponseMsg })
   @ApiErrorResponses()
-  @Patch("soft-delete/:id")
   softDelete(@Param("id") id: string) {
     return this.vehicleService.softDelete(id);
   }
 
-  @Roles(Role.ADMIN)
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(":id")
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ description: "Vehicle hard-deleted", type: ResponseMsg })
   @ApiErrorResponses()
   hardDelete(@Param("id") id: string) {

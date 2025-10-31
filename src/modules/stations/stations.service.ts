@@ -49,7 +49,7 @@ export class StationService {
     return ResponseDetail.ok(station);
   }
 
-  async update(id: string, updateStationDto: UpdateStationDto): Promise<ResponseDetail<Station | null>> {
+  async update(id: string, updateStationDto: UpdateStationDto): Promise<ResponseDetail<Station>> {
     const updatedStation = await this.stationRepository.findByIdAndUpdate(id, updateStationDto, { new: true });
     if (!updatedStation) {
       throw new NotFoundException("Station not found");

@@ -5,41 +5,29 @@ import { UpdateStaffDto } from "./dto/staff.dto";
 import { Roles } from "src/common/decorator/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiForbiddenResponse,
-  ApiInternalServerErrorResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
-  ApiUnauthorizedResponse,
-} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOkResponse, ApiQuery, ApiBody, ApiExtraModels } from "@nestjs/swagger";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { UserPaginationDto } from "src/common/pagination/dto/user/user-pagination.dto";
-import { ResponseList } from "src/common/response/response-list";
-import { ResponseBadRequest } from "src/common/response/error/response-bad-request";
-import { ResponseUnauthorized } from "src/common/response/error/response-unauthorized";
-import { ResponseForbidden } from "src/common/response/error/response-forbidden";
-import { ResponseInternalError } from "src/common/response/error/response-internal-error";
-import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
 import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
+import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
+import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
+import { Renter } from "src/models/renter.schema";
+import { Staff } from "src/models/staff.schema";
+import { User } from "src/models/user.schema";
+import { UserWithRoleExtra } from "src/common/interfaces/user.interface";
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
+@ApiExtraModels(Renter, Staff, User)
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Roles(Role.ADMIN, Role.STAFF)
   @Get("renter")
-  @ApiOperation({ summary: "Get all renter " })
-  @ApiOkResponse({ description: "List of renter", type: ResponseList })
-  @ApiBadRequestResponse({ description: "Invalid query", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF)
+  @ApiOkResponse({ description: "List of renter", type: SwaggerResponseListDto(UserWithRoleExtra) })
+  @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
   async findAllUser(@Query() query: UserPaginationDto) {
@@ -51,14 +39,12 @@ export class UsersController {
     });
   }
 
-  @Roles(Role.ADMIN)
   @Get("staff")
-  @ApiOperation({ summary: "Get all staff " })
-  @ApiOkResponse({ description: "List of users", type: ResponseList })
-  @ApiBadRequestResponse({ description: "Invalid query", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: "List of staff", type: SwaggerResponseListDto(Staff) })
+  @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
   async findAllStaff(@Query() query: StaffPaginationDto) {
@@ -70,74 +56,64 @@ export class UsersController {
     });
   }
 
-  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
   @Get(":id")
-  @ApiOkResponse({ description: "User details", type: ResponseDetail })
-  @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
-  @ApiOperation({ summary: "Get user by id" })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
+  @ApiOkResponse({ description: "User details", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
+  @ApiErrorResponses()
   async findOne(@Param("id") id: string) {
     return this.usersService.findOne(id);
   }
 
-  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
   @Put("update-renter/:id")
-  @ApiOkResponse({ description: "Renter updated", type: ResponseDetail })
-  @ApiBadRequestResponse({ description: "Invalid payload", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
-  @ApiOperation({ summary: "Update renter information" })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
+  @ApiOkResponse({ description: "Renter updated", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
+  @ApiErrorResponses()
+  @ApiBody({ type: UpdateRenterDto })
   updateRenter(@Param("id") id: string, @Body() body: UpdateRenterDto) {
     return this.usersService.updateRenter(id, body);
   }
 
-  @Roles(Role.ADMIN)
   @Put("update-staff/:id")
-  @ApiOkResponse({ description: "Staff updated", type: ResponseDetail })
-  @ApiBadRequestResponse({ description: "Invalid payload", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
-  @ApiOperation({ summary: "Update staff information" })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: "Staff updated", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
+  @ApiErrorResponses()
+  @ApiBody({ type: UpdateStaffDto })
   updateStaff(@Param("id") id: string, @Body() body: UpdateStaffDto) {
     return this.usersService.updateStaff(id, body);
   }
 
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: "Soft delete user" })
-  @ApiOkResponse({ description: "User soft deleted", type: ResponseMsg })
-  @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
   @Patch("soft-delete/:id")
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: "User soft deleted", type: ResponseMsg })
+  @ApiErrorResponses()
   softDelete(@Param("id") id: string) {
     return this.usersService.softDelete(id);
   }
 
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: "Restore user status" })
-  @ApiOkResponse({ description: "User status restored", type: ResponseMsg })
-  @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
   @Patch("restore/:id")
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: "User status restored", type: ResponseMsg })
+  @ApiErrorResponses()
   restore(@Param("id") id: string) {
     return this.usersService.restoreStatus(id);
   }
 
-  @Roles(Role.ADMIN)
   @Delete(":id")
-  @ApiOperation({ summary: "Hard delete user" })
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ description: "User hard deleted", type: ResponseMsg })
-  @ApiBadRequestResponse({ description: "Invalid user id", type: ResponseBadRequest })
-  @ApiUnauthorizedResponse({ description: "Unauthorized", type: ResponseUnauthorized })
-  @ApiForbiddenResponse({ description: "Forbidden", type: ResponseForbidden })
-  @ApiInternalServerErrorResponse({ description: "Server error", type: ResponseInternalError })
+  @ApiErrorResponses()
   hardDelete(@Param("id") id: string) {
     return this.usersService.hardDelete(id);
   }

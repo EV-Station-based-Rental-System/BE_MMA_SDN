@@ -192,7 +192,8 @@ export type ContractInfo = {
   _id: string;
   document_url: string;
 };
-export type ReturnRentalMapping = {
+
+export class ReturnRentalMapping {
   _id: string;
   pickup_datetime: string;
   status: RentalStatus.RESERVED | RentalStatus.IN_PROGRESS | RentalStatus.COMPLETED | RentalStatus.LATE | RentalStatus.CANCELLED;
@@ -200,7 +201,7 @@ export type ReturnRentalMapping = {
   booking: BookingInfo | null;
   inspections: InspectionInfo[];
   contract: ContractInfo | null;
-};
+}
 
 export type RentalAggregateResult = {
   _id: string;
