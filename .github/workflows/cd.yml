@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Get pnpm store directory
         shell: bash
@@ -61,6 +61,13 @@ jobs:
 
       - name: Prune dev deps, keep only production deps
         run: pnpm prune --prod
+
+      - uses: dopplerhq/cli-action@v3
+
+      - name: Pull secrets from Doppler
+        run: doppler secrets download --config prd --no-file --format env > .env
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 
       # Make a lowercase owner for GHCR image path (Docker requires lowercase repo names)
       - name: Compute lowercased owner

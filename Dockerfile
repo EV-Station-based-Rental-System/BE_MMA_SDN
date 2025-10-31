@@ -12,5 +12,7 @@ EXPOSE 3000
 COPY ./node_modules ./node_modules
 COPY ./dist/src ./
 
+COPY .env ./
+
 USER node
 CMD ["node", "main.js"]
