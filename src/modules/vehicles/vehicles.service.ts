@@ -17,15 +17,55 @@ import { ResponseDetail } from "src/common/response/response-detail-create-updat
 import { ResponseMsg } from "src/common/response/response-message";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
+import { CreateVehicleWithStationAndPricingDto } from "./dto/create-vehicle-with-station-pricing.dto";
+import { StationService } from "../stations/stations.service";
+import { PricingService } from "../pricings/pricing.service";
 
 @Injectable()
 export class VehicleService {
-  constructor(@InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>) {}
+  constructor(
+    @InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>,
+    private readonly stationService: StationService,
+    private readonly pricingService: PricingService,
+  ) {}
 
   async create(createVehicleDto: CreateVehicleDto): Promise<ResponseDetail<Vehicle>> {
     const newVehicle = new this.vehicleRepository(createVehicleDto);
     const savedVehicle = await newVehicle.save();
     return ResponseDetail.ok(savedVehicle);
+  }
+
+  async createWithStationAndPricing(createDto: CreateVehicleWithStationAndPricingDto): Promise<ResponseDetail<VehicleWithPricingAndStation>> {
+    // Step 1: Create the station
+    const stationResponse = await this.stationService.create(createDto.station);
+    const createdStation = stationResponse.data;
+
+    // Extract station ID - MongoDB documents have _id property
+    const stationId = new mongoose.Types.ObjectId(String((createdStation as unknown as Record<string, unknown>)._id));
+
+    // Step 2: Create the vehicle with the station_id
+    const vehicleData = {
+      ...createDto.vehicle,
+      station_id: stationId,
+    };
+    const newVehicle = new this.vehicleRepository(vehicleData);
+    const savedVehicle = await newVehicle.save();
+
+    // Step 3: Create the pricing with the vehicle_id
+    const pricingData = {
+      ...createDto.pricing,
+      vehicle_id: savedVehicle._id.toString(),
+    };
+    await this.pricingService.create(pricingData);
+
+    // Step 4: Fetch the complete vehicle with station and pricing
+    const vehicleWithDetails = await this.findOneWithPricingAndStation(savedVehicle._id.toString());
+
+    if (!vehicleWithDetails) {
+      throw new NotFoundException("Failed to retrieve created vehicle with details");
+    }
+
+    return ResponseDetail.ok(vehicleWithDetails);
   }
 
   async findAll(filters: VehiclePaginationDto): Promise<ResponseList<VehicleWithPricingAndStation>> {
