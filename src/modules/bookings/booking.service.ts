@@ -5,12 +5,12 @@ import { Booking } from "src/models/booking.schema";
 import { Kycs } from "src/models/kycs.schema";
 import { Renter } from "src/models/renter.schema";
 import { CreateBookingDto } from "./dto/createBooking.dto";
-import { FacetResult, RenterJwtUserPayload, StaffJwtUserPayload, VehicleAtStationResponse } from "src/common/utils/type";
+import { FacetResult, RenterJwtUserPayload, StaffJwtUserPayload } from "src/common/utils/type";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { KycStatus } from "src/common/enums/kyc.enum";
-import { StatusVehicleAtStation } from "src/common/enums/vehicle_at_station.enum";
+import { VehicleStatus } from "src/common/enums/vehicle.enum";
 import { BadRequestException } from "src/common/exceptions/bad-request.exception";
-import { VehicleStationService } from "../vehicle_station/vehicle_station.service";
+import { VehicleService } from "../vehicles/vehicles.service";
 import { calculateRentalDays } from "src/common/utils/helper";
 import { FeeService } from "../fees/fee.service";
 import { FeeType } from "src/common/enums/fee.enum";
@@ -44,7 +44,7 @@ export class BookingService {
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
     @InjectModel(Kycs.name) private kycsRepository: Model<Kycs>,
 
-    private vehicleStationService: VehicleStationService,
+    private vehicleService: VehicleService,
     private feeService: FeeService,
     private momoService: MomoService,
     private paymentService: PaymentService,
@@ -129,25 +129,27 @@ export class BookingService {
       roleExtra: staffData,
     } as UserWithStaffRole;
   };
-  private checkVehicleAtStation = async (
-    vehicleAtStationId: string,
+  private checkVehicle = async (
+    vehicleId: string,
     rental_start: Date,
     expected_return: Date,
-  ): Promise<
-    VehicleAtStationResponse & { rental_days: number; total_booking_fee_amount: number; deposit_fee_amount: number; rental_fee_amount: number }
-  > => {
-    const vehicleAtStation = await this.vehicleStationService.findOne(vehicleAtStationId);
-    if (!vehicleAtStation) {
-      throw new NotFoundException("Vehicle at station not found");
+  ): Promise<{
+    rental_days: number;
+    total_booking_fee_amount: number;
+    deposit_fee_amount: number;
+    rental_fee_amount: number;
+  }> => {
+    const vehicle = await this.vehicleService.findOneWithPricing(vehicleId);
+    if (!vehicle) {
+      throw new NotFoundException("Vehicle not found");
     }
 
-    const data = vehicleAtStation.data;
-    if (!data) {
-      throw new NotFoundException("Invalid vehicle at station data");
+    if (!vehicle.is_active) {
+      throw new BadRequestException("Vehicle is not active");
     }
 
-    if ((data.status as StatusVehicleAtStation) !== StatusVehicleAtStation.AVAILABLE) {
-      throw new BadRequestException("Vehicle at station not available");
+    if (vehicle.status !== VehicleStatus.AVAILABLE) {
+      throw new BadRequestException("Vehicle not available");
     }
 
     const startTime = new Date(rental_start);
@@ -157,23 +159,13 @@ export class BookingService {
       throw new BadRequestException("Expected return time must be after rental start time");
     }
 
-    if (data.start_time && data.end_time) {
-      const availableFrom = new Date(data.start_time);
-      const availableTo = new Date(data.end_time);
-
-      if (startTime < availableFrom || endTime > availableTo) {
-        throw new BadRequestException("Vehicle not available for the selected time range");
-      }
-    }
-
     // Calculate fees (rental_fee = price_per_day * days, NOT days * rental_fee)
     const rentalDays = calculateRentalDays(startTime, endTime);
-    const deposit_fee_amount = data.pricing ? data.pricing.deposit_amount : 0;
-    const rental_fee_amount = data.pricing ? data.pricing.price_per_day * rentalDays : 0;
+    const deposit_fee_amount = vehicle.pricing ? vehicle.pricing.deposit_amount : 0;
+    const rental_fee_amount = vehicle.pricing ? vehicle.pricing.price_per_day * rentalDays : 0;
     const total_booking_fee_amount = rental_fee_amount + deposit_fee_amount;
 
     return {
-      ...data,
       rental_days: rentalDays,
       total_booking_fee_amount,
       deposit_fee_amount,
@@ -205,7 +197,7 @@ export class BookingService {
         // step 6 create rental record
         await this.rentalService.create({
           booking_id: booking._id.toString(),
-          vehicle_id: booking.vehicle_at_station_id.toString(),
+          vehicle_id: booking.vehicle_id.toString(),
           pickup_datetime: new Date(),
         });
         break;
@@ -226,7 +218,7 @@ export class BookingService {
 
         // TODO: Refund logic - return money to customer
         // Update vehicle status back to AVAILABLE
-        await this.vehicleStationService.changeStatus(booking.vehicle_at_station_id.toString(), { status: StatusVehicleAtStation.AVAILABLE });
+        await this.vehicleService.updateVehicleStatus(booking.vehicle_id.toString(), { status: VehicleStatus.AVAILABLE });
         break;
 
       case BookingVerificationStatus.PENDING:
@@ -249,14 +241,14 @@ export class BookingService {
     await this.checkRenterKycStatusAndExpired(user._id);
 
     // Step 3: Validate vehicle availability and calculate fees (backend calculation)
-    const vehicleAtStationData = await this.checkVehicleAtStation(
-      createBookingDto.vehicle_at_station_id,
+    const vehicleData = await this.checkVehicle(
+      createBookingDto.vehicle_id,
       new Date(createBookingDto.rental_start_datetime),
       new Date(createBookingDto.expected_return_datetime),
     );
-    console.log(vehicleAtStationData.total_booking_fee_amount);
+    console.log(vehicleData.total_booking_fee_amount);
     // Step 4: check calculated total amount matches client sent amount
-    if (vehicleAtStationData.total_booking_fee_amount !== createBookingDto.total_amount) {
+    if (vehicleData.total_booking_fee_amount !== createBookingDto.total_amount) {
       throw new BadRequestException("Total amount mismatch. Please refresh and try again.");
     }
     // Step 5: Initialize payment gateway (use backend calculated amount)
@@ -267,25 +259,25 @@ export class BookingService {
     // Step 6: Create booking record with PENDING_VERIFICATION status
     const newBooking = new this.bookingRepository({
       renter_id: renterUser.roleExtra._id,
-      vehicle_at_station_id: createBookingDto.vehicle_at_station_id,
+      vehicle_id: createBookingDto.vehicle_id,
       rental_start_datetime: createBookingDto.rental_start_datetime,
       expected_return_datetime: createBookingDto.expected_return_datetime,
-      total_booking_fee_amount: vehicleAtStationData.total_booking_fee_amount,
-      deposit_fee_amount: vehicleAtStationData.deposit_fee_amount,
-      rental_fee_amount: vehicleAtStationData.rental_fee_amount,
+      total_booking_fee_amount: vehicleData.total_booking_fee_amount,
+      deposit_fee_amount: vehicleData.deposit_fee_amount,
+      rental_fee_amount: vehicleData.rental_fee_amount,
       status: createBookingDto.payment_method === PaymentMethod.CASH ? BookingStatus.VERIFIED : BookingStatus.PENDING_VERIFICATION,
     });
     await newBooking.save();
 
     // Step 6: Update vehicle status from AVAILABLE to PENDING (waiting for payment)
-    await this.vehicleStationService.changeStatus(createBookingDto.vehicle_at_station_id, { status: StatusVehicleAtStation.PENDING });
+    await this.vehicleService.updateVehicleStatus(createBookingDto.vehicle_id, { status: VehicleStatus.PENDING });
 
     // Step 7: Create fee records
     const rentalFeeRecord: CreateFeeDto = {
       booking_id: newBooking._id.toString(),
-      amount: vehicleAtStationData.rental_fee_amount,
+      amount: vehicleData.rental_fee_amount,
       type: FeeType.RENTAL_FEE,
-      description: `Rental fee for ${vehicleAtStationData.rental_days} days`,
+      description: `Rental fee for ${vehicleData.rental_days} days`,
       currency: "VND",
     };
     await this.feeService.create(rentalFeeRecord);
@@ -293,7 +285,7 @@ export class BookingService {
     // Step 7: Create deposit fee record
     const depositFeeRecord: CreateFeeDto = {
       booking_id: newBooking._id.toString(),
-      amount: vehicleAtStationData.deposit_fee_amount,
+      amount: vehicleData.deposit_fee_amount,
       type: FeeType.DEPOSIT_FEE,
       description: `Deposit fee for booking`,
       currency: "VND",
@@ -304,7 +296,7 @@ export class BookingService {
     const paymentRecord: CreatePaymentDto = {
       booking_id: newBooking._id.toString(),
       method: createBookingDto.payment_method,
-      amount_paid: vehicleAtStationData.total_booking_fee_amount,
+      amount_paid: vehicleData.total_booking_fee_amount,
       transaction_code: paymentCode.orderId,
     };
     await this.paymentService.create(paymentRecord);
@@ -402,25 +394,11 @@ export class BookingService {
       },
       {
         $lookup: {
-          from: "vehicle_at_station",
-          localField: "vehicle_at_station_id",
+          from: "vehicles",
+          localField: "vehicle_id",
           foreignField: "_id",
-          as: "vehicle_at_station",
+          as: "vehicle",
           pipeline: [
-            {
-              $lookup: {
-                from: "vehicles",
-                localField: "vehicle_id",
-                foreignField: "_id",
-                as: "vehicle",
-              },
-            },
-            {
-              $addFields: {
-                vehicle: { $arrayElemAt: ["$vehicle", 0] },
-              },
-            },
-
             {
               $lookup: {
                 from: "stations",
@@ -434,11 +412,10 @@ export class BookingService {
                 station: { $arrayElemAt: ["$station", 0] },
               },
             },
-
             {
               $lookup: {
                 from: "pricings",
-                localField: "vehicle_id",
+                localField: "_id",
                 foreignField: "vehicle_id",
                 as: "pricing_all",
               },
@@ -470,6 +447,11 @@ export class BookingService {
               $project: { pricing_all: 0 },
             },
           ],
+        },
+      },
+      {
+        $addFields: {
+          vehicle: { $arrayElemAt: ["$vehicle", 0] },
         },
       },
     );
@@ -556,25 +538,11 @@ export class BookingService {
       },
       {
         $lookup: {
-          from: "vehicle_at_station",
-          localField: "vehicle_at_station_id",
+          from: "vehicles",
+          localField: "vehicle_id",
           foreignField: "_id",
-          as: "vehicle_at_station",
+          as: "vehicle",
           pipeline: [
-            {
-              $lookup: {
-                from: "vehicles",
-                localField: "vehicle_id",
-                foreignField: "_id",
-                as: "vehicle",
-              },
-            },
-            {
-              $addFields: {
-                vehicle: { $arrayElemAt: ["$vehicle", 0] },
-              },
-            },
-
             {
               $lookup: {
                 from: "stations",
@@ -588,11 +556,10 @@ export class BookingService {
                 station: { $arrayElemAt: ["$station", 0] },
               },
             },
-
             {
               $lookup: {
                 from: "pricings",
-                localField: "vehicle_id",
+                localField: "_id",
                 foreignField: "vehicle_id",
                 as: "pricing_all",
               },
@@ -624,6 +591,11 @@ export class BookingService {
               $project: { pricing_all: 0 },
             },
           ],
+        },
+      },
+      {
+        $addFields: {
+          vehicle: { $arrayElemAt: ["$vehicle", 0] },
         },
       },
     );

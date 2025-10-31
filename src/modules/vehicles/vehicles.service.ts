@@ -3,7 +3,7 @@ import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Vehicle } from "src/models/vehicle.schema";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { FacetResult } from "src/common/utils/type";
 import { applyCommonFiltersMongo } from "src/common/pagination/applyCommonFilters";
@@ -16,6 +16,28 @@ import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
+
+interface VehicleWithPricing extends Vehicle {
+  station?: {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    address: string;
+    latitude?: number;
+    longitude?: number;
+    is_active: boolean;
+  };
+  pricing?: {
+    _id: mongoose.Types.ObjectId;
+    vehicle_id: mongoose.Types.ObjectId;
+    price_per_day: number;
+    deposit_amount: number;
+    effective_from: Date;
+    effective_to: Date | null;
+    late_return_fee_per_hour: number;
+    mileage_limit_per_day: number;
+    excess_mileage_fee: number;
+  };
+}
 
 @Injectable()
 export class VehicleService {
@@ -69,5 +91,70 @@ export class VehicleService {
   async hardDelete(id: string): Promise<ResponseMsg> {
     await this.vehicleRepository.findByIdAndDelete(id);
     return ResponseMsg.ok("Vehicle hard-deleted successfully");
+  }
+
+  async findOneWithPricing(id: string): Promise<VehicleWithPricing | null> {
+    const currentDate = new Date();
+    const pipeline: any[] = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "stations",
+          localField: "station_id",
+          foreignField: "_id",
+          as: "station",
+        },
+      },
+      {
+        $addFields: {
+          station: { $arrayElemAt: ["$station", 0] },
+        },
+      },
+      {
+        $lookup: {
+          from: "pricings",
+          localField: "_id",
+          foreignField: "vehicle_id",
+          as: "pricing_all",
+        },
+      },
+      {
+        $addFields: {
+          pricing: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: "$pricing_all",
+                  as: "price",
+                  cond: {
+                    $and: [
+                      { $lte: ["$$price.effective_from", currentDate] },
+                      {
+                        $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                      },
+                    ],
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $project: { pricing_all: 0 },
+      },
+    ];
+    const result = await this.vehicleRepository.aggregate(pipeline);
+    return (result[0] as VehicleWithPricing) || null;
+  }
+
+  async updateVehicleStatus(id: string, updateData: Partial<Vehicle>): Promise<Vehicle | null> {
+    const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(id, updateData, { new: true });
+    return updatedVehicle;
   }
 }

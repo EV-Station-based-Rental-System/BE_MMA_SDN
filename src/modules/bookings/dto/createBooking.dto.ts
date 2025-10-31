@@ -18,11 +18,11 @@ export class CreateBookingDto {
   @IsNumber()
   total_amount: number;
   @ApiProperty({
-    description: "VehicleAtStation ID",
-    example: "vehicle_at_station_id",
+    description: "Vehicle ID",
+    example: "vehicle_id",
   })
   @IsMongoId()
-  vehicle_at_station_id: string;
+  vehicle_id: string;
 
   @ApiProperty({
     description: "Expected rental start datetime",

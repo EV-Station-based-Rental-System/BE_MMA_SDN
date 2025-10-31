@@ -3,7 +3,7 @@ import { AbstractPaymentService } from "../base/abstract-payment.service";
 import { ConfigService } from "@nestjs/config";
 import * as crypto from "crypto";
 import axios from "axios";
-import { VehicleAtStation } from "src/models/vehicle_at_station.schema";
+import { Vehicle } from "src/models/vehicle.schema";
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { MailService } from "src/common/mail/mail.service";
@@ -16,7 +16,7 @@ import { Renter } from "src/models/renter.schema";
 import { User } from "src/models/user.schema";
 export class MomoService extends AbstractPaymentService {
   constructor(
-    @InjectModel(VehicleAtStation.name) vehicleAtStationRepository: Model<VehicleAtStation>,
+    @InjectModel(Vehicle.name) vehicleRepository: Model<Vehicle>,
     @InjectModel(Payment.name) paymentRepository: Model<Payment>,
     @InjectModel(Booking.name) bookingRepository: Model<Booking>,
     @InjectModel(Renter.name) renterRepository: Model<Renter>,
@@ -26,7 +26,7 @@ export class MomoService extends AbstractPaymentService {
 
     private readonly configService: ConfigService,
   ) {
-    super(vehicleAtStationRepository, paymentRepository, bookingRepository, renterRepository, userRepository, emailService);
+    super(vehicleRepository, paymentRepository, bookingRepository, renterRepository, userRepository, emailService);
   }
 
   async create(total: string) {

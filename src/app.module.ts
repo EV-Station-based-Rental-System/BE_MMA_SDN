@@ -9,7 +9,6 @@ import { RedisModule } from "./common/redis/redis.module";
 import { UsersModule } from "./modules/users/users.module";
 import { VehicleModule } from "./modules/vehicles/vehicles.module";
 import { StationModule } from "./modules/stations/stations.module";
-import { VehicleStationModule } from "./modules/vehicle_station/vehicle_station.module";
 import { ImagekitModule } from "./common/imagekit/imagekit.module";
 import { PricingModule } from "./modules/pricings/pricing.module";
 import { KycsModule } from "./modules/kycs/kycs.module";
@@ -36,7 +35,6 @@ import { RentalModule } from "./modules/rentals/rental.module";
     AuthModule,
     UsersModule,
     VehicleModule,
-    VehicleStationModule,
     PricingModule,
     KycsModule,
     BookingModule,

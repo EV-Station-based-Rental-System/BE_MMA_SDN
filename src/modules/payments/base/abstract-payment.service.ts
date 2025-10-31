@@ -1,12 +1,12 @@
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { PaymentStatus } from "src/common/enums/payment.enum";
-import { StatusVehicleAtStation } from "src/common/enums/vehicle_at_station.enum";
+import { VehicleStatus } from "src/common/enums/vehicle.enum";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { MailService } from "src/common/mail/mail.service";
 import { Booking } from "src/models/booking.schema";
 import { Payment } from "src/models/payment.schema";
-import { VehicleAtStation } from "src/models/vehicle_at_station.schema";
+import { Vehicle } from "src/models/vehicle.schema";
 import { BookingStatus } from "src/common/enums/booking.enum";
 import { Renter } from "src/models/renter.schema";
 import { User } from "src/models/user.schema";
@@ -14,7 +14,7 @@ import { InternalServerErrorException } from "src/common/exceptions/internal-ser
 
 export abstract class AbstractPaymentService {
   constructor(
-    @InjectModel(VehicleAtStation.name) protected readonly vehicleAtStationRepository: Model<VehicleAtStation>,
+    @InjectModel(Vehicle.name) protected readonly vehicleRepository: Model<Vehicle>,
     @InjectModel(Payment.name) protected readonly paymentRepository: Model<Payment>,
     @InjectModel(Booking.name) protected readonly bookingRepository: Model<Booking>,
     @InjectModel(Renter.name) protected readonly renterRepository: Model<Renter>,
@@ -82,9 +82,9 @@ export abstract class AbstractPaymentService {
     return booking as Booking & { _id: mongoose.Types.ObjectId };
   }
 
-  async changeStatusVehicleAtStationToBooked(vehicleAtStationId: string): Promise<void> {
-    await this.vehicleAtStationRepository.findByIdAndUpdate(vehicleAtStationId, {
-      status: StatusVehicleAtStation.BOOKED,
+  async changeStatusVehicleToBooked(vehicleId: string): Promise<void> {
+    await this.vehicleRepository.findByIdAndUpdate(vehicleId, {
+      status: VehicleStatus.BOOKED,
     });
   }
 
@@ -117,16 +117,16 @@ export abstract class AbstractPaymentService {
       throw new NotFoundException("Booking not found in payment");
     }
 
-    // Validate vehicle_at_station_id exists
-    if (!booking.vehicle_at_station_id) {
-      throw new NotFoundException("Vehicle at station ID not found in booking");
+    // Validate vehicle_id exists
+    if (!booking.vehicle_id) {
+      throw new NotFoundException("Vehicle ID not found in booking");
     }
 
     // 3. Update booking status to VERIFIED (payment confirmed)
     await this.changeStatusBookingToVerified(booking._id.toString());
 
-    // 4. Update vehicle at station status to BOOKED
-    await this.changeStatusVehicleAtStationToBooked(booking.vehicle_at_station_id.toString());
+    // 4. Update vehicle status to BOOKED
+    await this.changeStatusVehicleToBooked(booking.vehicle_id.toString());
 
     // 5. Send confirmation email (don't fail the entire flow if email fails)
     try {

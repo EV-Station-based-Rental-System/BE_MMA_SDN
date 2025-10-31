@@ -4,7 +4,7 @@ import { AbstractPaymentService } from "../base/abstract-payment.service";
 import { InjectModel } from "@nestjs/mongoose";
 import { Payment } from "src/models/payment.schema";
 import { Booking } from "src/models/booking.schema";
-import { VehicleAtStation } from "src/models/vehicle_at_station.schema";
+import { Vehicle } from "src/models/vehicle.schema";
 import { Renter } from "src/models/renter.schema";
 import { User } from "src/models/user.schema";
 import { MailService } from "src/common/mail/mail.service";
@@ -20,7 +20,7 @@ import { BookingVerificationStatus } from "src/common/enums/booking.enum";
 @Injectable()
 export class CashService extends AbstractPaymentService {
   constructor(
-    @InjectModel(VehicleAtStation.name) vehicleAtStationRepository: Model<VehicleAtStation>,
+    @InjectModel(Vehicle.name) vehicleRepository: Model<Vehicle>,
     @InjectModel(Payment.name) paymentRepository: Model<Payment>,
     @InjectModel(Booking.name) bookingRepository: Model<Booking>,
     @InjectModel(Renter.name) renterRepository: Model<Renter>,
@@ -30,7 +30,7 @@ export class CashService extends AbstractPaymentService {
     @Inject(forwardRef(() => BookingService))
     private readonly bookingService: BookingService,
   ) {
-    super(vehicleAtStationRepository, paymentRepository, bookingRepository, renterRepository, userRepository, emailService);
+    super(vehicleRepository, paymentRepository, bookingRepository, renterRepository, userRepository, emailService);
   }
   create() {
     return { orderId: `CASH_${Date.now()}`, payUrl: "Payment Cash Success waiting for confirmation from staff" };
