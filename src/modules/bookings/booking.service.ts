@@ -489,7 +489,9 @@ export class BookingService {
     const currentDate = new Date();
     pipeline.push(
       {
-        $match: { _id: new mongoose.Types.ObjectId(id) },
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
       },
       {
         $lookup: {
@@ -625,7 +627,12 @@ export class BookingService {
         },
       },
     );
-    const result = (await this.bookingRepository.aggregate(pipeline)) as FacetResult<Booking>;
-    return ResponseDetail.ok(result[0]?.data[0] || null);
+    const result = await this.bookingRepository.aggregate(pipeline);
+    const booking = result[0] as Booking;
+
+    if (!booking) {
+      throw new NotFoundException("Booking not found");
+    }
+    return ResponseDetail.ok(booking);
   }
 }
