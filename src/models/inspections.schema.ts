@@ -1,8 +1,8 @@
 import { Prop, Schema } from "@nestjs/mongoose";
 import { SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose from "mongoose";
 import { InspectionType } from "src/common/enums/inspection.enum";
-export type InspectionDocument = HydratedDocument<Inspection>;
+
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Inspection {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "Rental", index: true })
