@@ -7,11 +7,14 @@ import { Model } from "mongoose";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ImagekitService } from "src/common/imagekit/imagekit.service";
 import { BadRequestException } from "src/common/exceptions/bad-request.exception";
+import { Rental } from "src/models/rental.schema";
+import { RentalStatus } from "src/common/enums/rental.enum";
 
 @Injectable()
 export class ContractService {
   constructor(
     @InjectModel(Contract.name) private readonly contractRepository: Model<Contract>,
+    @InjectModel(Rental.name) private readonly rentalRepository: Model<Rental>,
     private readonly imagekitService: ImagekitService,
   ) {}
 
@@ -24,7 +27,14 @@ export class ContractService {
     if (existingContract) {
       throw new BadRequestException("A contract for this rental ID already exists");
     }
-
+    // check rental status in_process chưa
+    const rental = await this.rentalRepository.findById(createContractDto.rental_id);
+    if (!rental) {
+      throw new BadRequestException("Rental not found");
+    }
+    if (rental.status !== RentalStatus.IN_PROGRESS) {
+      throw new BadRequestException("Cannot create contract for a rental that is not in 'in_process' status");
+    }
     // Generate file name with rental_id and label
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const fileExt = (file.mimetype as string).split("/")[1];

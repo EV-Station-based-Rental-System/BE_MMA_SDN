@@ -16,7 +16,8 @@ import { KycsModule } from "./modules/kycs/kycs.module";
 import { BookingModule } from "./modules/bookings/booking.module";
 import { PaymentModule } from "./modules/payments/payment.module";
 import { InspectionsModule } from "./modules/inspections/inspections.module";
-import { ContractModule } from "./modules/contract/contract.module";
+import { ContractModule } from "./modules/contracts/contract.module";
+import { RentalModule } from "./modules/rentals/rental.module";
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ContractModule } from "./modules/contract/contract.module";
     PaymentModule,
     InspectionsModule,
     ContractModule,
+    RentalModule,
 
     MailModule,
     RedisModule,
