@@ -36,7 +36,7 @@ export class VehicleController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.STAFF)
   @ApiCreatedResponse({
-    description: "Vehicle created along with station and pricing",
+    description: "Vehicle created with pricing for an existing station",
     type: SwaggerResponseDetailDto(VehicleWithPricingAndStation),
   })
   @ApiErrorResponses()

@@ -36,14 +36,14 @@ export class VehicleService {
   }
 
   async createWithStationAndPricing(createDto: CreateVehicleWithStationAndPricingDto): Promise<ResponseDetail<VehicleWithPricingAndStation>> {
-    // Step 1: Create the station
-    const stationResponse = await this.stationService.create(createDto.station);
-    const createdStation = stationResponse.data;
-
-    // Extract station ID - MongoDB documents have _id property
-    const stationId = new mongoose.Types.ObjectId(String((createdStation as unknown as Record<string, unknown>)._id));
+    // Step 1: Verify the station exists
+    const stationResponse = await this.stationService.findOne(createDto.station_id);
+    if (!stationResponse.data) {
+      throw new NotFoundException("Station not found");
+    }
 
     // Step 2: Create the vehicle with the station_id
+    const stationId = new mongoose.Types.ObjectId(createDto.station_id);
     const vehicleData = {
       ...createDto.vehicle,
       station_id: stationId,
