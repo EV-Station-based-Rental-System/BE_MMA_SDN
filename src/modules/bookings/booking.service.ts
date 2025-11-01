@@ -68,22 +68,28 @@ export class BookingService {
 
     // Type guard: since role is RENTER, roleExtra must be Renter type
     const renterData = user.data.roleExtra as Renter & { _id: Types.ObjectId };
-    const kyc = await this.kycsRepository.findOne({ renter_id: renterData._id, status: KycStatus.APPROVED });
+    const kyc = (await this.kycsRepository.findOne({ renter_id: renterData._id, status: KycStatus.APPROVED })) as Kycs;
     if (!kyc) {
       throw new NotFoundException("KYC not found");
     }
     const currentDate = new Date();
     if (kyc.verified_at) {
-      const expiryDate = new Date(kyc.verified_at);
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-      if (currentDate > expiryDate) {
+      if (!kyc.expiry_date) {
+        throw new NotFoundException("KYC expiry date not found");
+      }
+      const expiryDate = new Date(kyc.expiry_date);
+      const extendedExpiry = new Date(expiryDate);
+      extendedExpiry.setFullYear(expiryDate.getFullYear() + 1);
+      if (currentDate > extendedExpiry) {
         throw new NotFoundException("KYC expired");
       }
     } else {
       throw new NotFoundException("KYC verified date not found");
     }
+
     return true;
   };
+
   checkRenterExist = async (userId: string): Promise<UserWithRenterRole> => {
     const user = await this.userService.findOne(userId);
     if (!user || !user.data) {
