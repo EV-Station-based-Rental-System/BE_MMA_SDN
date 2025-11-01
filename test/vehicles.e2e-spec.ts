@@ -370,8 +370,23 @@ describe("VehicleModule (e2e)", () => {
   });
 
   describe("POST /vehicle/with-station-and-pricing (Create Vehicle with Station and Pricing)", () => {
+    let currentTestStationId: string;
+
     // Helper function to generate unique VIN
     const generateUniqueVIN = () => `5YJSA1E26MF${Date.now().toString().slice(-6)}${Math.random().toString(36).slice(-3).toUpperCase()}`;
+
+    beforeEach(async () => {
+      // Create a station for each test since afterEach drops the database
+      const station = new stationModel({
+        name: "Test Station for Pricing",
+        address: "456 Test Ave",
+        latitude: 10.775598,
+        longitude: 106.704128,
+        is_active: true,
+      });
+      const savedStation = await station.save();
+      currentTestStationId = savedStation._id.toString();
+    });
 
     const getValidCompletePayload = () => ({
       vehicle: {
@@ -384,12 +399,7 @@ describe("VehicleModule (e2e)", () => {
         vin_number: generateUniqueVIN(),
         img_url: "https://example.com/tesla-model-y.jpg",
       },
-      station: {
-        name: "Downtown Station",
-        address: "456 Main St, District 1",
-        latitude: 10.775598,
-        longitude: 106.704128,
-      },
+      station_id: currentTestStationId,
       pricing: {
         price_per_hour: 50000,
         price_per_day: 800000,
@@ -422,12 +432,8 @@ describe("VehicleModule (e2e)", () => {
 
       // Verify station data is included
       expect(response.body.data.station).toBeDefined();
-      expect(response.body.data.station).toMatchObject({
-        name: validCompletePayload.station.name,
-        address: validCompletePayload.station.address,
-        latitude: validCompletePayload.station.latitude,
-        longitude: validCompletePayload.station.longitude,
-      });
+      expect(response.body.data.station._id.toString()).toBe(currentTestStationId);
+      expect(response.body.data.station.name).toBe("Test Station for Pricing");
 
       // Verify pricing data is included
       expect(response.body.data.pricing).toBeDefined();
@@ -457,10 +463,10 @@ describe("VehicleModule (e2e)", () => {
       expect(vehicleInDb).toBeDefined();
       expect(vehicleInDb!.make).toBe(validCompletePayload.vehicle.make);
 
-      // Verify station exists in database
+      // Verify station exists in database (the station we created before the test)
       const stationInDb = await stationModel.findById(createdStationId);
       expect(stationInDb).toBeDefined();
-      expect(stationInDb!.name).toBe(validCompletePayload.station.name);
+      expect(stationInDb!.name).toBe("Test Station for Pricing");
 
       // Verify pricing exists in database
       const pricingInDb = await pricingModel.findOne({ vehicle_id: createdVehicleId });
@@ -479,10 +485,7 @@ describe("VehicleModule (e2e)", () => {
           model_year: 2024,
           category: "EV",
         },
-        station: {
-          name: "Minimal Station",
-          address: "789 Test Ave",
-        },
+        station_id: currentTestStationId,
         pricing: {
           price_per_hour: 40000,
           effective_from: effectiveDate.toISOString(),
@@ -497,10 +500,8 @@ describe("VehicleModule (e2e)", () => {
         make: minimalPayload.vehicle.make,
         model: minimalPayload.vehicle.model,
       });
-      expect(response.body.data.station).toMatchObject({
-        name: minimalPayload.station.name,
-        address: minimalPayload.station.address,
-      });
+      expect(response.body.data.station).toBeDefined();
+      expect(response.body.data.station._id.toString()).toBe(currentTestStationId);
 
       // Verify pricing is present (might be undefined if effective date doesn't match query)
       // The pricing should be returned in the response
@@ -522,7 +523,7 @@ describe("VehicleModule (e2e)", () => {
           make: "Tesla",
           // missing required fields: model, model_year, category
         },
-        station: validCompletePayload.station,
+        station_id: validCompletePayload.station_id,
         pricing: validCompletePayload.pricing,
       };
 
@@ -532,14 +533,11 @@ describe("VehicleModule (e2e)", () => {
       expect(response.body.message).toBeDefined();
     });
 
-    it("POST /vehicle/with-station-and-pricing rejects payload with missing station data", async () => {
+    it("POST /vehicle/with-station-and-pricing rejects payload with missing station_id", async () => {
       const validCompletePayload = getValidCompletePayload();
       const invalidPayload = {
         vehicle: validCompletePayload.vehicle,
-        station: {
-          name: "No Address Station",
-          // missing required field: address
-        },
+        // missing required field: station_id
         pricing: validCompletePayload.pricing,
       };
 
@@ -553,7 +551,7 @@ describe("VehicleModule (e2e)", () => {
       const validCompletePayload = getValidCompletePayload();
       const invalidPayload = {
         vehicle: validCompletePayload.vehicle,
-        station: validCompletePayload.station,
+        station_id: validCompletePayload.station_id,
         pricing: {
           price_per_hour: 50000,
           // missing required fields: effective_from, deposit_amount
@@ -573,7 +571,7 @@ describe("VehicleModule (e2e)", () => {
           ...validCompletePayload.vehicle,
           model_year: "not-a-number", // should be number
         },
-        station: validCompletePayload.station,
+        station_id: validCompletePayload.station_id,
         pricing: validCompletePayload.pricing,
       };
 
@@ -587,7 +585,7 @@ describe("VehicleModule (e2e)", () => {
       const validCompletePayload = getValidCompletePayload();
       const invalidPayload = {
         vehicle: validCompletePayload.vehicle,
-        station: validCompletePayload.station,
+        station_id: validCompletePayload.station_id,
         pricing: {
           ...validCompletePayload.pricing,
           effective_from: "not-a-valid-date",
@@ -616,18 +614,16 @@ describe("VehicleModule (e2e)", () => {
       expect(response.body.data.pricing.effective_to).toBeDefined();
     });
 
-    it("POST /vehicle/with-station-and-pricing creates multiple vehicles with different stations", async () => {
+    it("POST /vehicle/with-station-and-pricing creates multiple vehicles with same station", async () => {
       const validCompletePayload = getValidCompletePayload();
       const payload1 = {
         ...validCompletePayload,
         vehicle: { ...validCompletePayload.vehicle, vin_number: generateUniqueVIN() },
-        station: { ...validCompletePayload.station, name: "Station A", address: "100 Address A" },
       };
 
       const payload2 = {
         ...validCompletePayload,
         vehicle: { ...validCompletePayload.vehicle, vin_number: generateUniqueVIN() },
-        station: { ...validCompletePayload.station, name: "Station B", address: "200 Address B" },
       };
 
       const response1 = await request(app.getHttpServer()).post(`${baseUrl}/with-station-and-pricing`).send(payload1);
@@ -637,15 +633,15 @@ describe("VehicleModule (e2e)", () => {
       expect(response1.status).toBe(201);
       expect(response2.status).toBe(201);
 
-      // Verify different station IDs
-      expect(response1.body.data.station._id).not.toBe(response2.body.data.station._id);
+      // Verify same station ID is used
+      expect(response1.body.data.station._id).toBe(response2.body.data.station._id);
 
       // Verify different vehicle IDs
       expect(response1.body.data._id).not.toBe(response2.body.data._id);
 
-      // Verify stations have correct names
-      expect(response1.body.data.station.name).toBe("Station A");
-      expect(response2.body.data.station.name).toBe("Station B");
+      // Verify both use the test station
+      expect(response1.body.data.station.name).toBe("Test Station for Pricing");
+      expect(response2.body.data.station.name).toBe("Test Station for Pricing");
     });
 
     it("POST /vehicle/with-station-and-pricing rejects duplicate VIN number", async () => {
@@ -658,7 +654,6 @@ describe("VehicleModule (e2e)", () => {
       const payload2 = {
         ...validCompletePayload,
         vehicle: { ...validCompletePayload.vehicle, vin_number: "DUPLICATE_VIN_12345" },
-        station: { ...validCompletePayload.station, name: "Different Station" },
       };
 
       // Create first vehicle
