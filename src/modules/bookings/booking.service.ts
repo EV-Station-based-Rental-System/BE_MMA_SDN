@@ -15,7 +15,7 @@ import { calculateRentalDays } from "src/common/utils/helper";
 import { FeeService } from "../fees/fee.service";
 import { FeeType } from "src/common/enums/fee.enum";
 import { CreateFeeDto } from "../fees/dto/fee.dto";
-import { PaymentMethod } from "src/common/enums/payment.enum";
+import { PaymentMethod, PaymentStatus } from "src/common/enums/payment.enum";
 import { MomoService } from "../payments/momo/momo.service";
 import { PaymentService } from "../payments/payment.service";
 import { CreatePaymentDto } from "../payments/dto/createPayment.dto";
@@ -37,6 +37,7 @@ import { applyPaginationMongo } from "src/common/pagination/applyPagination";
 import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
 import { ResponseList } from "src/common/response/response-list";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
+import { ResponseMsg } from "src/common/response/response-message";
 
 @Injectable()
 export class BookingService {
@@ -606,5 +607,174 @@ export class BookingService {
       throw new NotFoundException("Booking not found");
     }
     return ResponseDetail.ok(booking);
+  }
+
+  async cancelBooking(id: string): Promise<ResponseMsg> {
+    const booking = await this.bookingRepository.findById(id);
+    if (!booking) {
+      throw new NotFoundException("Booking not found");
+    }
+    // check status
+    if (booking.status !== BookingStatus.PENDING_VERIFICATION) {
+      throw new BadRequestException("Only bookings with PENDING_VERIFICATION status can be deleted");
+    }
+    if (booking.verification_status !== BookingVerificationStatus.PENDING) {
+      throw new BadRequestException("Only bookings with PENDING verification status can be deleted");
+    }
+    // convert vehicle in station to AVAILABLE
+    await this.vehicleService.updateVehicleStatus(booking.vehicle_id.toString(), { status: VehicleStatus.AVAILABLE });
+    // convert payment to failed
+    await this.paymentService.changeStatus(booking._id.toString(), PaymentStatus.FAILED);
+
+    await this.bookingRepository.findByIdAndUpdate(id, { status: BookingStatus.CANCELLED });
+    return ResponseMsg.ok("Booking deleted successfully");
+  }
+  async getBookingByRenter(filters: BookingPaginationDto, user: RenterJwtUserPayload): Promise<ResponseList<Booking>> {
+    const userData = await this.userService.findOneRenter(user._id);
+    if (!userData || !userData.data) {
+      throw new NotFoundException("Renter not found");
+    }
+
+    const renter = userData.data as UserWithRenterRole;
+    const pipeline: any[] = [];
+    const currentDate = new Date();
+    pipeline.push(
+      {
+        $match: { renter_id: new mongoose.Types.ObjectId(renter.roleExtra?._id) },
+      },
+      {
+        $lookup: {
+          from: "renters",
+          localField: "renter_id",
+          foreignField: "_id",
+          as: "renter",
+        },
+      },
+      {
+        $unwind: { path: "$renter", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "renter.user_id",
+          foreignField: "_id",
+          as: "renter.user",
+        },
+      },
+      {
+        $unwind: { path: "$renter.user", preserveNullAndEmptyArrays: true },
+      },
+
+      {
+        $lookup: {
+          from: "staffs",
+          localField: "verified_by_staff_id",
+          foreignField: "_id",
+          as: "verified_by_staff",
+        },
+      },
+      {
+        $unwind: { path: "$verified_by_staff", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "verified_by_staff.user_id",
+          foreignField: "_id",
+          as: "verified_by_staff.user",
+        },
+      },
+      {
+        $unwind: { path: "$verified_by_staff.user", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "payments",
+          localField: "_id",
+          foreignField: "booking_id",
+          as: "payments",
+        },
+      },
+      {
+        $lookup: {
+          from: "fees",
+          localField: "_id",
+          foreignField: "booking_id",
+          as: "fees",
+        },
+      },
+      {
+        $lookup: {
+          from: "vehicles",
+          localField: "vehicle_id",
+          foreignField: "_id",
+          as: "vehicle",
+          pipeline: [
+            {
+              $lookup: {
+                from: "stations",
+                localField: "station_id",
+                foreignField: "_id",
+                as: "station",
+              },
+            },
+            {
+              $addFields: {
+                station: { $arrayElemAt: ["$station", 0] },
+              },
+            },
+            {
+              $lookup: {
+                from: "pricings",
+                localField: "_id",
+                foreignField: "vehicle_id",
+                as: "pricing_all",
+              },
+            },
+            {
+              $addFields: {
+                pricing: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$pricing_all",
+                        as: "price",
+                        cond: {
+                          $and: [
+                            { $lte: ["$$price.effective_from", currentDate] },
+                            {
+                              $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+            {
+              $project: { pricing_all: 0 },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          vehicle: { $arrayElemAt: ["$vehicle", 0] },
+        },
+      },
+    );
+    applyCommonFiltersMongo(pipeline, filters, BookingFieldMapping);
+    const allowedSortFields = ["total_booking_fee_amount", "create_at", "status"];
+    applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
+    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
+    applyFacetMongo(pipeline);
+    const result = (await this.bookingRepository.aggregate(pipeline)) as FacetResult<Booking>;
+    const data = result[0]?.data || [];
+    const total = result[0]?.meta?.[0]?.total || 0;
+
+    return ResponseList.ok(buildPaginationResponse(data, { total, page: filters.page, take: filters.take }));
   }
 }
