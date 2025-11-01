@@ -45,7 +45,7 @@ export class Vehicle {
   current_mileage?: number;
 
   @Prop({ type: String, enum: Object.values(VehicleStatus), default: VehicleStatus.AVAILABLE })
-  status?: VehicleStatus;
+  status: VehicleStatus;
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

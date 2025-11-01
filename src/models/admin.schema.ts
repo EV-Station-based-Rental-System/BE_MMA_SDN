@@ -3,13 +3,13 @@ import mongoose from "mongoose";
 
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Admin {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true })
   user_id: mongoose.Types.ObjectId;
 
-  @Prop({ type: String })
+  @Prop({ required: false, type: String })
   title?: string;
 
-  @Prop({ type: String })
+  @Prop({ required: false, type: String })
   notes?: string;
 
   @Prop({ required: true, type: Date, default: Date.now })

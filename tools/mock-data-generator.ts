@@ -1,616 +1,879 @@
-// // @ts-nocheck - TODO: Refactor this file to work with new schema (vehicle_at_station removed)
-// import { faker } from "@faker-js/faker";
-// import mongoose from "mongoose";
-
-// import * as dotenv from "dotenv";
-// dotenv.config();
-// import "tsconfig-paths/register";
-// import { Role } from "../src/common/enums/role.enum";
-// import { BookingStatus, BookingVerificationStatus } from "../src/common/enums/booking.enum";
-// import { PaymentMethod, PaymentStatus } from "../src/common/enums/payment.enum";
-// import { RentalStatus } from "../src/common/enums/rental.enum";
-// import { VehicleStatus } from "../src/common/enums/vehicle.enum";
-// import { FeeType } from "../src/common/enums/fee.enum";
-// import { InspectionType } from "../src/common/enums/inspection.enum";
-// import { KycStatus, KycType } from "../src/common/enums/kyc.enum";
-// import { User, UserSchema } from "../src/models/user.schema";
-// import { Admin, AdminSchema } from "../src/models/admin.schema";
-// import { Staff, StaffSchema } from "../src/models/staff.schema";
-// import { Renter, RenterSchema } from "../src/models/renter.schema";
-// import { Vehicle, VehicleSchema } from "../src/models/vehicle.schema";
-// import { Station, StationSchema } from "../src/models/station.schema";
-// import { Booking, BookingSchema } from "../src/models/booking.schema";
-// import { Rental, RentalSchema } from "../src/models/rental.schema";
-// import { Payment, PaymentSchema } from "../src/models/payment.schema";
-// import { Fee, FeeSchema } from "../src/models/fee.schema";
-// import { Pricing, PricingSchema } from "../src/models/pricings.schema";
-// import { Kycs, KycsSchema } from "../src/models/kycs.schema";
-// import { Inspection, InspectionSchema } from "../src/models/inspections.schema";
-// import { Report, ReportSchema } from "../src/models/report.schema";
-// import { ReportsPhoto, ReportsPhotoSchema } from "../src/models/reports_photo.schema";
-// import { Contract, ContractSchema } from "../src/models/contract.schema";
-
-// interface MockDataIds {
-//   users: mongoose.Types.ObjectId[];
-//   admins: mongoose.Types.ObjectId[];
-//   staff: mongoose.Types.ObjectId[];
-//   renters: mongoose.Types.ObjectId[];
-//   vehicles: mongoose.Types.ObjectId[];
-//   stations: mongoose.Types.ObjectId[];
-//   bookings: mongoose.Types.ObjectId[];
-//   rentals: mongoose.Types.ObjectId[];
-//   payments: mongoose.Types.ObjectId[];
-// }
-
-// class MockDataGenerator {
-//   private ids: MockDataIds = {
-//     users: [],
-//     admins: [],
-//     staff: [],
-//     renters: [],
-//     vehicles: [],
-//     stations: [],
-//     bookings: [],
-//     rentals: [],
-//     payments: [],
-//   };
-
-//   private userRoleMap = new Map<string, Role>();
-
-//   // Models from project schemas
-//   private UserModel = (mongoose.models[User.name] as mongoose.Model<User>) || mongoose.model<User>(User.name, UserSchema);
-//   private AdminModel = (mongoose.models[Admin.name] as mongoose.Model<Admin>) || mongoose.model<Admin>(Admin.name, AdminSchema);
-//   private StaffModel = (mongoose.models[Staff.name] as mongoose.Model<Staff>) || mongoose.model<Staff>(Staff.name, StaffSchema);
-//   private RenterModel = (mongoose.models[Renter.name] as mongoose.Model<Renter>) || mongoose.model<Renter>(Renter.name, RenterSchema);
-//   private VehicleModel = (mongoose.models[Vehicle.name] as mongoose.Model<Vehicle>) || mongoose.model<Vehicle>(Vehicle.name, VehicleSchema);
-//   private StationModel = (mongoose.models[Station.name] as mongoose.Model<Station>) || mongoose.model<Station>(Station.name, StationSchema);
-//   private VehicleAtStationModel =
-//     (mongoose.models[VehicleAtStation.name] as mongoose.Model<VehicleAtStation>) ||
-//     mongoose.model<VehicleAtStation>(VehicleAtStation.name, VehicleAtStationSchema);
-//   private BookingModel = (mongoose.models[Booking.name] as mongoose.Model<Booking>) || mongoose.model<Booking>(Booking.name, BookingSchema);
-//   private RentalModel = (mongoose.models[Rental.name] as mongoose.Model<Rental>) || mongoose.model<Rental>(Rental.name, RentalSchema);
-//   private PaymentModel = (mongoose.models[Payment.name] as mongoose.Model<Payment>) || mongoose.model<Payment>(Payment.name, PaymentSchema);
-//   private FeeModel = (mongoose.models[Fee.name] as mongoose.Model<Fee>) || mongoose.model<Fee>(Fee.name, FeeSchema);
-//   private PricingModel = (mongoose.models[Pricing.name] as mongoose.Model<Pricing>) || mongoose.model<Pricing>(Pricing.name, PricingSchema);
-//   private KycsModel = (mongoose.models[Kycs.name] as mongoose.Model<Kycs>) || mongoose.model<Kycs>(Kycs.name, KycsSchema);
-//   private InspectionModel =
-//     (mongoose.models[Inspection.name] as mongoose.Model<Inspection>) || mongoose.model<Inspection>(Inspection.name, InspectionSchema);
-//   private ReportModel = (mongoose.models[Report.name] as mongoose.Model<Report>) || mongoose.model<Report>(Report.name, ReportSchema);
-//   private ReportsPhotoModel =
-//     (mongoose.models[ReportsPhoto.name] as mongoose.Model<ReportsPhoto>) || mongoose.model<ReportsPhoto>(ReportsPhoto.name, ReportsPhotoSchema);
-//   private ContractModel = (mongoose.models[Contract.name] as mongoose.Model<Contract>) || mongoose.model<Contract>(Contract.name, ContractSchema);
-
-//   constructor() {
-//     faker.seed(12345); // For consistent results
-//   }
-
-//   async connect(): Promise<void> {
-//     try {
-//       const mongoUri = process.env.MONGO_URI as string;
-//       if (!mongoUri) {
-//         throw new Error("MONGO_URI is not set");
-//       }
-//       await mongoose.connect(mongoUri);
-//       console.log("Connected to MongoDB");
-//     } catch (error) {
-//       console.error("MongoDB connection error:", error);
-//       throw error;
-//     }
-//   }
-
-//   async disconnect(): Promise<void> {
-//     await mongoose.disconnect();
-//     console.log("Disconnected from MongoDB");
-//   }
-
-//   async clearDatabase(): Promise<void> {
-//     const collections = mongoose.connection.collections;
-//     for (const key in collections) {
-//       await collections[key].deleteMany({});
-//     }
-//     console.log("Database cleared");
-//   }
-
-//   async generateAllData(): Promise<void> {
-//     console.log("Starting mock data generation...");
-
-//     // Generate base data first (no dependencies)
-//     await this.generateUsers();
-//     await this.generateStations();
-//     await this.generateVehicles();
-
-//     // Generate data with dependencies
-//     await this.generateAdmins();
-//     await this.generateStaff();
-//     await this.generateRenters();
-//     await this.generateVehicleAtStations();
-//     await this.generateBookings();
-//     await this.generateRentals();
-//     await this.generatePayments();
-//     await this.generateFees();
-//     await this.generatePricings();
-//     await this.generateKycs();
-//     await this.generateInspections();
-//     await this.generateReports();
-//     await this.generateReportsPhotos();
-
-//     await this.generateContracts();
-
-//     console.log("Mock data generation completed!");
-//   }
-
-//   private async generateUsers(): Promise<void> {
-//     console.log("Generating users...");
-//     const users = [];
-
-//     // Target distribution for roles to align with auth flows
-//     const adminCount = 5;
-//     const staffCount = 20;
-//     const renterCount = 30;
-//     const unknownCount = 5;
-//     const userSpecs: Array<{ role: Role; count: number }> = [
-//       { role: Role.ADMIN, count: adminCount },
-//       { role: Role.STAFF, count: staffCount },
-//       { role: Role.RENTER, count: renterCount },
-//       { role: Role.UNKNOWN, count: unknownCount },
-//     ];
-
-//     for (const spec of userSpecs) {
-//       for (let i = 0; i < spec.count; i++) {
-//         const user = new this.UserModel({
-//           email: faker.internet.email().toLowerCase(),
-//           password: this.hashPassword("password123"),
-//           full_name: faker.person.fullName(),
-//           role: spec.role,
-//           is_active: this.bool(0.9),
-//           phone: faker.helpers.maybe(() => faker.phone.number(), { probability: 0.7 }),
-//         } as Partial<User>);
-
-//         const savedUser = await user.save();
-//         this.ids.users.push(savedUser._id);
-//         this.userRoleMap.set(String(savedUser._id), spec.role);
-//         users.push(savedUser);
-//       }
-//     }
-
-//     console.log(`Generated ${users.length} users`);
-//   }
-
-//   private async generateStations(): Promise<void> {
-//     console.log("Generating stations...");
-//     const stations = [];
-//     const stationCount = 20;
-
-//     const vietnamCities = ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hai Phong", "Can Tho", "Bien Hoa", "Nha Trang", "Hue", "Vung Tau", "Ha Long"];
-
-//     for (let i = 0; i < stationCount; i++) {
-//       const city = faker.helpers.arrayElement(vietnamCities);
-//       const station = new this.StationModel({
-//         name: `${city} EV Station ${i + 1}`,
-//         address: faker.location.streetAddress(),
-//         latitude: faker.location.latitude({ min: 8, max: 24 }), // Vietnam latitude range
-//         longitude: faker.location.longitude({ min: 102, max: 110 }), // Vietnam longitude range
-//         is_active: this.bool(0.95), // 95% active
-//       });
-
-//       const savedStation = await station.save();
-//       this.ids.stations.push(savedStation._id);
-//       stations.push(savedStation);
-//     }
-
-//     console.log(`Generated ${stations.length} stations`);
-//   }
-
-//   private async generateVehicles(): Promise<void> {
-//     console.log("Generating vehicles...");
-//     const vehicles = [];
-//     const vehicleCount = 50;
-
-//     const vehicleMakes = ["Tesla", "Nissan", "BMW", "Audi", "Hyundai", "Kia", "VinFast", "Toyota"];
-//     const vehicleModels = ["Model 3", "Leaf", "i3", "e-tron", "Ioniq 5", "EV6", "VF8", "bZ4X"];
-
-//     for (let i = 0; i < vehicleCount; i++) {
-//       const make = faker.helpers.arrayElement(vehicleMakes);
-//       const model = faker.helpers.arrayElement(vehicleModels);
-
-//       const vehicle = new this.VehicleModel({
-//         make,
-//         model,
-//         model_year: faker.date.past({ years: 5 }).getFullYear(),
-//         category: "EV",
-//         battery_capacity_kwh: faker.number.int({ min: 40, max: 100 }),
-//         range_km: faker.number.int({ min: 200, max: 500 }),
-//         vin_number: faker.helpers.maybe(() => faker.vehicle.vin(), { probability: 0.8 }),
-//         img_url: faker.helpers.maybe(() => faker.image.url(), { probability: 0.6 }),
-//         is_active: faker.datatype.boolean(0.9),
-//       });
-
-//       const savedVehicle = await vehicle.save();
-//       this.ids.vehicles.push(savedVehicle._id);
-//       vehicles.push(savedVehicle);
-//     }
-
-//     console.log(`Generated ${vehicles.length} vehicles`);
-//   }
-
-//   private async generateAdmins(): Promise<void> {
-//     console.log("Generating admins...");
-//     const admins = [];
-//     // Create Admin docs only for users with role ADMIN
-//     const adminUserIds = this.ids.users.filter((id) => this.userRoleMap.get(String(id)) === Role.ADMIN);
-
-//     for (const userId of adminUserIds) {
-//       const admin = new this.AdminModel({
-//         user_id: userId,
-//         title: faker.helpers.arrayElement(["IT Admin", "Ops Admin", "Finance Admin", "HR Admin"]),
-//         notes: faker.helpers.maybe(() => faker.lorem.sentence(), { probability: 0.4 }),
-//         hire_date: faker.date.past({ years: 5 }),
-//       });
-
-//       const savedAdmin = await admin.save();
-//       this.ids.admins.push(savedAdmin._id);
-//       admins.push(savedAdmin);
-//     }
-
-//     console.log(`Generated ${admins.length} admins`);
-//   }
-
-//   private async generateStaff(): Promise<void> {
-//     console.log("Generating staff...");
-//     const staff = [];
-//     // Create Staff docs only for users with role STAFF
-//     const staffUserIds = this.ids.users.filter((id) => this.userRoleMap.get(String(id)) === Role.STAFF);
-
-//     for (const userId of staffUserIds) {
-//       const staffMember = new this.StaffModel({
-//         user_id: userId,
-//         employee_code: `EMP${faker.string.numeric(4)}`,
-//         position: faker.helpers.arrayElement(["Station Manager", "Technician", "Customer Service", "Operations"]),
-//         hire_date: faker.date.past({ years: 3 }),
-//       });
-
-//       const savedStaff = await staffMember.save();
-//       this.ids.staff.push(savedStaff._id);
-//       staff.push(savedStaff);
-//     }
-
-//     console.log(`Generated ${staff.length} staff`);
-//   }
-
-//   private async generateRenters(): Promise<void> {
-//     console.log("Generating renters...");
-//     const renters = [];
-//     // Create Renter docs only for users with role RENTER
-//     const renterUserIds = this.ids.users.filter((id) => this.userRoleMap.get(String(id)) === Role.RENTER);
-
-//     for (const userId of renterUserIds) {
-//       const renter = new this.RenterModel({
-//         user_id: userId,
-//         driver_license_no: faker.helpers.maybe(() => faker.string.alphanumeric(12).toUpperCase(), { probability: 0.8 }),
-//         address: faker.location.streetAddress(),
-//         date_of_birth: faker.date.birthdate({ min: 18, max: 70, mode: "age" }),
-//         risk_score: faker.number.int({ min: 0, max: 100 }),
-//       });
-
-//       const savedRenter = await renter.save();
-//       this.ids.renters.push(savedRenter._id);
-//       renters.push(savedRenter);
-//     }
-
-//     console.log(`Generated ${renters.length} renters`);
-//   }
-
-//   private async generateVehicleAtStations(): Promise<void> {
-//     console.log("Generating vehicle at stations...");
-//     const vehicleAtStations = [];
-
-//     // Each vehicle can be at a station
-//     for (const vehicleId of this.ids.vehicles) {
-//       const stationId = faker.helpers.arrayElement(this.ids.stations);
-//       const startTime = faker.date.past({ years: 1 });
-
-//       const vehicleAtStation = new this.VehicleAtStationModel({
-//         vehicle_id: vehicleId,
-//         station_id: stationId,
-//         start_time: startTime,
-//         end_time: faker.helpers.maybe(() => faker.date.future({ years: 1 }), { probability: 0.2 }),
-//         current_battery_capacity_kwh: faker.number.int({ min: 10, max: 100 }),
-//         current_mileage: faker.number.int({ min: 0, max: 50000 }),
-//         status: faker.helpers.arrayElement(Object.values(StatusVehicleAtStation)),
-//       });
-
-//       const savedVehicleAtStation = await vehicleAtStation.save();
-//       this.ids.vehicleAtStations.push(savedVehicleAtStation._id);
-//       vehicleAtStations.push(savedVehicleAtStation);
-//     }
-
-//     console.log(`Generated ${vehicleAtStations.length} vehicle at stations`);
-//   }
-
-//   private async generateBookings(): Promise<void> {
-//     console.log("Generating bookings...");
-//     const bookings = [];
-//     const bookingCount = 200;
-
-//     for (let i = 0; i < bookingCount; i++) {
-//       const renterId = faker.helpers.arrayElement(this.ids.renters);
-//       const vehicleAtStationId = faker.helpers.arrayElement(this.ids.vehicleAtStations);
-
-//       const booking = new this.BookingModel({
-//         renter_id: renterId,
-//         vehicle_at_station_id: vehicleAtStationId,
-//         expected_return_datetime: faker.date.future(),
-//         status: faker.helpers.arrayElement(Object.values(BookingStatus)),
-//         verification_status: faker.helpers.arrayElement(Object.values(BookingVerificationStatus)),
-//         verified_by_staff_id: faker.helpers.maybe(() => faker.helpers.arrayElement(this.ids.staff), { probability: 0.7 }),
-//         verified_at: faker.helpers.maybe(() => faker.date.recent(), { probability: 0.7 }),
-//         cancel_reason: faker.helpers.maybe(() => faker.lorem.sentence(), { probability: 0.1 }),
-//         total_booking_fee_amount: faker.number.int({ min: 50000, max: 200000 }), // VND
-//         deposit_fee_amount: faker.number.int({ min: 100000, max: 500000 }),
-//         rental_fee_amount: faker.number.int({ min: 100000, max: 1000000 }),
-//       });
-
-//       const savedBooking = await booking.save();
-//       this.ids.bookings.push(savedBooking._id);
-//       bookings.push(savedBooking);
-//     }
-
-//     console.log(`Generated ${bookings.length} bookings`);
-//   }
-
-//   private async generateRentals(): Promise<void> {
-//     console.log("Generating rentals...");
-//     const rentals = [];
-
-//     // Create rentals for some bookings
-//     const rentalCount = Math.floor(this.ids.bookings.length * 0.8); // 80% of bookings become rentals
-
-//     for (let i = 0; i < rentalCount; i++) {
-//       const bookingId = this.ids.bookings[i];
-//       const booking = await this.BookingModel.findById(bookingId);
-//       if (!booking) continue;
-
-//       const vehicleAtStation = await this.VehicleAtStationModel.findById(booking.vehicle_at_station_id);
-//       if (!vehicleAtStation) continue;
-
-//       const vehicleId = vehicleAtStation.vehicle_id;
-
-//       const pickupDatetime = faker.date.recent();
-//       const expectedReturnDatetime = faker.date.future();
-
-//       const rental = new this.RentalModel({
-//         booking_id: bookingId,
-//         vehicle_id: vehicleId,
-//         pickup_datetime: pickupDatetime,
-//         expected_return_datetime: expectedReturnDatetime,
-//         actual_return_datetime: faker.helpers.maybe(() => faker.date.recent(), { probability: 0.6 }),
-//         status: faker.helpers.arrayElement(Object.values(RentalStatus)),
-//         score: faker.helpers.maybe(() => faker.number.int({ min: 1, max: 5 }), { probability: 0.4 }),
-//         comment: faker.helpers.maybe(() => faker.lorem.sentences(2), { probability: 0.3 }),
-//         rated_at: faker.helpers.maybe(() => faker.date.recent(), { probability: 0.4 }),
-//       });
-
-//       const savedRental = await rental.save();
-//       this.ids.rentals.push(savedRental._id);
-//       rentals.push(savedRental);
-//     }
-
-//     console.log(`Generated ${rentals.length} rentals`);
-//   }
-
-//   private async generatePayments(): Promise<void> {
-//     console.log("Generating payments...");
-//     const payments = [];
-//     const paymentCount = this.ids.bookings.length;
-
-//     for (let i = 0; i < paymentCount; i++) {
-//       const payment = new this.PaymentModel({
-//         method: faker.helpers.arrayElement(Object.values(PaymentMethod)),
-//         status: faker.helpers.arrayElement(Object.values(PaymentStatus)),
-//         amount_paid: faker.number.int({ min: 50000, max: 1500000 }),
-//         transaction_code: faker.helpers.maybe(() => faker.string.alphanumeric(16).toUpperCase(), { probability: 0.8 }),
-//       });
-
-//       const savedPayment = await payment.save();
-//       this.ids.payments.push(savedPayment._id);
-//       payments.push(savedPayment);
-//     }
-
-//     console.log(`Generated ${payments.length} payments`);
-//   }
-
-//   private async generateFees(): Promise<void> {
-//     console.log("Generating fees...");
-//     const fees = [];
-//     const feeCount = 100;
-
-//     for (let i = 0; i < feeCount; i++) {
-//       const fee = new this.FeeModel({
-//         booking_id: faker.helpers.arrayElement(this.ids.bookings),
-//         type: faker.helpers.arrayElement(Object.values(FeeType)),
-//         amount: faker.number.int({ min: 10000, max: 500000 }),
-//         description: faker.lorem.sentence(),
-//       });
-
-//       fees.push(await fee.save());
-//     }
-
-//     console.log(`Generated ${fees.length} fees`);
-//   }
-
-//   private async generatePricings(): Promise<void> {
-//     console.log("Generating pricings...");
-//     const pricings = [];
-//     const vehiclesForPricing = faker.helpers.shuffle(this.ids.vehicles).slice(0, 20);
-
-//     for (const vehicleId of vehiclesForPricing) {
-//       const effectiveFrom = faker.date.past({ years: 1 });
-//       const maybeTo = faker.helpers.maybe(() => faker.date.future({ years: 1, refDate: effectiveFrom }), { probability: 0.3 });
-//       const pricing = new this.PricingModel({
-//         vehicle_id: vehicleId,
-//         price_per_hour: faker.number.int({ min: 50000, max: 200000 }),
-//         price_per_day: faker.helpers.maybe(() => faker.number.int({ min: 300000, max: 1200000 }), { probability: 0.6 }),
-//         effective_from: effectiveFrom,
-//         effective_to: maybeTo ?? undefined,
-//         deposit_amount: faker.number.int({ min: 500000, max: 3000000 }),
-//         late_return_fee_per_hour: faker.helpers.maybe(() => faker.number.int({ min: 10000, max: 70000 }), { probability: 0.7 }),
-//         mileage_limit_per_day: faker.helpers.maybe(() => faker.number.int({ min: 100, max: 400 }), { probability: 0.5 }),
-//         excess_mileage_fee: faker.helpers.maybe(() => faker.number.int({ min: 1000, max: 10000 }), { probability: 0.5 }),
-//       });
-
-//       pricings.push(await pricing.save());
-//     }
-
-//     console.log(`Generated ${pricings.length} pricings`);
-//   }
-
-//   private async generateKycs(): Promise<void> {
-//     console.log("Generating KYC records...");
-//     const kycs = [];
-
-//     for (const renterId of this.ids.renters.slice(0, 50)) {
-//       // First 50 renters have KYC
-//       const submittedAt = faker.date.recent({ days: 60 });
-//       const kyc = new this.KycsModel({
-//         renter_id: renterId,
-//         type: faker.helpers.arrayElement(Object.values(KycType)),
-//         document_number: faker.string.numeric(12),
-//         expiry_date: faker.date.future({ years: 5 }),
-//         status: faker.helpers.arrayElement(Object.values(KycStatus)),
-//         submitted_at: submittedAt,
-//         verified_at: faker.helpers.maybe(() => faker.date.between({ from: submittedAt, to: new Date() }), { probability: 0.7 }),
-//       });
-
-//       kycs.push(await kyc.save());
-//     }
-
-//     console.log(`Generated ${kycs.length} KYC records`);
-//   }
-
-//   private async generateInspections(): Promise<void> {
-//     console.log("Generating inspections...");
-//     const inspections = [];
-//     const inspectionCount = 150;
-
-//     for (let i = 0; i < inspectionCount; i++) {
-//       const inspection = new this.InspectionModel({
-//         rental_id: faker.helpers.arrayElement(this.ids.rentals),
-//         type: faker.helpers.arrayElement(Object.values(InspectionType)),
-//         inspected_at: faker.date.recent(),
-//         inspector_staff_id: faker.helpers.maybe(() => faker.helpers.arrayElement(this.ids.staff), { probability: 0.8 }),
-//         current_battery_capacity_kwh: faker.number.int({ min: 10, max: 100 }),
-//         current_mileage: faker.number.int({ min: 0, max: 50000 }),
-//       });
-
-//       inspections.push(await inspection.save());
-//     }
-
-//     console.log(`Generated ${inspections.length} inspections`);
-//   }
-
-//   private async generateReports(): Promise<void> {
-//     console.log("Generating reports...");
-//     const reports = [];
-//     const inspections = await this.InspectionModel.find({}).exec();
-//     for (const inspection of inspections) {
-//       // Not every inspection yields a report
-//       if (!this.bool(0.6)) continue;
-//       const damageFound = this.bool(0.3);
-//       const isOverDeposit = damageFound && this.bool(0.4);
-//       const report = new this.ReportModel({
-//         inspection_id: inspection._id,
-//         damage_notes: faker.helpers.maybe(() => faker.lorem.sentences(2), { probability: damageFound ? 0.8 : 0.2 }),
-//         damage_found: damageFound,
-//         damage_price: damageFound ? faker.number.int({ min: 100000, max: 5000000 }) : 0,
-//         is_over_deposit: isOverDeposit,
-//         over_deposit_fee_amount: isOverDeposit ? faker.number.int({ min: 50000, max: 1000000 }) : 0,
-//       });
-
-//       reports.push(await report.save());
-//     }
-
-//     console.log(`Generated ${reports.length} reports`);
-//   }
-
-//   private async generateReportsPhotos(): Promise<void> {
-//     console.log("Generating report photos...");
-//     const reportsPhotos = [];
-
-//     // Create photos for inspections, optionally link report when it exists
-//     const [inspections, reports] = await Promise.all([this.InspectionModel.find({}).exec(), this.ReportModel.find({}).exec()]);
-//     const inspectionIdToReportId = new Map<string, mongoose.Types.ObjectId>();
-//     for (const r of reports) {
-//       inspectionIdToReportId.set(String(r.inspection_id), r._id);
-//     }
-//     for (const inspection of inspections) {
-//       const photoCount = faker.number.int({ min: 0, max: 4 });
-//       for (let i = 0; i < photoCount; i++) {
-//         const reportPhoto = new this.ReportsPhotoModel({
-//           inspection_id: inspection._id,
-//           report_id: inspectionIdToReportId.get(String(inspection._id)),
-//           url: faker.image.url(),
-//           label: faker.helpers.maybe(() => faker.lorem.words(3), { probability: 0.5 }),
-//         });
-//         reportsPhotos.push(await reportPhoto.save());
-//       }
-//     }
-
-//     console.log(`Generated ${reportsPhotos.length} report photos`);
-//   }
-
-//   private async generateContracts(): Promise<void> {
-//     console.log("Generating contracts...");
-//     const contracts = [];
-
-//     for (const rentalId of this.ids.rentals.slice(0, 50)) {
-//       // First 50 rentals have contracts
-//       const contract = new this.ContractModel({
-//         rental_id: rentalId,
-//         completed_at: faker.helpers.maybe(() => faker.date.recent({ days: 30 }), { probability: 0.8 }),
-//         document_url: faker.internet.url(),
-//       });
-
-//       contracts.push(await contract.save());
-//     }
-
-//     console.log(`Generated ${contracts.length} contracts`);
-//   }
-
-//   private hashPassword(password: string): string {
-//     // In a real application, you would hash the password
-//     // For mock data, we'll just return the password as-is
-//     return password;
-//   }
-
-//   private bool(probability: number): boolean {
-//     // Generates true with the given probability (0..1)
-//     return faker.number.float({ min: 0, max: 1 }) < probability;
-//   }
-// }
-
-// // Main execution
-// async function main() {
-//   const generator = new MockDataGenerator();
-
-//   try {
-//     await generator.connect();
-//     await generator.clearDatabase();
-//     await generator.generateAllData();
-//     console.log("All mock data generated successfully!");
-//   } catch (error) {
-//     console.error("Error generating mock data:", error);
-//     process.exit(1);
-//   } finally {
-//     await generator.disconnect();
-//   }
-// }
-
-// // Run if called directly
-// if (require.main === module) {
-//   main().catch((error) => {
-//     console.error("Error running mock data generator:", error);
-//     process.exit(1);
-//   });
-// }
-
-// export { MockDataGenerator };
+import { faker } from "@faker-js/faker";
+import mongoose from "mongoose";
+
+import * as dotenv from "dotenv";
+dotenv.config();
+
+import "tsconfig-paths/register";
+import { Role } from "../src/common/enums/role.enum";
+import { BookingStatus, BookingVerificationStatus } from "../src/common/enums/booking.enum";
+import { PaymentMethod, PaymentStatus } from "../src/common/enums/payment.enum";
+import { RentalStatus } from "../src/common/enums/rental.enum";
+import { VehicleStatus } from "../src/common/enums/vehicle.enum";
+import { FeeType } from "../src/common/enums/fee.enum";
+import { InspectionType } from "../src/common/enums/inspection.enum";
+import { KycStatus, KycType } from "../src/common/enums/kyc.enum";
+import { User, UserSchema } from "../src/models/user.schema";
+import { Admin, AdminSchema } from "../src/models/admin.schema";
+import { Staff, StaffSchema } from "../src/models/staff.schema";
+import { Renter, RenterSchema } from "../src/models/renter.schema";
+import { Vehicle, VehicleSchema } from "../src/models/vehicle.schema";
+import { Station, StationSchema } from "../src/models/station.schema";
+import { Booking, BookingSchema } from "../src/models/booking.schema";
+import { Rental, RentalSchema } from "../src/models/rental.schema";
+import { Payment, PaymentSchema } from "../src/models/payment.schema";
+import { Fee, FeeSchema } from "../src/models/fee.schema";
+import { Pricing, PricingSchema } from "../src/models/pricings.schema";
+import { Kycs, KycsSchema } from "../src/models/kycs.schema";
+import { Inspection, InspectionSchema } from "../src/models/inspections.schema";
+import { Report, ReportSchema } from "../src/models/report.schema";
+import { ReportsPhoto, ReportsPhotoSchema } from "../src/models/reports_photo.schema";
+import { Contract, ContractSchema } from "../src/models/contract.schema";
+
+interface MockDataIds {
+  users: mongoose.Types.ObjectId[];
+  admins: mongoose.Types.ObjectId[];
+  staff: mongoose.Types.ObjectId[];
+  renters: mongoose.Types.ObjectId[];
+  stations: mongoose.Types.ObjectId[];
+  vehicles: mongoose.Types.ObjectId[];
+  bookings: mongoose.Types.ObjectId[];
+  rentals: mongoose.Types.ObjectId[];
+  payments: mongoose.Types.ObjectId[];
+  fees: mongoose.Types.ObjectId[];
+  pricings: mongoose.Types.ObjectId[];
+  kycs: mongoose.Types.ObjectId[];
+  inspections: mongoose.Types.ObjectId[];
+  reports: mongoose.Types.ObjectId[];
+  reportsPhotos: mongoose.Types.ObjectId[];
+  contracts: mongoose.Types.ObjectId[];
+}
+
+interface BookingMeta {
+  renterId: mongoose.Types.ObjectId;
+  vehicleId: mongoose.Types.ObjectId;
+  start: Date;
+  expectedReturn: Date;
+  status: BookingStatus;
+  verificationStatus: BookingVerificationStatus;
+  totalFee: number;
+  depositFee: number;
+  rentalFee: number;
+}
+
+interface RentalMeta {
+  bookingId: mongoose.Types.ObjectId;
+  vehicleId: mongoose.Types.ObjectId;
+  pickup: Date;
+  expectedReturn: Date;
+  actualReturn?: Date;
+  status: RentalStatus;
+}
+
+interface InspectionMeta {
+  rentalId: mongoose.Types.ObjectId;
+  inspectedAt: Date;
+  type: InspectionType;
+}
+
+interface VehicleMetrics {
+  battery: number;
+  mileage: number;
+}
+
+class MockDataGenerator {
+  private readonly ids: MockDataIds = {
+    users: [],
+    admins: [],
+    staff: [],
+    renters: [],
+    stations: [],
+    vehicles: [],
+    bookings: [],
+    rentals: [],
+    payments: [],
+    fees: [],
+    pricings: [],
+    kycs: [],
+    inspections: [],
+    reports: [],
+    reportsPhotos: [],
+    contracts: [],
+  };
+
+  private readonly userRoleMap = new Map<string, Role>();
+  private readonly bookingMeta = new Map<string, BookingMeta>();
+  private readonly rentalMeta = new Map<string, RentalMeta>();
+  private readonly inspectionMeta = new Map<string, InspectionMeta>();
+  private readonly reportByInspection = new Map<string, mongoose.Types.ObjectId>();
+  private readonly vehicleMetrics = new Map<string, VehicleMetrics>();
+
+  private readonly UserModel = (mongoose.models[User.name] as mongoose.Model<User>) || mongoose.model<User>(User.name, UserSchema);
+  private readonly AdminModel = (mongoose.models[Admin.name] as mongoose.Model<Admin>) || mongoose.model<Admin>(Admin.name, AdminSchema);
+  private readonly StaffModel = (mongoose.models[Staff.name] as mongoose.Model<Staff>) || mongoose.model<Staff>(Staff.name, StaffSchema);
+  private readonly RenterModel = (mongoose.models[Renter.name] as mongoose.Model<Renter>) || mongoose.model<Renter>(Renter.name, RenterSchema);
+  private readonly VehicleModel = (mongoose.models[Vehicle.name] as mongoose.Model<Vehicle>) || mongoose.model<Vehicle>(Vehicle.name, VehicleSchema);
+  private readonly StationModel = (mongoose.models[Station.name] as mongoose.Model<Station>) || mongoose.model<Station>(Station.name, StationSchema);
+  private readonly BookingModel = (mongoose.models[Booking.name] as mongoose.Model<Booking>) || mongoose.model<Booking>(Booking.name, BookingSchema);
+  private readonly RentalModel = (mongoose.models[Rental.name] as mongoose.Model<Rental>) || mongoose.model<Rental>(Rental.name, RentalSchema);
+  private readonly PaymentModel = (mongoose.models[Payment.name] as mongoose.Model<Payment>) || mongoose.model<Payment>(Payment.name, PaymentSchema);
+  private readonly FeeModel = (mongoose.models[Fee.name] as mongoose.Model<Fee>) || mongoose.model<Fee>(Fee.name, FeeSchema);
+  private readonly PricingModel = (mongoose.models[Pricing.name] as mongoose.Model<Pricing>) || mongoose.model<Pricing>(Pricing.name, PricingSchema);
+  private readonly KycsModel = (mongoose.models[Kycs.name] as mongoose.Model<Kycs>) || mongoose.model<Kycs>(Kycs.name, KycsSchema);
+  private readonly InspectionModel =
+    (mongoose.models[Inspection.name] as mongoose.Model<Inspection>) || mongoose.model<Inspection>(Inspection.name, InspectionSchema);
+  private readonly ReportModel = (mongoose.models[Report.name] as mongoose.Model<Report>) || mongoose.model<Report>(Report.name, ReportSchema);
+  private readonly ReportsPhotoModel =
+    (mongoose.models[ReportsPhoto.name] as mongoose.Model<ReportsPhoto>) || mongoose.model<ReportsPhoto>(ReportsPhoto.name, ReportsPhotoSchema);
+  private readonly ContractModel =
+    (mongoose.models[Contract.name] as mongoose.Model<Contract>) || mongoose.model<Contract>(Contract.name, ContractSchema);
+
+  constructor(seed?: number) {
+    const envSeed = Number.isNaN(Number(process.env.MOCK_DATA_SEED)) ? undefined : Number(process.env.MOCK_DATA_SEED);
+    const resolvedSeed = seed ?? envSeed ?? 12345;
+    faker.seed(resolvedSeed);
+  }
+
+  async connect(): Promise<void> {
+    const mongoUri = process.env.MONGO_URI;
+    if (!mongoUri) {
+      throw new Error("MONGO_URI is not set");
+    }
+
+    await mongoose.connect(mongoUri);
+    console.log("Connected to MongoDB");
+  }
+
+  async disconnect(): Promise<void> {
+    await mongoose.disconnect();
+    console.log("Disconnected from MongoDB");
+  }
+
+  async clearDatabase(): Promise<void> {
+    const collections = mongoose.connection.collections;
+    for (const collection of Object.values(collections)) {
+      await collection.deleteMany({});
+    }
+    console.log("Database cleared");
+  }
+
+  async generateAllData(options?: { clearExisting?: boolean }): Promise<void> {
+    console.log("Starting mock data generation...");
+
+    if (options?.clearExisting) {
+      await this.clearDatabase();
+    }
+    await this.generateUsers();
+    await this.generateAdmins();
+    await this.generateRenters();
+
+    await this.generateStations();
+    await this.generateStaff();
+    await this.generateVehicles();
+    await this.generatePricings();
+
+    await this.generateBookings();
+    await this.generateRentals();
+    await this.generatePayments();
+    await this.generateFees();
+    // await this.generateKycs();
+    // await this.generateInspections();
+    // await this.generateReports();
+    // await this.generateReportsPhotos();
+    // await this.generateContracts();
+
+    console.log("Mock data generation completed!");
+  }
+
+  private async generateUsers(): Promise<void> {
+    console.log("Loading users...");
+    const existingUsers = await this.UserModel.find({}, { _id: 1, role: 1 }).lean().exec();
+
+    if (existingUsers.length) {
+      for (const user of existingUsers) {
+        const id = user._id;
+        const role = user.role ?? Role.UNKNOWN;
+        this.ids.users.push(id);
+        this.userRoleMap.set(String(id), role);
+      }
+      console.log(`Loaded ${existingUsers.length} users`);
+      return;
+    }
+
+    console.warn("No existing users found; generating baseline mock users...");
+    const roleDistribution: Array<{ role: Role; count: number }> = [
+      { role: Role.ADMIN, count: 2 },
+      { role: Role.STAFF, count: 6 },
+      { role: Role.RENTER, count: 10 },
+      { role: Role.UNKNOWN, count: 2 },
+    ];
+
+    for (const { role, count } of roleDistribution) {
+      for (let i = 0; i < count; i++) {
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
+        const userDoc = new this.UserModel({
+          email: faker.internet.email({ firstName, lastName, provider: "example.com" }).toLowerCase(),
+          password: this.hashPassword("password123"),
+          full_name: `${firstName} ${lastName}`,
+          role,
+          is_active: this.bool(0.9),
+          phone: this.bool(0.65) ? `+84${faker.string.numeric({ length: 9 })}` : undefined,
+        } as Partial<User>);
+
+        const saved = await userDoc.save();
+        this.ids.users.push(saved._id);
+        this.userRoleMap.set(String(saved._id), role);
+      }
+    }
+
+    console.log(`Generated ${this.ids.users.length} users`);
+  }
+
+  private async generateStations(): Promise<void> {
+    console.log("Generating stations...");
+    const cities = [
+      "Hanoi",
+      "Ho Chi Minh City",
+      "Da Nang",
+      "Hai Phong",
+      "Can Tho",
+      "Bien Hoa",
+      "Nha Trang",
+      "Hue",
+      "Vung Tau",
+      "Ha Long",
+      "Buon Ma Thuot",
+      "Da Lat",
+    ];
+
+    for (let i = 0; i < 10; i++) {
+      const city = faker.helpers.arrayElement(cities);
+      const stationDoc = new this.StationModel({
+        name: `${city} EV Hub ${i + 1}`,
+        address: faker.location.streetAddress(),
+        latitude: faker.location.latitude({ min: 8, max: 23.5 }),
+        longitude: faker.location.longitude({ min: 102, max: 110 }),
+        is_active: this.bool(0.95),
+      } as Partial<Station>);
+
+      const saved = await stationDoc.save();
+      this.ids.stations.push(saved._id);
+    }
+
+    console.log(`Generated ${this.ids.stations.length} stations`);
+  }
+
+  private async generateVehicles(): Promise<void> {
+    console.log("Generating vehicles...");
+    const makes = ["Tesla", "VinFast", "Nissan", "BMW", "Audi", "Hyundai", "Kia", "Toyota", "BYD", "Mercedes-Benz"];
+    const models = ["Model 3", "VF8", "Leaf", "i3", "e-tron", "Ioniq 5", "EV6", "bZ4X", "Han", "EQB"];
+
+    for (let i = 0; i < 40; i++) {
+      const make = faker.helpers.arrayElement(makes);
+      const model = faker.helpers.arrayElement(models);
+      const batteryCapacity = faker.number.int({ min: 45, max: 110 });
+      const currentBattery = faker.number.int({ min: 10, max: batteryCapacity });
+      const currentMileage = faker.number.int({ min: 0, max: 60000 });
+
+      const vehicleDoc = new this.VehicleModel({
+        station_id: this.bool(0.9) ? faker.helpers.arrayElement(this.ids.stations) : undefined,
+        make,
+        model,
+        model_year: faker.number.int({ min: 2018, max: 2025 }),
+        category: "EV",
+        battery_capacity_kwh: batteryCapacity,
+        range_km: faker.number.int({ min: 220, max: 520 }),
+        vin_number: this.bool(0.85) ? `VN${faker.string.alphanumeric({ length: 15, casing: "upper" })}` : undefined,
+        img_url: this.bool(0.55) ? faker.image.url() : undefined,
+        is_active: this.bool(0.95),
+        current_battery_capacity_kwh: currentBattery,
+        current_mileage: currentMileage,
+        status: faker.helpers.arrayElement(Object.values(VehicleStatus)),
+      } as Partial<Vehicle>);
+
+      const saved = await vehicleDoc.save();
+      this.ids.vehicles.push(saved._id);
+      this.vehicleMetrics.set(String(saved._id), {
+        battery: currentBattery,
+        mileage: currentMileage,
+      });
+    }
+
+    console.log(`Generated ${this.ids.vehicles.length} vehicles`);
+  }
+
+  private async generateAdmins(): Promise<void> {
+    console.log("Loading admins...");
+    const existingAdmins = await this.AdminModel.find({}, { _id: 1, user_id: 1 }).lean().exec();
+
+    if (existingAdmins.length) {
+      for (const admin of existingAdmins) {
+        this.ids.admins.push(admin._id);
+        if (admin.user_id) {
+          this.userRoleMap.set(String(admin.user_id), Role.ADMIN);
+        }
+      }
+      console.log(`Loaded ${existingAdmins.length} admins`);
+      return;
+    }
+
+    const adminUserIds = this.ids.users.filter((id) => this.userRoleMap.get(String(id)) === Role.ADMIN);
+    if (!adminUserIds.length) {
+      console.warn("No admin users found; skipping admin document generation.");
+      return;
+    }
+
+    console.warn("No existing admins found; generating mock admin documents...");
+    let generated = 0;
+    for (const userId of adminUserIds) {
+      const adminDoc = new this.AdminModel({
+        user_id: userId,
+        title: faker.helpers.arrayElement(["IT Admin", "Operations Admin", "Finance Admin", "People Admin"]),
+        notes: this.bool(0.35) ? faker.lorem.sentence() : undefined,
+        hire_date: faker.date.past({ years: 5 }),
+      } as Partial<Admin>);
+
+      const saved = await adminDoc.save();
+      this.ids.admins.push(saved._id);
+      this.userRoleMap.set(String(userId), Role.ADMIN);
+      generated += 1;
+    }
+
+    console.log(`Generated ${generated} admins`);
+  }
+
+  private async generateStaff(): Promise<void> {
+    console.log("Loading staff...");
+    const existingStaff = await this.StaffModel.find({}, { _id: 1, user_id: 1 }).lean().exec();
+
+    if (existingStaff.length) {
+      for (const staff of existingStaff) {
+        this.ids.staff.push(staff._id);
+        if (staff.user_id) {
+          this.userRoleMap.set(String(staff.user_id), Role.STAFF);
+        }
+      }
+      console.log(`Loaded ${existingStaff.length} staff`);
+      return;
+    }
+
+    const staffUserIds = this.ids.users.filter((id) => this.userRoleMap.get(String(id)) === Role.STAFF);
+    if (!staffUserIds.length) {
+      console.warn("No staff users found; skipping staff document generation.");
+      return;
+    }
+
+    console.warn("No existing staff found; generating mock staff documents...");
+    let index = 0;
+    let generated = 0;
+    for (const userId of staffUserIds) {
+      const stationId = this.ids.stations.length ? faker.helpers.arrayElement(this.ids.stations) : undefined;
+      const staffDoc = new this.StaffModel({
+        user_id: userId,
+        station_id: stationId,
+        employee_code: `EMP${String(++index).padStart(5, "0")}`,
+        position: faker.helpers.arrayElement(["Station Manager", "Technician", "Customer Success", "Ops Specialist"]),
+        hire_date: faker.date.past({ years: 4 }),
+      } as Partial<Staff>);
+
+      const saved = await staffDoc.save();
+      this.ids.staff.push(saved._id);
+      this.userRoleMap.set(String(userId), Role.STAFF);
+      generated += 1;
+    }
+
+    console.log(`Generated ${generated} staff`);
+  }
+
+  private async generateRenters(): Promise<void> {
+    console.log("Loading renters...");
+    const existingRenters = await this.RenterModel.find({}, { _id: 1, user_id: 1 }).lean().exec();
+
+    if (existingRenters.length) {
+      for (const renter of existingRenters) {
+        this.ids.renters.push(renter._id);
+        if (renter.user_id) {
+          this.userRoleMap.set(String(renter.user_id), Role.RENTER);
+        }
+      }
+      console.log(`Loaded ${existingRenters.length} renters`);
+      return;
+    }
+
+    const renterUserIds = this.ids.users.filter((id) => this.userRoleMap.get(String(id)) === Role.RENTER);
+    if (!renterUserIds.length) {
+      console.warn("No renter users found; skipping renter document generation.");
+      return;
+    }
+
+    console.warn("No existing renters found; generating mock renter documents...");
+    let generated = 0;
+    for (const userId of renterUserIds) {
+      const renterDoc = new this.RenterModel({
+        user_id: userId,
+        address: faker.location.streetAddress(),
+        date_of_birth: faker.date.birthdate({ min: 21, max: 65, mode: "age" }),
+        risk_score: faker.number.int({ min: 0, max: 100 }),
+      } as Partial<Renter>);
+
+      const saved = await renterDoc.save();
+      this.ids.renters.push(saved._id);
+      this.userRoleMap.set(String(userId), Role.RENTER);
+      generated += 1;
+    }
+
+    console.log(`Generated ${generated} renters`);
+  }
+
+  private async generateBookings(): Promise<void> {
+    console.log("Generating bookings...");
+    if (!this.ids.renters.length || !this.ids.vehicles.length) {
+      console.warn("Skipping bookings because renters or vehicles are missing");
+      return;
+    }
+
+    for (let i = 0; i < 50; i++) {
+      const renterId = faker.helpers.arrayElement(this.ids.renters);
+      const vehicleId = faker.helpers.arrayElement(this.ids.vehicles);
+      const start = faker.date.recent({ days: 120 });
+      const expectedReturn = faker.date.soon({ days: faker.number.int({ min: 1, max: 10 }), refDate: start });
+      const verificationStatus = faker.helpers.arrayElement(Object.values(BookingVerificationStatus));
+      let status: BookingStatus = BookingStatus.PENDING_VERIFICATION;
+
+      if (verificationStatus === BookingVerificationStatus.APPROVED) {
+        status = BookingStatus.VERIFIED;
+      } else if (verificationStatus === BookingVerificationStatus.PENDING) {
+        status = this.bool(0.3) ? BookingStatus.CANCELLED : BookingStatus.PENDING_VERIFICATION;
+      } else {
+        status = BookingStatus.CANCELLED;
+      }
+
+      const depositFee = this.money(300_000, 2_000_000);
+      const rentalFee = this.money(200_000, 1_500_000);
+      const miscFee = this.money(0, 120_000);
+      const totalFee = depositFee + rentalFee + miscFee;
+
+      const verifiedBy = verificationStatus === BookingVerificationStatus.PENDING ? undefined : this.randomStaffId();
+      const verifiedAt = verifiedBy ? faker.date.between({ from: start, to: expectedReturn }) : undefined;
+
+      const bookingDoc = new this.BookingModel({
+        renter_id: renterId,
+        vehicle_id: vehicleId,
+        rental_start_datetime: start,
+        expected_return_datetime: expectedReturn,
+        status,
+        verification_status: verificationStatus,
+        verified_by_staff_id: verifiedBy,
+        verified_at: verifiedAt,
+        cancel_reason: status === BookingStatus.CANCELLED ? faker.lorem.sentence() : undefined,
+        total_booking_fee_amount: totalFee,
+        deposit_fee_amount: depositFee,
+        rental_fee_amount: rentalFee,
+      } as Partial<Booking>);
+
+      const saved = await bookingDoc.save();
+      this.ids.bookings.push(saved._id);
+      this.bookingMeta.set(String(saved._id), {
+        renterId,
+        vehicleId,
+        start,
+        expectedReturn,
+        status,
+        verificationStatus,
+        totalFee,
+        depositFee,
+        rentalFee,
+      });
+    }
+
+    console.log(`Generated ${this.ids.bookings.length} bookings`);
+  }
+
+  private async generateRentals(): Promise<void> {
+    console.log("Generating rentals...");
+    const approvedBookings = this.ids.bookings.filter((id) => {
+      const meta = this.bookingMeta.get(String(id));
+      return meta?.verificationStatus === BookingVerificationStatus.APPROVED && meta.status === BookingStatus.VERIFIED;
+    });
+
+    if (!approvedBookings.length) {
+      console.warn("No approved bookings available for rentals");
+      return;
+    }
+
+    const rentalTargets = faker.helpers.shuffle(approvedBookings).slice(0, Math.floor(approvedBookings.length * 0.75));
+
+    for (const bookingId of rentalTargets) {
+      const meta = this.bookingMeta.get(String(bookingId));
+      if (!meta) continue;
+
+      const status = faker.helpers.arrayElement(Object.values(RentalStatus));
+      const pickup = meta.start;
+      const expectedReturn = meta.expectedReturn;
+
+      let actualReturn: Date | undefined;
+      if (status === RentalStatus.COMPLETED) {
+        actualReturn = faker.date.between({ from: pickup, to: faker.date.soon({ days: 2, refDate: expectedReturn }) });
+      } else if (status === RentalStatus.LATE) {
+        actualReturn = faker.date.soon({ days: 3, refDate: expectedReturn });
+      } else if (status === RentalStatus.IN_PROGRESS) {
+        actualReturn = undefined;
+      } else if (status === RentalStatus.CANCELLED) {
+        actualReturn = undefined;
+      }
+
+      const rentalDoc = new this.RentalModel({
+        booking_id: bookingId,
+        vehicle_id: meta.vehicleId,
+        pickup_datetime: pickup,
+        expected_return_datetime: expectedReturn,
+        actual_return_datetime: actualReturn,
+        status,
+        score: status === RentalStatus.COMPLETED ? faker.number.int({ min: 3, max: 5 }) : null,
+        comment: this.bool(0.25) ? faker.lorem.sentences(faker.number.int({ min: 1, max: 2 })) : undefined,
+        rated_at: status === RentalStatus.COMPLETED ? faker.date.soon({ days: 3, refDate: actualReturn ?? expectedReturn }) : undefined,
+      } as Partial<Rental>);
+
+      const saved = await rentalDoc.save();
+      this.ids.rentals.push(saved._id);
+      this.rentalMeta.set(String(saved._id), {
+        bookingId,
+        vehicleId: meta.vehicleId,
+        pickup,
+        expectedReturn,
+        actualReturn,
+        status,
+      });
+    }
+
+    console.log(`Generated ${this.ids.rentals.length} rentals`);
+  }
+
+  private async generatePayments(): Promise<void> {
+    console.log("Generating payments...");
+
+    for (const bookingId of this.ids.bookings) {
+      const meta = this.bookingMeta.get(String(bookingId));
+      if (!meta) continue;
+
+      const hasRental = Array.from(this.rentalMeta.values()).some((r) => String(r.bookingId) === String(bookingId));
+      let status: PaymentStatus;
+      if (meta.status === BookingStatus.CANCELLED) {
+        status = faker.helpers.arrayElement([PaymentStatus.REFUNDED, PaymentStatus.FAILED, PaymentStatus.PENDING]);
+      } else if (hasRental) {
+        status = faker.helpers.arrayElement([PaymentStatus.PAID, PaymentStatus.PAID, PaymentStatus.PENDING]);
+      } else {
+        status = faker.helpers.arrayElement(Object.values(PaymentStatus));
+      }
+
+      const unpaidMax = Math.max(0, meta.totalFee);
+      const unpaidMin = Math.min(100_000, unpaidMax);
+      const amountPaid = status === PaymentStatus.PAID ? meta.totalFee : this.money(unpaidMin, unpaidMax);
+
+      const paymentDoc = new this.PaymentModel({
+        booking_id: bookingId,
+        method: faker.helpers.arrayElement(Object.values(PaymentMethod)),
+        status,
+        amount_paid: amountPaid,
+        transaction_code: this.bool(0.8) ? faker.string.alphanumeric({ length: 14, casing: "upper" }) : undefined,
+      } as Partial<Payment>);
+
+      const saved = await paymentDoc.save();
+      this.ids.payments.push(saved._id);
+    }
+
+    console.log(`Generated ${this.ids.payments.length} payments`);
+  }
+
+  private async generateFees(): Promise<void> {
+    console.log("Generating fees...");
+
+    for (const bookingId of this.ids.bookings) {
+      const meta = this.bookingMeta.get(String(bookingId));
+      if (!meta) continue;
+
+      const feeSpecs = [
+        { type: FeeType.DEPOSIT_FEE, amount: meta.depositFee },
+        { type: FeeType.RENTAL_FEE, amount: meta.rentalFee },
+      ];
+
+      if (this.bool(0.2)) {
+        feeSpecs.push({ type: FeeType.OTHER, amount: this.money(20_000, 150_000) });
+      }
+
+      for (const spec of feeSpecs) {
+        if (spec.amount <= 0) continue;
+        const feeDoc = new this.FeeModel({
+          booking_id: bookingId,
+          type: spec.type,
+          amount: spec.amount,
+          description: `${spec.type.replace(/_/g, " ").toUpperCase()} charge`,
+          currency: "VND",
+        } as Partial<Fee>);
+
+        const saved = await feeDoc.save();
+        this.ids.fees.push(saved._id);
+      }
+    }
+
+    console.log(`Generated ${this.ids.fees.length} fees`);
+  }
+
+  private async generatePricings(): Promise<void> {
+    console.log("Generating pricings...");
+    const sampleVehicles = faker.helpers.shuffle(this.ids.vehicles).slice(0, 30);
+
+    for (const vehicleId of sampleVehicles) {
+      const effectiveFrom = faker.date.past({ years: 1 });
+      const effectiveTo = this.bool(0.3) ? faker.date.soon({ days: faker.number.int({ min: 30, max: 180 }), refDate: effectiveFrom }) : undefined;
+
+      const pricingDoc = new this.PricingModel({
+        vehicle_id: vehicleId,
+        price_per_hour: this.money(45_000, 210_000),
+        price_per_day: this.bool(0.65) ? this.money(350_000, 1_200_000) : undefined,
+        effective_from: effectiveFrom,
+        effective_to: effectiveTo,
+        deposit_amount: this.money(500_000, 3_000_000),
+        late_return_fee_per_hour: this.bool(0.7) ? this.money(10_000, 60_000) : undefined,
+        mileage_limit_per_day: this.bool(0.5) ? faker.number.int({ min: 80, max: 400 }) : undefined,
+        excess_mileage_fee: this.bool(0.5) ? this.money(1_000, 12_000) : undefined,
+      } as Partial<Pricing>);
+
+      const saved = await pricingDoc.save();
+      this.ids.pricings.push(saved._id);
+    }
+
+    console.log(`Generated ${this.ids.pricings.length} pricings`);
+  }
+
+  private async generateKycs(): Promise<void> {
+    console.log("Generating KYC records...");
+    const kycCount = Math.min(50, this.ids.renters.length);
+
+    for (let i = 0; i < kycCount; i++) {
+      const renterId = this.ids.renters[i];
+      const submittedAt = faker.date.recent({ days: 90 });
+      const kycDoc = new this.KycsModel({
+        renter_id: renterId,
+        type: faker.helpers.arrayElement(Object.values(KycType)),
+        document_number: `VN${faker.string.numeric({ length: 10 })}`,
+        expiry_date: faker.date.soon({ days: faker.number.int({ min: 365, max: 365 * 5 }), refDate: submittedAt }),
+        status: faker.helpers.arrayElement(Object.values(KycStatus)),
+        submitted_at: submittedAt,
+        verified_at: this.bool(0.7) ? faker.date.soon({ days: 20, refDate: submittedAt }) : undefined,
+      } as Partial<Kycs>);
+
+      const saved = await kycDoc.save();
+      this.ids.kycs.push(saved._id);
+    }
+
+    console.log(`Generated ${this.ids.kycs.length} KYC records`);
+  }
+
+  private async generateInspections(): Promise<void> {
+    console.log("Generating inspections...");
+    if (!this.ids.rentals.length) {
+      console.warn("No rentals found; skipping inspections");
+      return;
+    }
+
+    for (const rentalId of this.ids.rentals) {
+      const meta = this.rentalMeta.get(String(rentalId));
+      if (!meta) continue;
+      const vehicleMetrics = this.vehicleMetrics.get(String(meta.vehicleId)) ?? { battery: 80, mileage: 10_000 };
+
+      const preInspection = new this.InspectionModel({
+        rental_id: rentalId,
+        type: InspectionType.PRE_RENTAL,
+        inspected_at: new Date(meta.pickup.getTime() - faker.number.int({ min: 15, max: 90 }) * 60_000),
+        inspector_staff_id: this.randomStaffId(),
+        current_battery_capacity_kwh: vehicleMetrics.battery,
+        current_mileage: vehicleMetrics.mileage,
+      } as Partial<Inspection>);
+
+      const preSaved = await preInspection.save();
+      this.ids.inspections.push(preSaved._id);
+      this.inspectionMeta.set(String(preSaved._id), {
+        rentalId,
+        inspectedAt: preSaved.inspected_at,
+        type: InspectionType.PRE_RENTAL,
+      });
+
+      if (!meta.actualReturn) {
+        continue;
+      }
+
+      const mileageDelta = faker.number.int({ min: 30, max: 420 });
+      vehicleMetrics.mileage += mileageDelta;
+      const batteryAfter = Math.max(0, vehicleMetrics.battery - faker.number.int({ min: 5, max: 30 }));
+      vehicleMetrics.battery = batteryAfter;
+      this.vehicleMetrics.set(String(meta.vehicleId), vehicleMetrics);
+
+      const postInspection = new this.InspectionModel({
+        rental_id: rentalId,
+        type: InspectionType.POST_RENTAL,
+        inspected_at: new Date(meta.actualReturn.getTime() + faker.number.int({ min: 5, max: 60 }) * 60_000),
+        inspector_staff_id: this.randomStaffId(),
+        current_battery_capacity_kwh: vehicleMetrics.battery,
+        current_mileage: vehicleMetrics.mileage,
+      } as Partial<Inspection>);
+
+      const postSaved = await postInspection.save();
+      this.ids.inspections.push(postSaved._id);
+      this.inspectionMeta.set(String(postSaved._id), {
+        rentalId,
+        inspectedAt: postSaved.inspected_at,
+        type: InspectionType.POST_RENTAL,
+      });
+    }
+
+    console.log(`Generated ${this.ids.inspections.length} inspections`);
+  }
+
+  private async generateReports(): Promise<void> {
+    console.log("Generating reports...");
+
+    for (const inspectionId of this.ids.inspections) {
+      const meta = this.inspectionMeta.get(String(inspectionId));
+      if (!meta || meta.type !== InspectionType.POST_RENTAL) continue;
+
+      if (!this.bool(0.55)) continue;
+
+      const bookingMeta = (() => {
+        const rental = this.rentalMeta.get(String(meta.rentalId));
+        return rental ? this.bookingMeta.get(String(rental.bookingId)) : undefined;
+      })();
+
+      const damageFound = this.bool(0.35);
+      const damagePrice = damageFound ? this.money(100_000, 5_000_000) : 0;
+      const deposit = bookingMeta?.depositFee ?? 0;
+      const isOverDeposit = damageFound && damagePrice > deposit && this.bool(0.6);
+      const overDeposit = isOverDeposit ? Math.max(50_000, damagePrice - deposit) : 0;
+
+      const reportDoc = new this.ReportModel({
+        inspection_id: inspectionId,
+        damage_notes: damageFound ? faker.lorem.sentences(faker.number.int({ min: 1, max: 2 })) : undefined,
+        damage_found: damageFound,
+        damage_price: damagePrice,
+        is_over_deposit: isOverDeposit,
+        over_deposit_fee_amount: overDeposit,
+      } as Partial<Report>);
+
+      const saved = await reportDoc.save();
+      this.ids.reports.push(saved._id);
+      this.reportByInspection.set(String(inspectionId), saved._id);
+    }
+
+    console.log(`Generated ${this.ids.reports.length} reports`);
+  }
+
+  private async generateReportsPhotos(): Promise<void> {
+    console.log("Generating report photos...");
+
+    for (const inspectionId of this.ids.inspections) {
+      const photoCount = faker.number.int({ min: 0, max: 4 });
+      if (photoCount === 0) continue;
+
+      const reportId = this.reportByInspection.get(String(inspectionId));
+      for (let i = 0; i < photoCount; i++) {
+        const photoDoc = new this.ReportsPhotoModel({
+          inspection_id: inspectionId,
+          report_id: reportId,
+          url: faker.image.url(),
+          label: this.bool(0.5) ? faker.lorem.words(faker.number.int({ min: 2, max: 4 })) : undefined,
+        } as Partial<ReportsPhoto>);
+
+        const saved = await photoDoc.save();
+        this.ids.reportsPhotos.push(saved._id);
+      }
+    }
+
+    console.log(`Generated ${this.ids.reportsPhotos.length} report photos`);
+  }
+
+  private async generateContracts(): Promise<void> {
+    console.log("Generating contracts...");
+
+    for (const rentalId of this.ids.rentals) {
+      const meta = this.rentalMeta.get(String(rentalId));
+      if (!meta) continue;
+
+      if (![RentalStatus.COMPLETED, RentalStatus.LATE].includes(meta.status)) continue;
+
+      const contractDoc = new this.ContractModel({
+        rental_id: rentalId,
+        completed_at: meta.actualReturn ?? faker.date.recent({ days: 45 }),
+        document_url: faker.internet.url(),
+      } as Partial<Contract>);
+
+      const saved = await contractDoc.save();
+      this.ids.contracts.push(saved._id);
+    }
+
+    console.log(`Generated ${this.ids.contracts.length} contracts`);
+  }
+
+  private randomStaffId(): mongoose.Types.ObjectId | undefined {
+    if (!this.ids.staff.length) {
+      return undefined;
+    }
+    return faker.helpers.arrayElement(this.ids.staff);
+  }
+
+  private hashPassword(password: string): string {
+    return password;
+  }
+
+  private money(min: number, max: number, step = 1000): number {
+    if (max < min) {
+      [min, max] = [max, min];
+    }
+
+    const scaledMin = Math.ceil(min / step);
+    const scaledMax = Math.floor(max / step);
+
+    if (scaledMax < scaledMin) {
+      return scaledMin * step;
+    }
+
+    return faker.number.int({ min: scaledMin, max: scaledMax }) * step;
+  }
+
+  private bool(probability: number): boolean {
+    return faker.number.float({ min: 0, max: 1 }) < probability;
+  }
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  const seedArg = args.find((arg) => arg.startsWith("--seed="));
+  const drop = args.includes("--drop");
+  const seed = seedArg ? Number(seedArg.split("=")[1]) : undefined;
+
+  if (seedArg && Number.isNaN(seed)) {
+    throw new Error(`Invalid seed provided: ${seedArg}`);
+  }
+
+  const generator = new MockDataGenerator(seed);
+
+  try {
+    await generator.connect();
+    await generator.generateAllData({ clearExisting: drop });
+    console.log("All mock data generated successfully!");
+  } catch (error) {
+    console.error("Error generating mock data:", error);
+    process.exit(1);
+  } finally {
+    await generator.disconnect();
+  }
+}
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error("Error running mock data generator:", error);
+    process.exit(1);
+  });
+}
+
+export { MockDataGenerator };
