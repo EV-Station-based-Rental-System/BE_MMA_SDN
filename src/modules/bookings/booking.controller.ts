@@ -10,9 +10,11 @@ import { Role } from "src/common/enums/role.enum";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { BookingPaginationDto } from "src/common/pagination/dto/booking/booking-pagination";
 import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
-import { SwaggerResponseDetailDto } from "src/common/response/swagger-generic.dto";
+import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
 import { Booking } from "src/models/booking.schema";
 import { BookingListResponse } from "./dto/booking-response.dto";
+import { ResponseList } from "src/common/response/response-list";
+import { ResponseMsg } from "src/common/response/response-message";
 
 @ApiExtraModels(Booking)
 @Controller("bookings")
@@ -84,18 +86,18 @@ export class BookingController {
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
   @ApiErrorResponses()
-  async getBookingsByRenter(@Query() filters: BookingPaginationDto, @Req() req: { user: RenterJwtUserPayload }) {
+  async getBookingsByRenter(@Query() filters: BookingPaginationDto, @Req() req: { user: RenterJwtUserPayload }): Promise<ResponseList<Booking>> {
     const { page = 1, take = 10, ...restFilters } = filters;
-    return this.bookingService.getBookingByRenter({ page, take: Math.min(take, 100), ...restFilters }, req.user);
+    return await this.bookingService.getBookingByRenter({ page, take: Math.min(take, 100), ...restFilters }, req.user);
   }
 
   @Patch("cancel/:id")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.RENTER)
-  @ApiOkResponse({ description: "Booking cancelled", type: SwaggerResponseDetailDto(Booking) })
+  @ApiOkResponse({ description: "Booking cancelled", type: ResponseMsg })
   @ApiErrorResponses()
-  async cancelBooking(@Param("id") id: string) {
-    return this.bookingService.cancelBooking(id);
+  async cancelBooking(@Param("id") id: string): Promise<ResponseMsg> {
+    return await this.bookingService.cancelBooking(id);
   }
 }
