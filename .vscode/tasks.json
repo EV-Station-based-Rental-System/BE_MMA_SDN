@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Inspect vehicle pricing",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["ts-node", "--project", "tsconfig.json", "tools/inspect-vehicle-pricing.ts", "6906819ef6ad7600a6d127ce", "2025-11-02T10:00:00.000Z"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "build"
+    }
+  ]
+}
