@@ -24,13 +24,12 @@ export class KycsService {
   async create(createKycsDto: CreateKycsDto, user: RenterJwtUserPayload): Promise<ResponseDetail<Kycs>> {
     // check renter exist
     const renter = await this.bookingService.checkRenterExist(user._id);
-    // check for existing APPROVED KYC
-    const approvedKyc = await this.kycsRepository.findOne({
+    // check for existing KYC
+    const existingKyc = await this.kycsRepository.findOne({
       renter_id: renter.roleExtra._id,
-      status: KycStatus.APPROVED,
     });
-    if (approvedKyc) {
-      throw new ConflictException("An approved KYC document already exists for this renter and  approved");
+    if (existingKyc) {
+      throw new ConflictException("An existing KYC document already exists for this renter");
     }
     const newKyc = new this.kycsRepository({
       ...createKycsDto,
