@@ -1,0 +1,45 @@
+name: Trigger auto deployment for be-nestjs
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/be-nestjs-AutoDeployTrigger-d594a7ab-f800-4097-8f57-db057d4904f6.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.BENESTJS_AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: ghcr.io
+          registryUsername: ${{ secrets.BENESTJS_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.BENESTJS_REGISTRY_PASSWORD }}
+          containerAppName: be-nestjs
+          resourceGroup: mma-sdn-project
+          imageToBuild: ghcr.io/be-nestjs:${{ github.sha }}
+          
+            
+
+     
+
