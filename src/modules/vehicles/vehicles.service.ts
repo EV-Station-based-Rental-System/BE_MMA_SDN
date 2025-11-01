@@ -91,47 +91,23 @@ export class VehicleService {
       },
     );
 
-    // Add lookup for current pricing
+    // Add lookup for current pricing using robust pipeline (treat null effective_to as open-ended)
     pipeline.push(
       {
         $lookup: {
           from: "pricings",
-          localField: "_id",
-          foreignField: "vehicle_id",
-          as: "pricing_all",
+          let: { v_id: "$_id" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$vehicle_id", "$$v_id"] } } },
+            { $match: { $expr: { $lte: ["$effective_from", currentDate] } } },
+            { $match: { $expr: { $gte: [{ $ifNull: ["$effective_to", currentDate] }, currentDate] } } },
+            { $sort: { effective_from: -1 } },
+            { $limit: 1 },
+          ],
+          as: "pricing",
         },
       },
-      {
-        $addFields: {
-          pricing: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: {
-                    $sortArray: {
-                      input: "$pricing_all",
-                      sortBy: { effective_from: -1 },
-                    },
-                  },
-                  as: "price",
-                  cond: {
-                    $and: [
-                      { $lte: ["$$price.effective_from", currentDate] },
-                      {
-                        $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
-                      },
-                    ],
-                  },
-                },
-              },
-              0,
-            ],
-          },
-        },
-      },
-      {
-        $project: { pricing_all: 0 },
-      },
+      { $addFields: { pricing: { $arrayElemAt: ["$pricing", 0] } } },
     );
 
     const allowedSortFields = ["model_year", "create_at"];
@@ -174,8 +150,12 @@ export class VehicleService {
     return ResponseMsg.ok("Vehicle hard-deleted successfully");
   }
 
-  async findOneWithPricingAndStation(id: string): Promise<VehicleWithPricingAndStation | null> {
-    const currentDate = new Date();
+  async findOneWithPricingAndStation(id: string, effectiveAt?: Date): Promise<VehicleWithPricingAndStation | null> {
+    console.log("id ne: ", id);
+
+    console.warn("Finding vehicle with pricing and station findOneWithPricingAndStation");
+
+    const currentDate = effectiveAt ?? new Date();
     const pipeline: any[] = [
       {
         $match: {
@@ -196,45 +176,39 @@ export class VehicleService {
           station: { $arrayElemAt: ["$station", 0] },
         },
       },
-      // Lookup current pricing
+      // Lookup current pricing (by effective date) using lookup pipeline for robustness
       {
         $lookup: {
           from: "pricings",
-          localField: "_id",
-          foreignField: "vehicle_id",
-          as: "pricing_all",
+          let: { v_id: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$vehicle_id", "$$v_id"] },
+              },
+            },
+            {
+              $match: {
+                $expr: { $lte: ["$effective_from", currentDate] },
+              },
+            },
+            {
+              $match: {
+                $expr: {
+                  $gte: [{ $ifNull: ["$effective_to", currentDate] }, currentDate],
+                },
+              },
+            },
+            { $sort: { effective_from: -1 } },
+            { $limit: 1 },
+          ],
+          as: "pricing",
         },
       },
       {
         $addFields: {
-          pricing: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: {
-                    $sortArray: {
-                      input: "$pricing_all",
-                      sortBy: { effective_from: -1 },
-                    },
-                  },
-                  as: "price",
-                  cond: {
-                    $and: [
-                      { $lte: ["$$price.effective_from", currentDate] },
-                      {
-                        $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
-                      },
-                    ],
-                  },
-                },
-              },
-              0,
-            ],
-          },
+          pricing: { $arrayElemAt: ["$pricing", 0] },
         },
-      },
-      {
-        $project: { pricing_all: 0 },
       },
     ];
     const result = await this.vehicleRepository.aggregate(pipeline);

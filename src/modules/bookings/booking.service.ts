@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model, Types } from "mongoose";
 import { Booking } from "src/models/booking.schema";
@@ -7,7 +7,6 @@ import { Renter } from "src/models/renter.schema";
 import { CreateBookingDto } from "./dto/createBooking.dto";
 import { FacetResult, RenterJwtUserPayload, StaffJwtUserPayload } from "src/common/utils/type";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
-import { KycStatus } from "src/common/enums/kyc.enum";
 import { VehicleStatus } from "src/common/enums/vehicle.enum";
 import { BadRequestException } from "src/common/exceptions/bad-request.exception";
 import { VehicleService } from "../vehicles/vehicles.service";
@@ -44,8 +43,7 @@ export class BookingService {
   constructor(
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
     @InjectModel(Kycs.name) private kycsRepository: Model<Kycs>,
-    @Inject(forwardRef(() => CashService))
-    private vehicleService: VehicleService,
+    private readonly vehicleService: VehicleService,
     private feeService: FeeService,
     private momoService: MomoService,
     private paymentService: PaymentService,
@@ -66,7 +64,7 @@ export class BookingService {
 
     // Type guard: since role is RENTER, roleExtra must be Renter type
     const renterData = user.data.roleExtra as Renter & { _id: Types.ObjectId };
-    const kyc = (await this.kycsRepository.findOne({ renter_id: renterData._id, status: KycStatus.APPROVED })) as Kycs;
+    const kyc = (await this.kycsRepository.findOne({ renter_id: renterData._id })) as Kycs;
     if (!kyc) {
       throw new NotFoundException("KYC not found");
     }
@@ -147,7 +145,9 @@ export class BookingService {
     deposit_fee_amount: number;
     rental_fee_amount: number;
   }> => {
-    const vehicle = await this.vehicleService.findOneWithPricingAndStation(vehicleId);
+    console.warn("toi day");
+
+    const vehicle = await this.vehicleService.findOneWithPricingAndStation(vehicleId, rental_start);
     if (!vehicle) {
       throw new NotFoundException("Vehicle not found");
     }
@@ -167,11 +167,24 @@ export class BookingService {
       throw new BadRequestException("Expected return time must be after rental start time");
     }
 
-    // Calculate fees (rental_fee = price_per_day * days, NOT days * rental_fee)
+    // Ensure active pricing exists for the selected date
+    if (!vehicle.pricing) {
+      throw new BadRequestException("No active pricing found for the selected rental date");
+    }
+    if (!vehicle.pricing.price_per_day || vehicle.pricing.price_per_day <= 0) {
+      throw new BadRequestException("Vehicle has no daily price configured");
+    }
+
+    // Calculate fees (rental_fee = price_per_day * days)
     const rentalDays = calculateRentalDays(startTime, endTime);
-    const deposit_fee_amount = vehicle.pricing ? vehicle.pricing.deposit_amount : 0;
-    const rental_fee_amount = vehicle.pricing?.price_per_day ? vehicle.pricing.price_per_day * rentalDays : 0;
+    const deposit_fee_amount = vehicle.pricing.deposit_amount ?? 0;
+    const rental_fee_amount = vehicle.pricing.price_per_day * rentalDays;
     const total_booking_fee_amount = rental_fee_amount + deposit_fee_amount;
+
+    console.log("rentalDays: ", rentalDays);
+    console.log("deposit_fee_amount: ", deposit_fee_amount);
+    console.log("rental_fee_amount: ", rental_fee_amount);
+    console.log("total_booking_fee_amount: ", total_booking_fee_amount);
 
     return {
       rental_days: rentalDays,
@@ -268,15 +281,18 @@ export class BookingService {
       new Date(createBookingDto.expected_return_datetime),
     );
     console.log(vehicleData.total_booking_fee_amount);
+
     // Step 4: check calculated total amount matches client sent amount
     if (vehicleData.total_booking_fee_amount !== createBookingDto.total_amount) {
       throw new BadRequestException("Total amount mismatch. Please refresh and try again.");
     }
+
     // Step 5: Initialize payment gateway (use backend calculated amount)
     const paymentCode = await this.getPaymentCode(createBookingDto);
     if (!paymentCode || !paymentCode.orderId || !paymentCode.payUrl) {
       throw new BadRequestException("Failed to initialize payment");
     }
+
     // Step 6: Create booking record with PENDING_VERIFICATION status
     const newBooking = new this.bookingRepository({
       renter_id: renterUser.roleExtra._id,
