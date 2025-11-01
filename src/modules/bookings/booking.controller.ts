@@ -10,8 +10,9 @@ import { Role } from "src/common/enums/role.enum";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { BookingPaginationDto } from "src/common/pagination/dto/booking/booking-pagination";
 import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
-import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
+import { SwaggerResponseDetailDto } from "src/common/response/swagger-generic.dto";
 import { Booking } from "src/models/booking.schema";
+import { BookingListResponse } from "./dto/booking-response.dto";
 
 @ApiExtraModels(Booking)
 @Controller("bookings")
@@ -56,7 +57,7 @@ export class BookingController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
-  @ApiOkResponse({ description: "List of bookings", type: SwaggerResponseListDto(Booking) })
+  @ApiOkResponse({ description: "List of bookings with populated relationships", type: BookingListResponse })
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
