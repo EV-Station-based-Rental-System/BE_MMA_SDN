@@ -89,10 +89,19 @@ export abstract class AbstractPaymentService {
   }
 
   async changeStatusPaymentToPaid(transaction_code: string): Promise<void> {
-    const findPayment = await this.paymentRepository.findOne({ transaction_code: transaction_code || "" });
+    if (!transaction_code) {
+      throw new NotFoundException("Transaction code is required");
+    }
+
+    const findPayment = await this.paymentRepository.findOne({ transaction_code: transaction_code });
     if (!findPayment) {
       throw new NotFoundException("Payment not found");
     }
+
+    if (!findPayment._id) {
+      throw new NotFoundException("Payment ID not found");
+    }
+
     await this.paymentRepository.findByIdAndUpdate(findPayment._id.toString(), {
       status: PaymentStatus.PAID,
     });
@@ -105,11 +114,16 @@ export abstract class AbstractPaymentService {
   }
 
   async handleReturnSuccess(payment: Payment): Promise<void> {
+    // Validate transaction code exists
+    if (!payment.transaction_code) {
+      throw new NotFoundException("Payment transaction code not found");
+    }
+
     // 1. Update payment status to PAID
-    await this.changeStatusPaymentToPaid(payment.transaction_code || "");
+    await this.changeStatusPaymentToPaid(payment.transaction_code);
 
     // 2. Get booking info with populated data
-    const paymentWithDetails = await this.getPaymentByTransactionCode(payment.transaction_code || "");
+    const paymentWithDetails = await this.getPaymentByTransactionCode(payment.transaction_code);
 
     const booking = paymentWithDetails.booking_id;
 
@@ -120,6 +134,11 @@ export abstract class AbstractPaymentService {
     // Validate vehicle_id exists
     if (!booking.vehicle_id) {
       throw new NotFoundException("Vehicle ID not found in booking");
+    }
+
+    // Validate booking _id exists
+    if (!booking._id) {
+      throw new NotFoundException("Booking ID not found");
     }
 
     // 3. Update booking status to VERIFIED (payment confirmed)

@@ -43,10 +43,20 @@ export class CashService extends AbstractPaymentService {
       throw new ConflictException("Payment already processed");
     }
 
+    // Validate payment has transaction_code
+    if (!payment.transaction_code) {
+      throw new NotFoundException("Payment transaction code not found");
+    }
+
     // confirm booking
     const booking = await this.bookingRepository.findById(payment.booking_id);
     if (!booking) {
       throw new NotFoundException("Booking not found");
+    }
+
+    // Ensure booking has proper _id type
+    if (!booking._id) {
+      throw new NotFoundException("Booking ID not found");
     }
 
     // Tạo changeStatus cho cash
