@@ -75,7 +75,7 @@ export class BookingController {
     return this.bookingService.getBookingById(id);
   }
 
-  @Get("renter/bookings")
+  @Get("history-renter")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.RENTER)
