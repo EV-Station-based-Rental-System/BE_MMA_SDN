@@ -4,25 +4,96 @@ name: Trigger auto deployment for be-nestjs
 on:
   # Automatically trigger it when detected changes in repo
   push:
-    branches: 
-      [ main ]
+    branches: [main]
     paths:
-    - '**'
-    - '.github/workflows/be-nestjs-AutoDeployTrigger-78c2d133-7639-47a8-ad17-d863b32264ec.yml'
+      - "**"
+      - ".github/workflows/be-nestjs-AutoDeployTrigger-78c2d133-7639-47a8-ad17-d863b32264ec.yml"
 
-  # Allow manual trigger 
-  workflow_dispatch:      
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  actions: write
+  deployments: write
+  pages: write
+  pull-requests: write
+  packages: write
 
 jobs:
   build-and-deploy:
+    env:
+      HUSKY: 0
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       id-token: write #This is required for requesting the OIDC JWT Token
       contents: read #Required when GH token is used to authenticate with private repo
 
     steps:
-      - name: Checkout to the branch
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - id: main
+        run: pnpm run build
+
+      - if: ${{ steps.main.outcome == 'failure' }}
+        run: exit 1
+
+      - name: Prune dev deps, keep only production deps
+        run: pnpm prune --prod
+
+      - uses: dopplerhq/cli-action@v3
+
+      - name: Pull secrets from Doppler
+        run: doppler secrets download --config prd --no-file --format env > .env
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+
+      # Make a lowercase owner for GHCR image path (Docker requires lowercase repo names)
+      - name: Compute lowercased owner
+        id: vars
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Azure Login
         uses: azure/login@v2
@@ -42,8 +113,6 @@ jobs:
           registryPassword: ${{ secrets.BENESTJS_REGISTRY_PASSWORD }}
           containerAppName: be-nestjs
           resourceGroup: mma-sdn-project
-          imageToBuild: ghcr.io/be-nestjs:${{ github.sha }}
+          imageToBuild: ghcr.io/${{ env.OWNER_LC }}/be-nestjs:${{ github.sha }}
           _buildArgumentsKey_: |
             _buildArgumentsValues_
-
-
