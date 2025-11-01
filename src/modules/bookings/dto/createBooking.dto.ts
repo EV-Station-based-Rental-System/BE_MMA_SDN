@@ -12,14 +12,15 @@ export class CreateBookingDto {
   payment_method: PaymentMethod;
 
   @ApiProperty({
-    description: "Total amount for the booking",
-    example: 100000,
+    description:
+      "Total amount to be charged. Must equal deposit_amount + (rental_days × price_per_day) based on the vehicle's active pricing. Rental days are calculated by ceiling the difference between start and end time.",
+    example: 2050000,
   })
   @IsNumber()
   total_amount: number;
   @ApiProperty({
-    description: "Vehicle ID",
-    example: "vehicle_id",
+    description: "Vehicle ID returned by the vehicle endpoints",
+    example: "690612a0e29fc4e4c647c16b",
   })
   @IsMongoId()
   vehicle_id: string;

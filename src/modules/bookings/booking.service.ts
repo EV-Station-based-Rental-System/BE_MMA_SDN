@@ -146,7 +146,13 @@ export class BookingService {
     deposit_fee_amount: number;
     rental_fee_amount: number;
   }> => {
-    const vehicle = await this.vehicleService.findOneWithPricingAndStation(vehicleId);
+    const startTime = new Date(rental_start);
+    const endTime = new Date(expected_return);
+
+    // Find vehicle with pricing valid for the rental start date (not current date)
+    const vehicle = await this.vehicleService.findOneWithPricingAndStation(vehicleId, startTime);
+    console.debug("Vehicle data for booking check:", vehicle);
+
     if (!vehicle) {
       throw new NotFoundException("Vehicle not found");
     }
@@ -159,18 +165,31 @@ export class BookingService {
       throw new BadRequestException("Vehicle not available");
     }
 
-    const startTime = new Date(rental_start);
-    const endTime = new Date(expected_return);
-
     if (startTime >= endTime) {
       throw new BadRequestException("Expected return time must be after rental start time");
     }
 
     // Calculate fees (rental_fee = price_per_day * days, NOT days * rental_fee)
     const rentalDays = calculateRentalDays(startTime, endTime);
-    const deposit_fee_amount = vehicle.pricing ? vehicle.pricing.deposit_amount : 0;
-    const rental_fee_amount = vehicle.pricing?.price_per_day ? vehicle.pricing.price_per_day * rentalDays : 0;
+
+    console.debug("=== Pricing Debug Info ===");
+    console.debug("Vehicle pricing object:", vehicle.pricing);
+    console.debug("Has pricing:", !!vehicle.pricing);
+
+    if (!vehicle.pricing) {
+      throw new BadRequestException(`No pricing found for vehicle ${vehicleId}. Please add pricing information for this vehicle before booking.`);
+    }
+
+    const deposit_fee_amount = vehicle.pricing.deposit_amount;
+    const rental_fee_amount = vehicle.pricing.price_per_day ? vehicle.pricing.price_per_day * rentalDays : 0;
     const total_booking_fee_amount = rental_fee_amount + deposit_fee_amount;
+
+    console.debug("Calculated booking fees:");
+    console.debug({ startTime, endTime });
+    console.debug({ rentalDays });
+    console.debug({ deposit_fee_amount });
+    console.debug({ rental_fee_amount });
+    console.debug({ total_booking_fee_amount });
 
     return {
       rental_days: rentalDays,
@@ -179,6 +198,26 @@ export class BookingService {
       rental_fee_amount,
     };
   };
+
+  private ensureVehicleObjectId(booking: Booking & { _id: Types.ObjectId }): mongoose.Types.ObjectId {
+    const currentVehicleId = booking.vehicle_id as unknown;
+
+    if (!currentVehicleId) {
+      throw new BadRequestException("Vehicle ID is missing from booking");
+    }
+
+    if (currentVehicleId instanceof mongoose.Types.ObjectId) {
+      return currentVehicleId;
+    }
+
+    if (typeof currentVehicleId === "string" && mongoose.Types.ObjectId.isValid(currentVehicleId)) {
+      const normalizedId = new mongoose.Types.ObjectId(currentVehicleId);
+      booking.vehicle_id = normalizedId;
+      return normalizedId;
+    }
+
+    throw new BadRequestException("Vehicle ID is invalid for booking");
+  }
   private async getPaymentCode(createBookingDto: CreateBookingDto): Promise<{ orderId: string; payUrl: string }> {
     switch (createBookingDto.payment_method) {
       case PaymentMethod.CASH:
@@ -195,7 +234,7 @@ export class BookingService {
     staffId: Types.ObjectId,
   ): Promise<void> {
     switch (changeStatus.verification_status) {
-      case BookingVerificationStatus.APPROVED:
+      case BookingVerificationStatus.APPROVED: {
         // Approve booking - vehicle is ready for pickup
         booking.verification_status = BookingVerificationStatus.APPROVED;
         booking.verified_by_staff_id = staffId;
@@ -205,21 +244,20 @@ export class BookingService {
         if (!booking._id) {
           throw new BadRequestException("Booking ID is missing");
         }
-        if (!booking.vehicle_id) {
-          throw new BadRequestException("Vehicle ID is missing from booking");
-        }
+        const vehicleObjectId = this.ensureVehicleObjectId(booking);
 
         // create rental record
         // step 6 create rental record
         await this.rentalService.create({
           booking_id: booking._id.toString(),
-          vehicle_id: booking.vehicle_id.toString(),
+          vehicle_id: vehicleObjectId.toString(),
           pickup_datetime: new Date(),
         });
         break;
+      }
 
       case BookingVerificationStatus.REJECTED_MISMATCH:
-      case BookingVerificationStatus.REJECTED_OTHER:
+      case BookingVerificationStatus.REJECTED_OTHER: {
         // Reject booking - need cancel reason
         if (!changeStatus.cancel_reason || changeStatus.cancel_reason.trim() === "") {
           throw new BadRequestException("Cancel reason is required when rejecting a booking");
@@ -234,10 +272,9 @@ export class BookingService {
 
         // TODO: Refund logic - return money to customer
         // Update vehicle status back to AVAILABLE
-        if (booking.vehicle_id) {
-          await this.vehicleService.updateVehicleStatus(booking.vehicle_id.toString(), { status: VehicleStatus.AVAILABLE });
-        }
+        await this.vehicleService.updateVehicleStatus(this.ensureVehicleObjectId(booking).toString(), { status: VehicleStatus.AVAILABLE });
         break;
+      }
 
       case BookingVerificationStatus.PENDING:
         // Change back to pending
@@ -444,13 +481,21 @@ export class BookingService {
                   $arrayElemAt: [
                     {
                       $filter: {
-                        input: "$pricing_all",
+                        input: {
+                          $sortArray: {
+                            input: "$pricing_all",
+                            sortBy: { effective_from: -1, created_at: -1 },
+                          },
+                        },
                         as: "price",
                         cond: {
                           $and: [
                             { $lte: ["$$price.effective_from", currentDate] },
                             {
-                              $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                              $or: [
+                                { $not: { $ifNull: ["$$price.effective_to", false] } }, // effective_to is null or undefined
+                                { $gte: ["$$price.effective_to", currentDate] },
+                              ],
                             },
                           ],
                         },
@@ -588,13 +633,21 @@ export class BookingService {
                   $arrayElemAt: [
                     {
                       $filter: {
-                        input: "$pricing_all",
+                        input: {
+                          $sortArray: {
+                            input: "$pricing_all",
+                            sortBy: { effective_from: -1, created_at: -1 },
+                          },
+                        },
                         as: "price",
                         cond: {
                           $and: [
                             { $lte: ["$$price.effective_from", currentDate] },
                             {
-                              $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                              $or: [
+                                { $not: { $ifNull: ["$$price.effective_to", false] } }, // effective_to is null or undefined
+                                { $gte: ["$$price.effective_to", currentDate] },
+                              ],
                             },
                           ],
                         },
@@ -639,7 +692,9 @@ export class BookingService {
       throw new BadRequestException("Only bookings with PENDING verification status can be deleted");
     }
     // convert vehicle in station to AVAILABLE
-    await this.vehicleService.updateVehicleStatus(booking.vehicle_id.toString(), { status: VehicleStatus.AVAILABLE });
+    await this.vehicleService.updateVehicleStatus(this.ensureVehicleObjectId(booking as Booking & { _id: Types.ObjectId }).toString(), {
+      status: VehicleStatus.AVAILABLE,
+    });
     // convert payment to failed
     await this.paymentService.changeStatus(booking._id.toString(), PaymentStatus.FAILED);
 
@@ -653,11 +708,26 @@ export class BookingService {
     }
 
     const renter = userData.data as UserWithRenterRole;
+    const renterRoleId = renter.roleExtra?._id;
+    const renterObjectId =
+      renterRoleId instanceof mongoose.Types.ObjectId
+        ? renterRoleId
+        : typeof renterRoleId === "string" && mongoose.Types.ObjectId.isValid(renterRoleId)
+          ? new mongoose.Types.ObjectId(renterRoleId)
+          : null;
+
+    const page = filters.page ?? 1;
+    const take = Math.min(filters.take ?? 10, 100);
+
+    if (!renterObjectId) {
+      return ResponseList.ok(buildPaginationResponse([], { total: 0, page, take }));
+    }
+
     const pipeline: any[] = [];
     const currentDate = new Date();
     pipeline.push(
       {
-        $match: { renter_id: new mongoose.Types.ObjectId(renter.roleExtra?._id) },
+        $match: { renter_id: renterObjectId },
       },
       {
         $lookup: {
@@ -754,13 +824,21 @@ export class BookingService {
                   $arrayElemAt: [
                     {
                       $filter: {
-                        input: "$pricing_all",
+                        input: {
+                          $sortArray: {
+                            input: "$pricing_all",
+                            sortBy: { effective_from: -1, created_at: -1 },
+                          },
+                        },
                         as: "price",
                         cond: {
                           $and: [
                             { $lte: ["$$price.effective_from", currentDate] },
                             {
-                              $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                              $or: [
+                                { $not: { $ifNull: ["$$price.effective_to", false] } }, // effective_to is null or undefined
+                                { $gte: ["$$price.effective_to", currentDate] },
+                              ],
                             },
                           ],
                         },
@@ -786,12 +864,12 @@ export class BookingService {
     applyCommonFiltersMongo(pipeline, filters, BookingFieldMapping);
     const allowedSortFields = ["total_booking_fee_amount", "create_at", "status"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
-    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
+    applyPaginationMongo(pipeline, { page, take });
     applyFacetMongo(pipeline);
     const result = (await this.bookingRepository.aggregate(pipeline)) as FacetResult<Booking>;
     const data = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
 
-    return ResponseList.ok(buildPaginationResponse(data, { total, page: filters.page, take: filters.take }));
+    return ResponseList.ok(buildPaginationResponse(data, { total, page, take }));
   }
 }

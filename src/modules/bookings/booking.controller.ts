@@ -39,7 +39,11 @@ export class BookingController {
     },
   })
   @ApiErrorResponses()
-  @ApiBody({ type: CreateBookingDto })
+  @ApiBody({
+    type: CreateBookingDto,
+    description:
+      "Client must send a total_amount that matches the server-side calculation: deposit_amount + (rental_days × price_per_day) for the selected vehicle. Rental days are rounded up based on the difference between rental_start_datetime and expected_return_datetime.",
+  })
   createBooking(@Body() createBookingDto: CreateBookingDto, @Req() req: { user: RenterJwtUserPayload }) {
     return this.bookingService.createBooking(createBookingDto, req.user);
   }
