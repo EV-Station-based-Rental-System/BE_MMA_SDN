@@ -1,0 +1,49 @@
+name: Trigger auto deployment for be-nestjs
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/be-nestjs-AutoDeployTrigger-78c2d133-7639-47a8-ad17-d863b32264ec.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.BENESTJS_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.BENESTJS_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.BENESTJS_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: ghcr.io
+          registryUsername: ${{ secrets.BENESTJS_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.BENESTJS_REGISTRY_PASSWORD }}
+          containerAppName: be-nestjs
+          resourceGroup: mma-sdn-project
+          imageToBuild: ghcr.io/be-nestjs:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
