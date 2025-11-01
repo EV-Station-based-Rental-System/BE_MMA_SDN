@@ -6,6 +6,7 @@ import { Types } from "mongoose";
 import { InspectionType } from "../enums/inspection.enum";
 import { BookingStatus, BookingVerificationStatus } from "../enums/booking.enum";
 import { RentalStatus } from "../enums/rental.enum";
+import { ApiProperty } from "@nestjs/swagger";
 
 export type BaseJwtUserPayload = Pick<User, "email" | "full_name" | "role"> & {
   _id: string;
@@ -136,70 +137,146 @@ export type VehicleAtStationAggregateResult = {
     excess_mileage_fee: number;
   };
 };
-export type UserInfo = {
+export class UserInfo {
+  @ApiProperty({ example: "6901a99d315708186850886c" })
   _id: string;
+
+  @ApiProperty({ example: "ttei8191@gmail.com" })
   email: string;
+
+  @ApiProperty({ example: "Chấn" })
   full_name: string;
-};
-export type RenterInfo = {
+}
+
+export class RenterInfo {
+  @ApiProperty({ example: "6901a99d315708186850886e" })
   _id: string;
+
+  @ApiProperty({ example: "123456789" })
   address: string;
+
+  @ApiProperty({ example: "2004-12-28T00:00:00.000Z" })
   date_of_birth: string;
-  user: UserInfo;
-};
 
-export type StaffInfo = {
+  @ApiProperty({ type: () => UserInfo })
+  user: UserInfo;
+}
+
+export class StaffInfo {
+  @ApiProperty({ example: "6901a76d8e3f7ff9736ecbb6" })
   _id: string;
+
+  @ApiProperty({ example: "661446" })
   employee_code: string;
+
+  @ApiProperty({ example: "Staff" })
   position: string;
+
+  @ApiProperty({ type: () => UserInfo })
   user: UserInfo;
-};
+}
 
-export type ReportPhotoInfo = {
+export class ReportPhotoInfo {
+  @ApiProperty({ example: "report_photo_id_123" })
   _id: string;
+
+  @ApiProperty({ example: "https://example.com/photo.jpg" })
   url: string;
+
+  @ApiProperty({ example: "Pre-rental inspection photo" })
   label: string;
-};
+}
 
-export type InspectionInfo = {
+export class InspectionInfo {
+  @ApiProperty({ example: "inspection_id_123" })
   _id: string;
+
+  @ApiProperty({ enum: InspectionType, example: InspectionType.PRE_RENTAL })
   type: InspectionType.PRE_RENTAL | InspectionType.POST_RENTAL;
-  inspected_at: string;
-  current_battery_capacity_kwh: number;
-  current_mileage: number;
-  inspector: StaffInfo | null;
-  report_photos: ReportPhotoInfo[];
-};
 
-export type BookingInfo = {
+  @ApiProperty({ example: "2025-10-30T09:07:24.256Z" })
+  inspected_at: string;
+
+  @ApiProperty({ example: 75 })
+  current_battery_capacity_kwh: number;
+
+  @ApiProperty({ example: 5000 })
+  current_mileage: number;
+
+  @ApiProperty({ type: () => StaffInfo, nullable: true })
+  inspector: StaffInfo | null;
+
+  @ApiProperty({ type: () => [ReportPhotoInfo] })
+  report_photos: ReportPhotoInfo[];
+}
+
+export class BookingInfo {
+  @ApiProperty({ example: "690329d529814937d93daef8" })
   _id: string;
+
+  @ApiProperty({ example: "2025-10-30T10:00:00.000Z" })
   rental_start_datetime: string;
+
+  @ApiProperty({ example: "2025-11-01T10:00:00.000Z" })
   expected_return_datetime: string;
+
+  @ApiProperty({ enum: BookingStatus, example: BookingStatus.VERIFIED })
   status: BookingStatus.PENDING_VERIFICATION | BookingStatus.VERIFIED | BookingStatus.CANCELLED;
+
+  @ApiProperty({ enum: BookingVerificationStatus, example: BookingVerificationStatus.APPROVED })
   verification_status:
     | BookingVerificationStatus.APPROVED
     | BookingVerificationStatus.PENDING
     | BookingVerificationStatus.REJECTED_MISMATCH
     | BookingVerificationStatus.REJECTED_OTHER;
+
+  @ApiProperty({ example: 2000000 })
   total_booking_fee_amount: number;
+
+  @ApiProperty({ example: 1000000 })
   deposit_fee_amount: number;
+
+  @ApiProperty({ example: 1000000 })
   rental_fee_amount: number;
+
+  @ApiProperty({ example: "2025-10-30T09:07:24.256Z" })
   verified_at: string;
+
+  @ApiProperty({ type: () => RenterInfo, nullable: true })
   renter: RenterInfo | null;
+
+  @ApiProperty({ type: () => StaffInfo, nullable: true })
   verified_staff: StaffInfo | null;
-};
-export type ContractInfo = {
+}
+
+export class ContractInfo {
+  @ApiProperty({ example: "contract_id_123" })
   _id: string;
+
+  @ApiProperty({ example: "https://example.com/contract.pdf" })
   document_url: string;
-};
+}
 
 export class ReturnRentalMapping {
+  @ApiProperty({ example: "69032acce31073a40b87002c" })
   _id: string;
+
+  @ApiProperty({ example: "2025-10-30T09:07:24.256Z" })
   pickup_datetime: string;
+
+  @ApiProperty({ enum: RentalStatus, example: RentalStatus.RESERVED })
   status: RentalStatus.RESERVED | RentalStatus.IN_PROGRESS | RentalStatus.COMPLETED | RentalStatus.LATE | RentalStatus.CANCELLED;
+
+  @ApiProperty({ example: "2025-10-30T09:07:24.259Z" })
   created_at: string;
+
+  @ApiProperty({ type: () => BookingInfo, nullable: true })
   booking: BookingInfo | null;
+
+  @ApiProperty({ type: () => [InspectionInfo] })
   inspections: InspectionInfo[];
+
+  @ApiProperty({ type: () => ContractInfo, nullable: true })
   contract: ContractInfo | null;
 }
 

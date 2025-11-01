@@ -11,13 +11,14 @@ import { UserPaginationDto } from "src/common/pagination/dto/user/user-paginatio
 import { ResponseMsg } from "src/common/response/response-message";
 import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
 import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
-import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
+import { SwaggerResponseListDto, SwaggerResponseDetailDto } from "src/common/response/swagger-generic.dto";
 import { Renter } from "src/models/renter.schema";
 import { Staff } from "src/models/staff.schema";
 import { User } from "src/models/user.schema";
+import { Kycs } from "src/models/kycs.schema";
 import { UserWithRoleExtra } from "src/common/interfaces/user.interface";
 
-@ApiExtraModels(Renter, Staff, User)
+@ApiExtraModels(Renter, Staff, User, Kycs, UserWithRoleExtra)
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -26,7 +27,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.STAFF)
-  @ApiOkResponse({ description: "List of renter", type: SwaggerResponseListDto(UserWithRoleExtra) })
+  @ApiOkResponse({ description: "List of renters with populated roleExtra", type: SwaggerResponseListDto(UserWithRoleExtra) })
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
@@ -60,7 +61,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
-  @ApiOkResponse({ description: "User details", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
+  @ApiOkResponse({ description: "User details with populated roleExtra", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
   @ApiErrorResponses()
   async findOne(@Param("id") id: string) {
     return this.usersService.findOne(id);
@@ -70,7 +71,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
-  @ApiOkResponse({ description: "Renter updated", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
+  @ApiOkResponse({ description: "Renter updated with populated roleExtra", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
   @ApiErrorResponses()
   @ApiBody({ type: UpdateRenterDto })
   updateRenter(@Param("id") id: string, @Body() body: UpdateRenterDto) {
@@ -81,7 +82,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiOkResponse({ description: "Staff updated", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
+  @ApiOkResponse({ description: "Staff updated with populated roleExtra", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
   @ApiErrorResponses()
   @ApiBody({ type: UpdateStaffDto })
   updateStaff(@Param("id") id: string, @Body() body: UpdateStaffDto) {
