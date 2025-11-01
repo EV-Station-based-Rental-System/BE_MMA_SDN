@@ -3,5 +3,4 @@ export enum VehicleStatus {
   AVAILABLE = "available",
   BOOKED = "booked",
   PENDING = "pending_booking",
-  RENTED = "rented",
 }

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 
-@Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
+@Schema({ timestamps: { createdAt: false, updatedAt: false } })
 export class Pricing {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Vehicle", required: true, index: true })
   vehicle_id: mongoose.Types.ObjectId;

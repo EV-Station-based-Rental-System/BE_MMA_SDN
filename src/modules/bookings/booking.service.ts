@@ -44,15 +44,13 @@ export class BookingService {
   constructor(
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
     @InjectModel(Kycs.name) private kycsRepository: Model<Kycs>,
-
+    @Inject(forwardRef(() => CashService))
     private vehicleService: VehicleService,
     private feeService: FeeService,
     private momoService: MomoService,
     private paymentService: PaymentService,
     private readonly userService: UsersService,
     private readonly rentalService: RentalService,
-
-    @Inject(forwardRef(() => CashService))
     private readonly cashService: CashService,
   ) {}
 
@@ -73,19 +71,20 @@ export class BookingService {
       throw new NotFoundException("KYC not found");
     }
     const currentDate = new Date();
-    if (kyc.verified_at) {
-      if (!kyc.expiry_date) {
-        throw new NotFoundException("KYC expiry date not found");
-      }
-      const expiryDate = new Date(kyc.expiry_date);
-      const extendedExpiry = new Date(expiryDate);
-      extendedExpiry.setFullYear(expiryDate.getFullYear() + 1);
-      if (currentDate > extendedExpiry) {
-        throw new NotFoundException("KYC expired");
-      }
-    } else {
-      throw new NotFoundException("KYC verified date not found");
+
+    if (!kyc.expiry_date) {
+      throw new NotFoundException("KYC expiry date not found");
     }
+    const expiryDate = new Date(kyc.expiry_date);
+    const extendedExpiry = new Date(expiryDate);
+    extendedExpiry.setFullYear(expiryDate.getFullYear() + 1);
+    if (currentDate > extendedExpiry) {
+      throw new NotFoundException("KYC expired");
+    }
+    // if (kyc.verified_at) {
+    // } else {
+    //   throw new NotFoundException("KYC verified date not found");
+    // }
 
     return true;
   };
@@ -114,6 +113,7 @@ export class BookingService {
       roleExtra: renterData,
     } as unknown as UserWithRenterRole;
   };
+
   checkStaffExists = async (userId: string): Promise<UserWithStaffRole> => {
     const user = await this.userService.findOne(userId);
     if (!user || !user.data) {
@@ -136,6 +136,7 @@ export class BookingService {
       roleExtra: staffData,
     } as UserWithStaffRole;
   };
+
   private checkVehicle = async (
     vehicleId: string,
     rental_start: Date,
@@ -179,6 +180,7 @@ export class BookingService {
       rental_fee_amount,
     };
   };
+
   private async getPaymentCode(createBookingDto: CreateBookingDto): Promise<{ orderId: string; payUrl: string }> {
     switch (createBookingDto.payment_method) {
       case PaymentMethod.CASH:
@@ -189,6 +191,7 @@ export class BookingService {
         throw new BadRequestException("Unsupported payment method");
     }
   }
+
   private async handleVerificationStatusChange(
     booking: Booking & { _id: Types.ObjectId },
     changeStatus: ChangeStatusBookingDto,
@@ -322,6 +325,7 @@ export class BookingService {
     // Step 9: Return payment URL
     return ResponseDetail.ok({ payUrl: paymentCode.payUrl });
   }
+
   async confirmBooking(id: string, user: StaffJwtUserPayload, changeStatus: ChangeStatusBookingDto): Promise<ResponseDetail<Booking>> {
     // Step 1: Validate staff exists
     const staffUser = await this.checkStaffExists(user._id);
@@ -481,9 +485,9 @@ export class BookingService {
     const result = (await this.bookingRepository.aggregate(pipeline)) as FacetResult<Booking>;
     const data = result[0]?.data || [];
     const total = result[0]?.meta?.[0]?.total || 0;
-
     return ResponseList.ok(buildPaginationResponse(data, { total, page: filters.page, take: filters.take }));
   }
+
   async getBookingById(id: string): Promise<ResponseDetail<Booking | null>> {
     const pipeline: any[] = [];
     const currentDate = new Date();
@@ -646,6 +650,7 @@ export class BookingService {
     await this.bookingRepository.findByIdAndUpdate(id, { status: BookingStatus.CANCELLED });
     return ResponseMsg.ok("Booking deleted successfully");
   }
+
   async getBookingByRenter(filters: BookingPaginationDto, user: RenterJwtUserPayload): Promise<ResponseList<Booking>> {
     const userData = await this.userService.findOneRenter(user._id);
     if (!userData || !userData.data) {
