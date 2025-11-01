@@ -36,6 +36,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
 
+  // Log all environment variables
+  console.log("=== Environment Variables ===");
+  console.log(process.env);
+  console.log("============================");
+
   const port = Number(process.env.PORT ?? 3001);
   const host = process.env.HOST ?? "0.0.0.0";
   await app.listen(port, host);

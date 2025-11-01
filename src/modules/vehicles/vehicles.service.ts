@@ -110,7 +110,7 @@ export class VehicleService {
                   input: {
                     $sortArray: {
                       input: "$pricing_all",
-                      sortBy: { effective_from: -1 },
+                      sortBy: { effective_from: -1, created_at: -1 },
                     },
                   },
                   as: "price",
@@ -118,7 +118,10 @@ export class VehicleService {
                     $and: [
                       { $lte: ["$$price.effective_from", currentDate] },
                       {
-                        $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                        $or: [
+                          { $not: { $ifNull: ["$$price.effective_to", false] } }, // effective_to is null or undefined
+                          { $gte: ["$$price.effective_to", currentDate] },
+                        ],
                       },
                     ],
                   },
@@ -174,8 +177,13 @@ export class VehicleService {
     return ResponseMsg.ok("Vehicle hard-deleted successfully");
   }
 
-  async findOneWithPricingAndStation(id: string): Promise<VehicleWithPricingAndStation | null> {
-    const currentDate = new Date();
+  async findOneWithPricingAndStation(id: string, pricingDate?: Date): Promise<VehicleWithPricingAndStation | null> {
+    const currentDate = pricingDate || new Date();
+    console.debug("=== Pricing Query Debug ===");
+    console.debug("Vehicle ID:", id);
+    console.debug("Date for pricing filter:", currentDate);
+    console.debug("Using custom pricing date:", !!pricingDate);
+
     const pipeline: any[] = [
       {
         $match: {
@@ -205,6 +213,17 @@ export class VehicleService {
           as: "pricing_all",
         },
       },
+    ];
+
+    // First, let's see ALL pricing records before filtering
+    const resultWithAllPricing = await this.vehicleRepository.aggregate(pipeline);
+    if (resultWithAllPricing[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      console.debug("ALL pricing records for vehicle (before filtering):", JSON.stringify(resultWithAllPricing[0].pricing_all, null, 2));
+    }
+
+    // Now add the filtering logic
+    pipeline.push(
       {
         $addFields: {
           pricing: {
@@ -214,7 +233,7 @@ export class VehicleService {
                   input: {
                     $sortArray: {
                       input: "$pricing_all",
-                      sortBy: { effective_from: -1 },
+                      sortBy: { effective_from: -1, created_at: -1 },
                     },
                   },
                   as: "price",
@@ -222,7 +241,10 @@ export class VehicleService {
                     $and: [
                       { $lte: ["$$price.effective_from", currentDate] },
                       {
-                        $or: [{ $eq: ["$$price.effective_to", null] }, { $gte: ["$$price.effective_to", currentDate] }],
+                        $or: [
+                          { $not: { $ifNull: ["$$price.effective_to", false] } }, // effective_to is null or undefined
+                          { $gte: ["$$price.effective_to", currentDate] },
+                        ],
                       },
                     ],
                   },
@@ -236,8 +258,16 @@ export class VehicleService {
       {
         $project: { pricing_all: 0 },
       },
-    ];
+    );
     const result = await this.vehicleRepository.aggregate(pipeline);
+
+    if (result[0]) {
+      const vehicleResult = result[0] as VehicleWithPricingAndStation;
+      console.debug("Selected pricing after filter:", JSON.stringify(vehicleResult.pricing || null, null, 2));
+    } else {
+      console.debug("No vehicle found with ID:", id);
+    }
+
     return (result[0] as VehicleWithPricingAndStation) || null;
   }
 
