@@ -108,4 +108,4 @@ jobs:
           registryPassword: ${{ secrets.BENESTJS_REGISTRY_PASSWORD }}
           containerAppName: be-nestjs
           resourceGroup: mma-sdn-project
-          imageToBuild: ghcr.io/be-nestjs:${{ github.sha }}
+          imageToBuild: ghcr.io/${{ env.OWNER_LC }}/be-nestjs:${{ github.sha }}
