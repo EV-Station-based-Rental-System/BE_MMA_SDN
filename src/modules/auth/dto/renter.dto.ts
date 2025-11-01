@@ -4,11 +4,6 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class RenterDto extends UserDto {
   @ApiProperty({
-    description: "Driver license number of the renter (optional)",
-    example: "123456789",
-    required: false,
-  })
-  @ApiProperty({
     description: "Address of the renter (optional)",
     example: "123 FPT",
     required: false,

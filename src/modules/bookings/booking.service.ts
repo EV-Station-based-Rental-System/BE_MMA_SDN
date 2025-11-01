@@ -194,6 +194,15 @@ export class BookingService {
         booking.verification_status = BookingVerificationStatus.APPROVED;
         booking.verified_by_staff_id = staffId;
         booking.verified_at = new Date();
+
+        // Validate required fields before creating rental
+        if (!booking._id) {
+          throw new BadRequestException("Booking ID is missing");
+        }
+        if (!booking.vehicle_id) {
+          throw new BadRequestException("Vehicle ID is missing from booking");
+        }
+
         // create rental record
         // step 6 create rental record
         await this.rentalService.create({
@@ -219,7 +228,9 @@ export class BookingService {
 
         // TODO: Refund logic - return money to customer
         // Update vehicle status back to AVAILABLE
-        await this.vehicleService.updateVehicleStatus(booking.vehicle_id.toString(), { status: VehicleStatus.AVAILABLE });
+        if (booking.vehicle_id) {
+          await this.vehicleService.updateVehicleStatus(booking.vehicle_id.toString(), { status: VehicleStatus.AVAILABLE });
+        }
         break;
 
       case BookingVerificationStatus.PENDING:
