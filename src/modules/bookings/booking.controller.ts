@@ -74,4 +74,27 @@ export class BookingController {
   async getBookingById(@Param("id") id: string) {
     return this.bookingService.getBookingById(id);
   }
+
+  @Get("renter/bookings")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.RENTER)
+  @ApiOkResponse({ description: "List of renter's bookings", type: SwaggerResponseListDto(Booking) })
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
+  @ApiErrorResponses()
+  async getBookingsByRenter(@Query() filters: BookingPaginationDto, @Req() req: { user: RenterJwtUserPayload }) {
+    const { page = 1, take = 10, ...restFilters } = filters;
+    return this.bookingService.getBookingByRenter({ page, take: Math.min(take, 100), ...restFilters }, req.user);
+  }
+
+  @Patch("cancel/:id")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.RENTER)
+  @ApiOkResponse({ description: "Booking cancelled", type: SwaggerResponseDetailDto(Booking) })
+  @ApiErrorResponses()
+  async cancelBooking(@Param("id") id: string) {
+    return this.bookingService.cancelBooking(id);
+  }
 }

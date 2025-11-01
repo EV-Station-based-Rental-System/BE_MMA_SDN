@@ -12,4 +12,7 @@ export class PaymentService {
     const createdPayment = new this.paymentModel(createPaymentDto);
     return createdPayment.save();
   }
+  async changeStatus(paymentId: string, status: string) {
+    return this.paymentModel.findByIdAndUpdate(paymentId, { status }, { new: true });
+  }
 }
