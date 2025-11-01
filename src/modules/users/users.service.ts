@@ -121,8 +121,28 @@ export class UsersService {
         },
       },
       {
+        $unwind: {
+          path: "$staff",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "stations",
+          localField: "staff.station_id",
+          foreignField: "_id",
+          as: "staff.station",
+        },
+      },
+      {
+        $unwind: {
+          path: "$staff.station",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $addFields: {
-          roleExtra: { $arrayElemAt: ["$staff", 0] },
+          roleExtra: "$staff",
         },
       },
       { $project: { staff: 0 } },
@@ -200,8 +220,28 @@ export class UsersService {
         },
       },
       {
+        $unwind: {
+          path: "$staff",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "stations",
+          localField: "staff.station_id",
+          foreignField: "_id",
+          as: "staff.station",
+        },
+      },
+      {
+        $unwind: {
+          path: "$staff.station",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $addFields: {
-          roleExtra: { $arrayElemAt: ["$staff", 0] },
+          roleExtra: "$staff",
         },
       },
       { $project: { staff: 0 } },

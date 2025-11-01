@@ -16,9 +16,10 @@ import { Renter } from "src/models/renter.schema";
 import { Staff } from "src/models/staff.schema";
 import { User } from "src/models/user.schema";
 import { Kycs } from "src/models/kycs.schema";
+import { Station } from "src/models/station.schema";
 import { UserWithRoleExtra } from "src/common/interfaces/user.interface";
 
-@ApiExtraModels(Renter, Staff, User, Kycs, UserWithRoleExtra)
+@ApiExtraModels(Renter, Staff, User, Kycs, Station, UserWithRoleExtra)
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
