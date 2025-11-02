@@ -16,6 +16,7 @@ import { PaymentModule } from "./modules/payments/payment.module";
 import { InspectionsModule } from "./modules/inspections/inspections.module";
 import { ContractModule } from "./modules/contracts/contract.module";
 import { RentalModule } from "./modules/rentals/rental.module";
+import { ReportsModule } from "./modules/reports/reports.module";
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { RentalModule } from "./modules/rentals/rental.module";
     MailModule,
     RedisModule,
     StationModule,
+    ReportsModule,
     ImagekitModule,
   ],
 })

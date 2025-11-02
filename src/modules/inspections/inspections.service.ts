@@ -148,8 +148,6 @@ export class InspectionsService {
         damage_found: true,
         damage_notes: completeDto.damage_notes || "",
         damage_price: completeDto.damage_price || 0,
-        is_over_deposit: completeDto.is_over_deposit || false,
-        over_deposit_fee_amount: completeDto.over_deposit_fee_amount || 0,
       });
       await newReport.save();
       report = newReport;
