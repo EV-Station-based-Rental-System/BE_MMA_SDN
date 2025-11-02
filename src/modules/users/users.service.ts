@@ -40,10 +40,8 @@ export class UsersService {
   ) { }
 
   async findAllUser(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
-    const pipeline: any[] = [];
-
-    // Only get renter users
-    pipeline.push(
+    const pipeline: any[] = [
+      // Only get renter users
       { $match: { role: "renter" } },
       {
         $lookup: {
@@ -55,25 +53,30 @@ export class UsersService {
       },
       {
         $addFields: {
-          renter: { $arrayElemAt: ["$renter", 0] },
+          roleExtra: { $arrayElemAt: ["$renter", 0] },
         },
       },
       {
         $lookup: {
           from: this.kycsRepository.collection.name,
-          localField: "renter._id",
+          localField: "roleExtra._id",
           foreignField: "renter_id",
           as: "kycs",
         },
       },
       {
         $addFields: {
-          roleExtra: "$renter",
-          kycs: { $arrayElemAt: ["$kycs", 0] },
+          kycs: {
+            $cond: {
+              if: { $eq: [{ $size: "$kycs" }, 0] },
+              then: null,
+              else: { $arrayElemAt: ["$kycs", 0] },
+            },
+          },
         },
       },
       { $project: { renter: 0 } },
-    );
+    ];
 
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
 
@@ -197,9 +200,7 @@ export class UsersService {
       },
       {
         $addFields: {
-          kycs: {
-            $ifNull: [{ $arrayElemAt: ["$kycs", 0] }, null],
-          },
+          kycs: { $arrayElemAt: ["$kycs", 0] },
         },
       },
       {
@@ -320,14 +321,8 @@ export class UsersService {
       { new: true, upsert: true },
     );
 
-    // Get kycs if exists
-    const kycs = await this.kycsRepository.findOne({ renter_id: renter?._id });
-
-    const userWithRoleExtra = user as UserWithRoleExtra;
-    userWithRoleExtra.roleExtra = renter;
-    userWithRoleExtra.kycs = kycs || null;
-
-    return ResponseDetail.ok(userWithRoleExtra);
+    (user as UserWithRoleExtra).roleExtra = renter;
+    return ResponseDetail.ok(user as UserWithRoleExtra);
   }
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
