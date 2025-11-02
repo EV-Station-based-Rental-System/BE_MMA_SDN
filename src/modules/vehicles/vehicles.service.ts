@@ -18,15 +18,19 @@ import { ResponseMsg } from "src/common/response/response-message";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 // import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
 import { Station } from "src/models/station.schema";
+import { ImagekitService } from "src/common/imagekit/imagekit.service";
+import { ChangeStatusDto } from "../rentals/dto/changeStatus.dto";
 
 @Injectable()
 export class VehicleService {
   constructor(
     @InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>,
     @InjectModel(Station.name) private stationRepository: Model<Station>,
+
+    private readonly imagekitService: ImagekitService,
   ) {}
 
-  async create(createVehicleDto: CreateVehicleDto): Promise<ResponseDetail<Vehicle>> {
+  async create(createVehicleDto: CreateVehicleDto, imageFile?: any): Promise<ResponseDetail<Vehicle>> {
     // check station
     if (!createVehicleDto.station_id) {
       throw new NotFoundException("Station ID is required");
@@ -39,47 +43,36 @@ export class VehicleService {
       throw new NotFoundException("Station is inactive");
     }
     // check vin number unique
-    const existingVehicle = await this.vehicleRepository.findOne({ vin_number: createVehicleDto.vin_number });
-    if (existingVehicle) {
-      throw new NotFoundException("VIN number already exists");
+    if (createVehicleDto.vin_number) {
+      const existingVehicle = await this.vehicleRepository.findOne({ vin_number: createVehicleDto.vin_number });
+      if (existingVehicle) {
+        throw new NotFoundException("VIN number already exists");
+      }
     }
-    const newVehicle = new this.vehicleRepository(createVehicleDto);
+
+    // Upload image to ImageKit if file is provided
+    let imageUrl: string | undefined;
+    let image_kit_file_id: string | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (imageFile?.buffer) {
+      const fileName = createVehicleDto.label ? `${createVehicleDto.label}_${Date.now()}` : `vehicle_${Date.now()}`;
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      const uploadResult = await this.imagekitService.uploadVehicleImage(imageFile.buffer, fileName);
+      if (uploadResult.data) {
+        imageUrl = uploadResult.data.url;
+        image_kit_file_id = uploadResult.data.fileId;
+      }
+    }
+
+    const newVehicle = new this.vehicleRepository({
+      ...createVehicleDto,
+      img_url: imageUrl,
+      image_kit_file_id: image_kit_file_id,
+    });
     const savedVehicle = await newVehicle.save();
     return ResponseDetail.ok(savedVehicle);
   }
-
-  // async createWithStationAndPricing(createDto: CreateVehicleWithStationAndPricingDto): Promise<ResponseDetail<VehicleWithPricingAndStation>> {
-  //   // Step 1: Verify the station exists
-  //   const stationResponse = await this.stationService.findOne(createDto.station_id);
-  //   if (!stationResponse.data) {
-  //     throw new NotFoundException("Station not found");
-  //   }
-
-  //   // Step 2: Create the vehicle with the station_id
-  //   const stationId = new mongoose.Types.ObjectId(createDto.station_id);
-  //   const vehicleData = {
-  //     ...createDto.vehicle,
-  //     station_id: stationId,
-  //   };
-  //   const newVehicle = new this.vehicleRepository(vehicleData);
-  //   const savedVehicle = await newVehicle.save();
-
-  //   // Step 3: Create the pricing with the vehicle_id
-  //   const pricingData = {
-  //     ...createDto.pricing,
-  //     vehicle_id: savedVehicle._id.toString(),
-  //   };
-  //   await this.pricingService.create(pricingData);
-
-  //   // Step 4: Fetch the complete vehicle with station and pricing
-  //   const vehicleWithDetails = await this.findOneWithPricingAndStation(savedVehicle._id.toString());
-
-  //   if (!vehicleWithDetails) {
-  //     throw new NotFoundException("Failed to retrieve created vehicle with details");
-  //   }
-
-  //   return ResponseDetail.ok(vehicleWithDetails);
-  // }
 
   async findAll(filters: VehiclePaginationDto): Promise<ResponseList<VehicleAggregateResult>> {
     const pipeline: any[] = [];
@@ -192,12 +185,89 @@ export class VehicleService {
     return ResponseDetail.ok(vehicle);
   }
 
-  async update(id: string, updateVehicleDto: UpdateVehicleDto): Promise<ResponseDetail<Vehicle>> {
-    const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(id, updateVehicleDto, { new: true });
+  async update(id: string, updateVehicleDto: UpdateVehicleDto, imageFile?: any): Promise<ResponseDetail<Vehicle>> {
+    // Check if vehicle exists
+    const existingVehicle = await this.vehicleRepository.findById(id);
+    if (!existingVehicle) {
+      throw new NotFoundException("Vehicle not found");
+    }
+    // check station
+    if (updateVehicleDto.station_id) {
+      const station = await this.stationRepository.findById(updateVehicleDto.station_id);
+      if (!station) {
+        throw new NotFoundException("Station not found");
+      }
+      if (!station.is_active) {
+        throw new NotFoundException("Station is inactive");
+      }
+    }
+
+    // Upload new image to ImageKit if file is provided
+    let imageUrl: string | undefined = existingVehicle.img_url;
+    let imageKitFileId: string | undefined = existingVehicle.image_kit_file_id;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (imageFile?.buffer) {
+      // Delete old image from ImageKit if exists
+      if (existingVehicle.image_kit_file_id) {
+        try {
+          await this.imagekitService.deleteImage(existingVehicle.image_kit_file_id);
+        } catch (error) {
+          // Log error but continue with upload
+          console.error("Failed to delete old image:", error);
+        }
+      }
+
+      // Upload new image
+      const fileName = updateVehicleDto.label ? `${updateVehicleDto.label}_${Date.now()}` : `vehicle_${Date.now()}`;
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      const uploadResult = await this.imagekitService.uploadVehicleImage(imageFile.buffer, fileName);
+      if (uploadResult.data) {
+        imageUrl = uploadResult.data.url;
+        imageKitFileId = uploadResult.data.fileId;
+      }
+    }
+
+    const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(
+      id,
+      {
+        ...updateVehicleDto,
+        img_url: imageUrl,
+        image_kit_file_id: imageKitFileId,
+      },
+      { new: true },
+    );
+
     if (!updatedVehicle) {
       throw new NotFoundException("Vehicle not found");
     }
+
     return ResponseDetail.ok(updatedVehicle);
+  }
+  async changeStatus(id: string, status: ChangeStatusDto): Promise<ResponseMsg> {
+    // Check if vehicle exists
+    const existingVehicle = await this.vehicleRepository.findById(id);
+    if (!existingVehicle) {
+      throw new NotFoundException("Vehicle not found");
+    }
+    const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(
+      id,
+      {
+        status: status,
+      },
+      { new: true },
+    );
+
+    if (!updatedVehicle) {
+      throw new NotFoundException("Vehicle not found");
+    }
+
+    return ResponseMsg.ok("Vehicle status updated successfully");
+  }
+  async restore(id: string): Promise<ResponseMsg> {
+    await this.vehicleRepository.findByIdAndUpdate(id, { is_active: true }, { new: true });
+    return ResponseMsg.ok("Vehicle restored successfully");
   }
 
   async softDelete(id: string): Promise<ResponseMsg> {
@@ -210,6 +280,38 @@ export class VehicleService {
     return ResponseMsg.ok("Vehicle hard-deleted successfully");
   }
 
+  // async createWithStationAndPricing(createDto: CreateVehicleWithStationAndPricingDto): Promise<ResponseDetail<VehicleWithPricingAndStation>> {
+  //   // Step 1: Verify the station exists
+  //   const stationResponse = await this.stationService.findOne(createDto.station_id);
+  //   if (!stationResponse.data) {
+  //     throw new NotFoundException("Station not found");
+  //   }
+
+  //   // Step 2: Create the vehicle with the station_id
+  //   const stationId = new mongoose.Types.ObjectId(createDto.station_id);
+  //   const vehicleData = {
+  //     ...createDto.vehicle,
+  //     station_id: stationId,
+  //   };
+  //   const newVehicle = new this.vehicleRepository(vehicleData);
+  //   const savedVehicle = await newVehicle.save();
+
+  //   // Step 3: Create the pricing with the vehicle_id
+  //   const pricingData = {
+  //     ...createDto.pricing,
+  //     vehicle_id: savedVehicle._id.toString(),
+  //   };
+  //   await this.pricingService.create(pricingData);
+
+  //   // Step 4: Fetch the complete vehicle with station and pricing
+  //   const vehicleWithDetails = await this.findOneWithPricingAndStation(savedVehicle._id.toString());
+
+  //   if (!vehicleWithDetails) {
+  //     throw new NotFoundException("Failed to retrieve created vehicle with details");
+  //   }
+
+  //   return ResponseDetail.ok(vehicleWithDetails);
+  // }
   // async findOneWithPricingAndStation(id: string): Promise<VehicleWithPricingAndStation | null> {
   //   const currentDate = new Date();
   //   const pipeline: any[] = [

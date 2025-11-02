@@ -5,6 +5,7 @@ import { Vehicle, VehicleSchema } from "src/models/vehicle.schema";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Station, StationSchema } from "src/models/station.schema";
 import { StationService } from "../stations/stations.service";
+import { ImagekitModule } from "src/common/imagekit/imagekit.module";
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { StationService } from "../stations/stations.service";
       { name: Vehicle.name, schema: VehicleSchema },
       { name: Station.name, schema: StationSchema },
     ]),
+    ImagekitModule,
   ],
   controllers: [VehicleController],
   providers: [VehicleService, StationService],

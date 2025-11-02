@@ -57,6 +57,7 @@ export class ContractService {
     const newContract = new this.contractRepository({
       rental_id: createContractDto.rental_id,
       document_url: uploadResult.data.url,
+      image_kit_file_id: uploadResult.data.fileId,
       completed_at: new Date(),
     });
 
@@ -72,7 +73,11 @@ export class ContractService {
     }
 
     // If new file is provided, upload it
+    // delete old file from ImageKit first (optional)
     if (file) {
+      if (existingContract.image_kit_file_id) {
+        await this.imagekitService.deleteImage(existingContract.image_kit_file_id);
+      }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const fileExt = (file.mimetype as string).split("/")[1];
       const label = updateContractDto.label || "updated_contract";
@@ -91,6 +96,7 @@ export class ContractService {
 
       // Update document_url with new file
       existingContract.document_url = uploadResult.data.url;
+      existingContract.image_kit_file_id = uploadResult.data.fileId;
     }
 
     // Save updated contract

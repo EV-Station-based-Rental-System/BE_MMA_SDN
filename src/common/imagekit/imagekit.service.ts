@@ -7,13 +7,14 @@ export enum ImageFolder {
   CONTRACT = "BE_SDN_MMA/contract",
   AFTER = "BE_SDN_MMA/after",
   BEFORE = "BE_SDN_MMA/before",
+  VEHICLE = "BE_SDN_MMA/vehicle",
 }
 
 @Injectable()
 export class ImagekitService {
   constructor(@Inject("IMAGEKIT") private readonly imagekit: ImageKit) {}
 
-  private async uploadToFolder(fileBuffer: Buffer, fileName: string, folder: ImageFolder) {
+  private async uploadToFolder(fileBuffer: Buffer, fileName: string, folder: ImageFolder): Promise<{ url: string; fileId: string }> {
     try {
       const result = await this.imagekit.upload({
         file: fileBuffer.toString("base64"),
@@ -21,25 +22,30 @@ export class ImagekitService {
         folder,
         useUniqueFileName: true,
       });
-      return { url: result.url };
+      return { url: result.url, fileId: result.fileId };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       throw new InternalServerErrorException(`Image upload failed: ${errorMessage}`);
     }
   }
 
-  async uploadContractImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string }>> {
+  async uploadContractImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string; fileId: string }>> {
     const result = await this.uploadToFolder(fileBuffer, fileName, ImageFolder.CONTRACT);
     return ResponseDetail.ok(result);
   }
 
-  async uploadAfterImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string }>> {
+  async uploadAfterImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string; fileId: string }>> {
     const result = await this.uploadToFolder(fileBuffer, fileName, ImageFolder.AFTER);
     return ResponseDetail.ok(result);
   }
 
-  async uploadBeforeImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string }>> {
+  async uploadBeforeImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string; fileId: string }>> {
     const result = await this.uploadToFolder(fileBuffer, fileName, ImageFolder.BEFORE);
+    return ResponseDetail.ok(result);
+  }
+
+  async uploadVehicleImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string; fileId: string }>> {
+    const result = await this.uploadToFolder(fileBuffer, fileName, ImageFolder.VEHICLE);
     return ResponseDetail.ok(result);
   }
 

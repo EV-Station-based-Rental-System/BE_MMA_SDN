@@ -79,3 +79,18 @@ export function calculateRentalDays(startDate: Date | string, endDate: Date | st
 
   return Math.ceil(days);
 }
+
+export function calculateRentalHours(startDate: Date | string, endDate: Date | string): number {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    throw new Error("Invalid date format");
+  }
+  if (end <= start) {
+    throw new Error("End time must be after start time");
+  }
+
+  const diffMs = end.getTime() - start.getTime();
+  const hours = diffMs / (1000 * 60 * 60);
+  return Math.ceil(hours);
+}

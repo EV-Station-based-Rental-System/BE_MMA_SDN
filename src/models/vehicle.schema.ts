@@ -55,6 +55,9 @@ export class Vehicle {
 
   @Prop({ required: true, type: Number, default: 0 })
   deposit_amount: number;
+
+  @Prop({ type: String })
+  image_kit_file_id?: string;
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

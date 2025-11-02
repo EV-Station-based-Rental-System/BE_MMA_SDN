@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDateString, IsEnum, IsMongoId, IsNumber } from "class-validator";
+import { RentalUntil } from "src/common/enums/booking.enum";
 import { PaymentMethod } from "src/common/enums/payment.enum";
 
 export class CreateBookingDto {
@@ -17,6 +18,7 @@ export class CreateBookingDto {
   })
   @IsNumber()
   total_amount: number;
+
   @ApiProperty({
     description: "Vehicle ID",
     example: "vehicle_id",
@@ -37,4 +39,12 @@ export class CreateBookingDto {
   })
   @IsDateString()
   expected_return_datetime: string;
+
+  @ApiProperty({
+    description: "Unit of rental duration (hours or days)",
+    example: "hours",
+    enum: RentalUntil,
+  })
+  @IsEnum(RentalUntil)
+  rental_until: RentalUntil;
 }
