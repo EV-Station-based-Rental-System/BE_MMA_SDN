@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Station } from "src/models/station.schema";
+import { Vehicle } from "src/models/vehicle.schema";
 import { CreateStationDto } from "./dto/create-station.dto";
 import { UpdateStationDto } from "./dto/update-station.dto";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
@@ -20,7 +21,10 @@ import { StationFieldMapping } from "src/common/pagination/filters/station-field
 
 @Injectable()
 export class StationService {
-  constructor(@InjectModel(Station.name) private stationRepository: Model<Station>) {}
+  constructor(
+    @InjectModel(Station.name) private stationRepository: Model<Station>,
+    @InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>,
+  ) {}
 
   async create(createStationDto: CreateStationDto): Promise<ResponseDetail<Station>> {
     const createdStation = new this.stationRepository(createStationDto);
@@ -80,5 +84,22 @@ export class StationService {
   async hardDelete(id: string): Promise<ResponseMsg> {
     await this.stationRepository.findByIdAndDelete(id);
     return ResponseMsg.ok("Station hard deleted successfully");
+  }
+
+  async getAllVehiclesByStation(stationId: string): Promise<ResponseList<Vehicle>> {
+    const station = await this.stationRepository.findById(stationId);
+    if (!station) {
+      throw new NotFoundException("Station not found");
+    }
+
+    const vehicles = (await this.vehicleRepository.find({ station_id: stationId }).lean()) as Vehicle[];
+
+    return ResponseList.ok<Vehicle>(
+      buildPaginationResponse<Vehicle>(vehicles, {
+        total: vehicles.length,
+        page: 1,
+        take: Math.max(vehicles.length, 1),
+      }),
+    );
   }
 }

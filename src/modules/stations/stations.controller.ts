@@ -12,6 +12,7 @@ import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
 import { ResponseMsg } from "src/common/response/response-message";
 import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
 import { Station } from "src/models/station.schema";
+import { Vehicle } from "src/models/vehicle.schema";
 
 @ApiExtraModels(Station)
 @Controller("station")
@@ -46,12 +47,12 @@ export class StationController {
     return this.stationService.findOne(id);
   }
 
-  // @Get("all-vehicles-by-station/:id")
-  // @ApiOkResponse({ description: "All vehicles by station", type: SwaggerResponseListDto(Vehicle) })
-  // @ApiErrorResponses()
-  // getAllVehiclesByStation(@Param("id") id: string) {
-  //   // return this.stationService.getAllVehiclesByStation(id);
-  // }
+  @Get("all-vehicles-by-station/:id")
+  @ApiOkResponse({ description: "All vehicles by station", type: SwaggerResponseListDto(Vehicle) })
+  @ApiErrorResponses()
+  getAllVehiclesByStation(@Param("id") id: string) {
+    return this.stationService.getAllVehiclesByStation(id);
+  }
 
   @Put(":id")
   @ApiBearerAuth()
