@@ -41,7 +41,7 @@ export class InspectionsController {
   @ApiCreatedResponse({ description: "Inspection created", type: SwaggerResponseDetailDto(Inspection) })
   @ApiErrorResponses()
   @ApiBody({ type: CreateInspectionDto })
-  async create(@Body() createInspectionDto: CreateInspectionDto, @Req() req: { user: StaffJwtUserPayload }) {
+  create(@Body() createInspectionDto: CreateInspectionDto, @Req() req: { user: StaffJwtUserPayload }) {
     return this.inspectionsService.create(createInspectionDto, req.user);
   }
 
@@ -71,7 +71,7 @@ export class InspectionsController {
       required: ["file"],
     },
   })
-  async uploadPhoto(
+  uploadPhoto(
     @Param("id") inspectionId: string,
     @Body("label") label: string,
     @UploadedFile(
@@ -109,7 +109,7 @@ export class InspectionsController {
   @ApiCreatedResponse({ description: "Inspection completed", type: SwaggerResponseDetailDto(Object) })
   @ApiErrorResponses()
   @ApiBody({ type: CompleteInspectionDto })
-  async completeInspection(@Param("id") id: string, @Body() completeDto: CompleteInspectionDto) {
+  completeInspection(@Param("id") id: string, @Body() completeDto: CompleteInspectionDto) {
     return this.inspectionsService.completeInspection(id, completeDto);
   }
 
@@ -119,7 +119,7 @@ export class InspectionsController {
   @ApiBearerAuth()
   @ApiOkResponse({ description: "Inspection deleted", type: ResponseMsg })
   @ApiErrorResponses()
-  async remove(@Param("id") id: string): Promise<ResponseMsg> {
+  remove(@Param("id") id: string): Promise<ResponseMsg> {
     return this.inspectionsService.remove(id);
   }
 }

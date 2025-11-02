@@ -32,9 +32,9 @@ export class UsersController {
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
-  async findAllUser(@Query() query: UserPaginationDto) {
+  findAllUser(@Query() query: UserPaginationDto) {
     const { page = 1, take = 10, ...restFilters } = query;
-    return await this.usersService.findAllUser({
+    return this.usersService.findAllUser({
       page,
       take: Math.min(take, 100),
       ...restFilters,
@@ -49,9 +49,9 @@ export class UsersController {
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
-  async findAllStaff(@Query() query: StaffPaginationDto) {
+  findAllStaff(@Query() query: StaffPaginationDto) {
     const { page = 1, take = 10, ...restFilters } = query;
-    return await this.usersService.findAllStaff({
+    return this.usersService.findAllStaff({
       page,
       take: Math.min(take, 100),
       ...restFilters,
@@ -64,7 +64,7 @@ export class UsersController {
   @Roles(Role.ADMIN, Role.STAFF, Role.RENTER)
   @ApiOkResponse({ description: "User details with populated roleExtra", type: SwaggerResponseDetailDto(UserWithRoleExtra) })
   @ApiErrorResponses()
-  async findOne(@Param("id") id: string) {
+  findOne(@Param("id") id: string) {
     return this.usersService.findOne(id);
   }
 

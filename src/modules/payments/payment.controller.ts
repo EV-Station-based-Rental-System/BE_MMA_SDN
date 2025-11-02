@@ -21,7 +21,7 @@ export class PaymentController {
   @ApiBearerAuth()
   @ApiOkResponse({ description: "Payment confirmed successfully", type: ResponseMsg })
   @ApiErrorResponses()
-  async confirmBookingByCash(@Param("id") id: string, @Req() req: { user: StaffJwtUserPayload }): Promise<ResponseMsg> {
-    return await this.cashService.confirmPaymentByCash(id, req.user);
+  confirmBookingByCash(@Param("id") id: string, @Req() req: { user: StaffJwtUserPayload }): Promise<ResponseMsg> {
+    return this.cashService.confirmPaymentByCash(id, req.user);
   }
 }
