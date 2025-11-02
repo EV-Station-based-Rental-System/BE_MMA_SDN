@@ -57,6 +57,15 @@ export class StationController {
     return this.stationService.update(id, updateStationDto);
   }
 
+  @Patch("restore/:id")
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: "Station restored", type: ResponseMsg })
+  @ApiErrorResponses()
+  restore(@Param("id") id: string) {
+    return this.stationService.restore(id);
+  }
   @Patch("soft-delete/:id")
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -67,9 +67,13 @@ export class StationService {
     }
     return ResponseDetail.ok(updatedStation);
   }
+  async restore(id: string): Promise<ResponseMsg> {
+    await this.stationRepository.findByIdAndUpdate(id, { is_active: true }, { new: true });
+    return ResponseMsg.ok("Station restored successfully");
+  }
 
   async softDelete(id: string): Promise<ResponseMsg> {
-    await this.stationRepository.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+    await this.stationRepository.findByIdAndUpdate(id, { is_active: false }, { new: true });
     return ResponseMsg.ok("Station soft deleted successfully");
   }
 

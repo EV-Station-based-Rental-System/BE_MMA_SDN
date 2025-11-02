@@ -17,16 +17,27 @@ import { ResponseDetail } from "src/common/response/response-detail-create-updat
 import { ResponseMsg } from "src/common/response/response-message";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 // import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
-import { StationService } from "../stations/stations.service";
+import { Station } from "src/models/station.schema";
 
 @Injectable()
 export class VehicleService {
   constructor(
     @InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>,
-    private readonly stationService: StationService,
+    @InjectModel(Station.name) private stationRepository: Model<Station>,
   ) {}
 
   async create(createVehicleDto: CreateVehicleDto): Promise<ResponseDetail<Vehicle>> {
+    // check station
+    if (!createVehicleDto.station_id) {
+      throw new NotFoundException("Station ID is required");
+    }
+    const station = await this.stationRepository.findById(createVehicleDto.station_id);
+    if (!station) {
+      throw new NotFoundException("Station not found");
+    }
+    if (!station.is_active) {
+      throw new NotFoundException("Station is inactive");
+    }
     // check vin number unique
     const existingVehicle = await this.vehicleRepository.findOne({ vin_number: createVehicleDto.vin_number });
     if (existingVehicle) {

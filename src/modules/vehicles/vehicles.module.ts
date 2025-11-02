@@ -4,7 +4,6 @@ import { VehicleController } from "./vehicles.controller";
 import { Vehicle, VehicleSchema } from "src/models/vehicle.schema";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Station, StationSchema } from "src/models/station.schema";
-
 import { StationService } from "../stations/stations.service";
 
 @Module({
