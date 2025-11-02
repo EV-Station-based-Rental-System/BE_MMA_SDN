@@ -135,6 +135,8 @@ export class AuthService {
       password: await hashPassword(data.password),
       full_name: data.full_name,
       role: Role.RENTER,
+      is_active: true,
+      phone: data.phone,
     });
     await newUser.save();
 
@@ -142,6 +144,7 @@ export class AuthService {
       user_id: newUser._id,
       address: data.address,
       date_of_birth: data.date_of_birth,
+      risk_score: 0,
     });
 
     await newRenter.save();

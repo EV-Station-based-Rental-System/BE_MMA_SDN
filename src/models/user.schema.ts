@@ -25,6 +25,6 @@ export class User {
   is_active: boolean;
 
   @Prop({ required: false, type: String })
-  phone?: string;
+  phone: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
