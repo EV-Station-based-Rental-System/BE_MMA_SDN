@@ -221,4 +221,15 @@ export class VehicleController {
   hardDelete(@Param("id") id: string) {
     return this.vehicleService.hardDelete(id);
   }
+
+  // ==================== STATISTICS ENDPOINTS ====================
+
+  @Get("statistics/top-5-booked-vehicles")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN)
+  @ApiErrorResponses()
+  getTop5BookedVehicles() {
+    return this.vehicleService.getTop5BookedVehicles();
+  }
 }

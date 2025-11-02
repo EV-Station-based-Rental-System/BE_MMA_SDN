@@ -20,11 +20,46 @@ import { buildPaginationResponse } from "src/common/pagination/pagination-respon
 import { Station } from "src/models/station.schema";
 import { ImagekitService } from "src/common/imagekit/imagekit.service";
 import { ChangeStatusDto } from "../rentals/dto/changeStatus.dto";
+import { Booking } from "src/models/booking.schema";
+import { BookingStatus } from "src/common/enums/booking.enum";
+
+type TopBookedVehicleStat = {
+  vehicle_id: string;
+  totalBookings: number;
+  totalRevenue: number;
+  lastBookingAt: Date | null;
+  vehicle: {
+    _id: string;
+    make: string;
+    model: string;
+    license_plate: string;
+    img_url?: string;
+    status: string;
+    station_id?: string;
+  };
+};
+
+type TopBookedVehicleAggregation = {
+  vehicle_id: mongoose.Types.ObjectId | string;
+  totalBookings: number;
+  totalRevenue: number;
+  lastBookingAt: Date | null;
+  vehicle?: {
+    _id?: mongoose.Types.ObjectId | string;
+    make?: string;
+    model?: string;
+    license_plate?: string;
+    img_url?: string;
+    status?: string;
+    station_id?: mongoose.Types.ObjectId | string;
+  };
+};
 
 @Injectable()
 export class VehicleService {
   constructor(
     @InjectModel(Vehicle.name) private vehicleRepository: Model<Vehicle>,
+    @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
     @InjectModel(Station.name) private stationRepository: Model<Station>,
 
     private readonly imagekitService: ImagekitService,
@@ -395,5 +430,101 @@ export class VehicleService {
   async updateVehicleStatus(id: string, updateData: Partial<Vehicle>): Promise<Vehicle | null> {
     const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(id, updateData, { new: true });
     return updatedVehicle;
+  }
+
+  async getTop5BookedVehicles(): Promise<ResponseDetail<TopBookedVehicleStat[]>> {
+    const pipeline: any[] = [
+      {
+        $match: {
+          status: BookingStatus.VERIFIED,
+        },
+      },
+      {
+        $group: {
+          _id: "$vehicle_id",
+          totalBookings: { $sum: 1 },
+          totalRevenue: { $sum: "$total_booking_fee_amount" },
+          lastBookingAt: { $max: "$created_at" },
+        },
+      },
+      {
+        $sort: { totalBookings: -1, totalRevenue: -1 },
+      },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "vehicles",
+          localField: "_id",
+          foreignField: "_id",
+          as: "vehicle",
+        },
+      },
+      {
+        $unwind: {
+          path: "$vehicle",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          vehicle_id: "$_id",
+          totalBookings: 1,
+          totalRevenue: 1,
+          lastBookingAt: 1,
+          vehicle: {
+            _id: "$vehicle._id",
+            make: "$vehicle.make",
+            model: "$vehicle.model",
+            license_plate: "$vehicle.license_plate",
+            img_url: "$vehicle.img_url",
+            status: "$vehicle.status",
+            station_id: "$vehicle.station_id",
+          },
+        },
+      },
+    ];
+
+    const result = await this.bookingRepository.aggregate<TopBookedVehicleAggregation>(pipeline);
+
+    const normalizeId = (value: unknown): string | undefined => {
+      if (!value) {
+        return undefined;
+      }
+      if (typeof value === "string") {
+        return value;
+      }
+      if (value instanceof mongoose.Types.ObjectId) {
+        return value.toString();
+      }
+      if (typeof (value as { toString?: () => string }).toString === "function") {
+        return (value as { toString: () => string }).toString();
+      }
+      return undefined;
+    };
+
+    const stats: TopBookedVehicleStat[] = result
+      .filter((item): item is TopBookedVehicleAggregation & { vehicle: NonNullable<TopBookedVehicleAggregation["vehicle"]> } => Boolean(item.vehicle))
+      .map((item) => {
+        const { vehicle, totalBookings, totalRevenue, lastBookingAt, vehicle_id } = item;
+
+        return {
+          vehicle_id: normalizeId(vehicle_id) ?? "",
+          totalBookings: totalBookings ?? 0,
+          totalRevenue: totalRevenue ?? 0,
+          lastBookingAt: lastBookingAt ?? null,
+          vehicle: {
+            _id: normalizeId(vehicle._id) ?? "",
+            make: vehicle.make ?? "",
+            model: vehicle.model ?? "",
+            license_plate: vehicle.license_plate ?? "",
+            img_url: vehicle.img_url,
+            status: vehicle.status ?? "",
+            station_id: normalizeId(vehicle.station_id),
+          },
+        };
+      });
+
+    return ResponseDetail.ok(stats);
   }
 }
