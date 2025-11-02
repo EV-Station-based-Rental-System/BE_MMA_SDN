@@ -105,7 +105,7 @@ export class VehicleService {
 
     // Add lookup for current pricing
 
-    const allowedSortFields = ["model_year", "create_at"];
+    const allowedSortFields = ["model_year", "create_at", "status"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "create_at");
     pipeline.push({
       $project: {
