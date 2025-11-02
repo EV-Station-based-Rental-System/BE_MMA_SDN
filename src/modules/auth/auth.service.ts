@@ -155,6 +155,10 @@ export class AuthService {
     if (!checkStation) {
       throw new NotFoundException("Station not found");
     }
+    // check status of station
+    if (!checkStation.is_active) {
+      throw new ForbiddenException("Station is inactive");
+    }
     // check email
     const checkUser = await this.userRepository.findOne({ email: data.email });
     if (checkUser) {
