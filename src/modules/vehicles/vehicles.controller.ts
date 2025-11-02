@@ -17,7 +17,7 @@ import {
 import { VehicleService } from "./vehicles.service";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiConsumes } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiConsumes, ApiExtraModels } from "@nestjs/swagger";
 import { Role } from "src/common/enums/role.enum";
 import { VehiclePaginationDto } from "src/common/pagination/dto/vehicle/vehicle-pagination.dto";
 import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
@@ -28,11 +28,9 @@ import { SwaggerResponseDetailDto } from "src/common/response/swagger-generic.dt
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ChangeStatusDto } from "../rentals/dto/changeStatus.dto";
-// import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
-// import { CreateVehicleWithStationAndPricingDto } from "./dto/create-vehicle-with-station-pricing.dto";
+import { ChangeVehicleStatusDto } from "../rentals/dto/changeStatus.dto";
 
-// @ApiExtraModels(Vehicle, VehicleWithPricingAndStation)
+@ApiExtraModels(Vehicle, ChangeVehicleStatusDto)
 @Controller("vehicle")
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
@@ -98,22 +96,7 @@ export class VehicleController {
     return this.vehicleService.create(createVehicleDto, image);
   }
 
-  // @Post("with-station-and-pricing")
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.ADMIN, Role.STAFF)
-  // @ApiCreatedResponse({
-  //   description: "Vehicle created with pricing for an existing station",
-  //   type: SwaggerResponseDetailDto(VehicleWithPricingAndStation),
-  // })
-  // @ApiErrorResponses()
-  // @ApiBody({ type: CreateVehicleWithStationAndPricingDto })
-  // createWithStationAndPricing(@Body() createDto: CreateVehicleWithStationAndPricingDto) {
-  //   return this.vehicleService.createWithStationAndPricing(createDto);
-  // }
-
   @Get()
-  // @ApiOkResponse({ description: "List of vehicles", type: SwaggerResponseListDto(VehicleWithPricingAndStation) })
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
@@ -188,8 +171,8 @@ export class VehicleController {
   @ApiBearerAuth()
   @ApiOkResponse({ description: "Vehicle status changed", type: ResponseMsg })
   @ApiErrorResponses()
-  @ApiBody({ type: ChangeStatusDto })
-  changeStatus(@Param("id") id: string, @Body() changeStatusDto: ChangeStatusDto) {
+  @ApiBody({ type: ChangeVehicleStatusDto })
+  changeStatus(@Param("id") id: string, @Body() changeStatusDto: ChangeVehicleStatusDto) {
     return this.vehicleService.changeStatus(id, changeStatusDto);
   }
   @Patch("restore/:id")

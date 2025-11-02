@@ -1,13 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum } from "class-validator";
-import { RentalStatus } from "src/common/enums/rental.enum";
+import { VehicleStatus } from "src/common/enums/vehicle.enum";
 
-export class ChangeStatusDto {
+export class ChangeVehicleStatusDto {
   @ApiProperty({
     description: "Trạng thái mới của thuê xe",
-    enum: RentalStatus,
-    example: RentalStatus.RESERVED || RentalStatus.IN_PROGRESS || RentalStatus.COMPLETED || RentalStatus.LATE,
+    enum: VehicleStatus,
+    example: VehicleStatus.AVAILABLE || VehicleStatus.BOOKED || VehicleStatus.MAINTAIN || VehicleStatus.PENDING,
   })
-  @IsEnum(RentalStatus)
-  status: RentalStatus;
+  @IsEnum(VehicleStatus)
+  status: VehicleStatus;
 }

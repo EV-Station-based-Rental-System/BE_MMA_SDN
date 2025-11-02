@@ -16,12 +16,11 @@ import { ResponseList } from "src/common/response/response-list";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { ResponseMsg } from "src/common/response/response-message";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
-// import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
 import { Station } from "src/models/station.schema";
 import { ImagekitService } from "src/common/imagekit/imagekit.service";
-import { ChangeStatusDto } from "../rentals/dto/changeStatus.dto";
 import { Booking } from "src/models/booking.schema";
 import { BookingStatus } from "src/common/enums/booking.enum";
+import { ChangeVehicleStatusDto } from "../rentals/dto/changeStatus.dto";
 
 type TopBookedVehicleStat = {
   vehicle_id: string;
@@ -293,7 +292,7 @@ export class VehicleService {
 
     return ResponseDetail.ok(updatedVehicle);
   }
-  async changeStatus(id: string, status: ChangeStatusDto): Promise<ResponseMsg> {
+  async changeStatus(id: string, status: ChangeVehicleStatusDto): Promise<ResponseMsg> {
     // Check if vehicle exists
     const existingVehicle = await this.vehicleRepository.findById(id);
     if (!existingVehicle) {

@@ -13,7 +13,7 @@ import { applySortingMongo } from "src/common/pagination/applySorting";
 import { applyPaginationMongo } from "src/common/pagination/applyPagination";
 import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
 import { UpdateRentalDto } from "./dto/updateRental.dto";
-import { ChangeStatusDto } from "./dto/changeStatus.dto";
+import { ChangeVehicleStatusDto } from "./dto/changeStatus.dto";
 import { ResponseMsg } from "src/common/response/response-message";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 import { ResponseList } from "src/common/response/response-list";
@@ -665,7 +665,7 @@ export class RentalService {
     return ResponseDetail.ok(updatedRental);
   }
 
-  async changeStatus(id: string, changeStatus: ChangeStatusDto): Promise<ResponseMsg> {
+  async changeStatus(id: string, changeStatus: ChangeVehicleStatusDto): Promise<ResponseMsg> {
     const updatedRental = await this.rentalRepository.findByIdAndUpdate(id, { status: changeStatus.status }, { new: true }).exec();
     if (!updatedRental) {
       throw new NotFoundException(`Rental with id ${id} not found`);
