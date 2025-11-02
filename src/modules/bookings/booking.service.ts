@@ -339,7 +339,6 @@ export class BookingService {
       new Date(createBookingDto.rental_start_datetime),
       new Date(createBookingDto.expected_return_datetime),
     );
-    console.log(vehicleData.total_booking_fee_amount);
     // Step 4: check calculated total amount matches client sent amount
     if (vehicleData.total_booking_fee_amount !== createBookingDto.total_amount) {
       throw new BadRequestException("Total amount mismatch. Please refresh and try again.");
