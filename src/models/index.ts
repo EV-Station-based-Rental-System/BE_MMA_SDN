@@ -8,7 +8,7 @@ import { Fee, FeeSchema as FeeSchema } from "./fee.schema";
 import { Inspection, InspectionSchema } from "./inspections.schema";
 import { Kycs, KycsSchema } from "./kycs.schema";
 import { Payment, PaymentSchema } from "./payment.schema";
-import { Pricing, PricingSchema } from "./pricings.schema";
+
 import { Rental, RentalSchema } from "./rental.schema";
 import { Report, ReportSchema } from "./report.schema";
 import { ReportsPhoto, ReportsPhotoSchema } from "./reports_photo.schema";
@@ -26,7 +26,6 @@ export const index = [
   { name: Inspection.name, schema: InspectionSchema },
   { name: Kycs.name, schema: KycsSchema },
   { name: Payment.name, schema: PaymentSchema },
-  { name: Pricing.name, schema: PricingSchema },
   { name: Rental.name, schema: RentalSchema },
   { name: Report.name, schema: ReportSchema },
   { name: ReportsPhoto.name, schema: ReportsPhotoSchema },

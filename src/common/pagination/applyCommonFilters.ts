@@ -34,9 +34,20 @@ export function applyCommonFiltersMongo(pipeline: any[], filters: Record<string,
 
       case "boolean":
         if (typeof value === "string") {
-          const lower = value.toLowerCase();
-          matchStage[field] = ["true", "1", "yes"].includes(lower);
+          const lower = value.toLowerCase().trim();
+          // Handle true values
+          if (["true", "1", "yes"].includes(lower)) {
+            matchStage[field] = true;
+          }
+          // Handle false values
+          else if (["false", "0", "no"].includes(lower)) {
+            matchStage[field] = false;
+          }
+          // If string is not recognized, skip this filter
+        } else if (typeof value === "boolean") {
+          matchStage[field] = value;
         } else {
+          // Convert other types to boolean (number, etc.)
           matchStage[field] = Boolean(value);
         }
         break;

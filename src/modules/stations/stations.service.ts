@@ -33,6 +33,17 @@ export class StationService {
     applyCommonFiltersMongo(pipeline, filters, StationFieldMapping);
     const allowedSortFields = ["name", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
+    // Project to remove unwanted fields like __v, created_at, updated_at
+    pipeline.push({
+      $project: {
+        _id: 1,
+        name: 1,
+        address: 1,
+        latitude: 1,
+        longitude: 1,
+        is_active: 1,
+      },
+    });
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
     applyFacetMongo(pipeline);
     const result = (await this.stationRepository.aggregate(pipeline)) as FacetResult<Station>;

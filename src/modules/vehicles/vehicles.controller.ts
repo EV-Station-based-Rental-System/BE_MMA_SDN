@@ -2,20 +2,20 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, UseGuard
 import { VehicleService } from "./vehicles.service";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiExtraModels, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
 import { Role } from "src/common/enums/role.enum";
 import { VehiclePaginationDto } from "src/common/pagination/dto/vehicle/vehicle-pagination.dto";
 import { ApiErrorResponses } from "src/common/decorator/swagger.decorator";
 import { Roles } from "src/common/decorator/roles.decorator";
 import { ResponseMsg } from "src/common/response/response-message";
 import { Vehicle } from "src/models/vehicle.schema";
-import { SwaggerResponseDetailDto, SwaggerResponseListDto } from "src/common/response/swagger-generic.dto";
+import { SwaggerResponseDetailDto } from "src/common/response/swagger-generic.dto";
 import { JwtAuthGuard } from "src/common/guards/jwt.guard";
 import { RolesGuard } from "src/common/guards/roles.guard";
-import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
-import { CreateVehicleWithStationAndPricingDto } from "./dto/create-vehicle-with-station-pricing.dto";
+// import { VehicleWithPricingAndStation } from "./dto/get-vehicle-respone.dto";
+// import { CreateVehicleWithStationAndPricingDto } from "./dto/create-vehicle-with-station-pricing.dto";
 
-@ApiExtraModels(Vehicle, VehicleWithPricingAndStation)
+// @ApiExtraModels(Vehicle, VehicleWithPricingAndStation)
 @Controller("vehicle")
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
@@ -31,22 +31,22 @@ export class VehicleController {
     return this.vehicleService.create(createVehicleDto);
   }
 
-  @Post("with-station-and-pricing")
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.STAFF)
-  @ApiCreatedResponse({
-    description: "Vehicle created with pricing for an existing station",
-    type: SwaggerResponseDetailDto(VehicleWithPricingAndStation),
-  })
-  @ApiErrorResponses()
-  @ApiBody({ type: CreateVehicleWithStationAndPricingDto })
-  createWithStationAndPricing(@Body() createDto: CreateVehicleWithStationAndPricingDto) {
-    return this.vehicleService.createWithStationAndPricing(createDto);
-  }
+  // @Post("with-station-and-pricing")
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.ADMIN, Role.STAFF)
+  // @ApiCreatedResponse({
+  //   description: "Vehicle created with pricing for an existing station",
+  //   type: SwaggerResponseDetailDto(VehicleWithPricingAndStation),
+  // })
+  // @ApiErrorResponses()
+  // @ApiBody({ type: CreateVehicleWithStationAndPricingDto })
+  // createWithStationAndPricing(@Body() createDto: CreateVehicleWithStationAndPricingDto) {
+  //   return this.vehicleService.createWithStationAndPricing(createDto);
+  // }
 
   @Get()
-  @ApiOkResponse({ description: "List of vehicles", type: SwaggerResponseListDto(VehicleWithPricingAndStation) })
+  // @ApiOkResponse({ description: "List of vehicles", type: SwaggerResponseListDto(VehicleWithPricingAndStation) })
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
@@ -60,7 +60,7 @@ export class VehicleController {
   }
 
   @Get(":id")
-  @ApiOkResponse({ description: "Vehicle details", type: SwaggerResponseDetailDto(VehicleWithPricingAndStation) })
+  // @ApiOkResponse({ description: "Vehicle details", type: SwaggerResponseDetailDto(VehicleWithPricingAndStation) })
   @ApiErrorResponses()
   findOne(@Param("id") id: string) {
     return this.vehicleService.findOne(id);

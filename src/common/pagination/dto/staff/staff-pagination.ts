@@ -13,10 +13,15 @@ export class StaffPaginationDto extends BasePaginationDto {
   @IsOptional()
   @IsString()
   search?: string;
+
   @ApiPropertyOptional({
-    description: "Role of the user",
-    example: "admin",
+    description: "Field to sort by",
+    example: "full_name | email | created_at",
   })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
   @ApiPropertyOptional({
     description: "Position of the user",
     example: "manager",
