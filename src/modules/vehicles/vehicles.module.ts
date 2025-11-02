@@ -6,12 +6,14 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { Station, StationSchema } from "src/models/station.schema";
 import { StationService } from "../stations/stations.service";
 import { ImagekitModule } from "src/common/imagekit/imagekit.module";
+import { Booking, BookingSchema } from "src/models/booking.schema";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Vehicle.name, schema: VehicleSchema },
       { name: Station.name, schema: StationSchema },
+      { name: Booking.name, schema: BookingSchema },
     ]),
     ImagekitModule,
   ],

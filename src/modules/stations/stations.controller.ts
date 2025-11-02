@@ -46,6 +46,13 @@ export class StationController {
     return this.stationService.findOne(id);
   }
 
+  // @Get("all-vehicles-by-station/:id")
+  // @ApiOkResponse({ description: "All vehicles by station", type: SwaggerResponseListDto(Vehicle) })
+  // @ApiErrorResponses()
+  // getAllVehiclesByStation(@Param("id") id: string) {
+  //   // return this.stationService.getAllVehiclesByStation(id);
+  // }
+
   @Put(":id")
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
