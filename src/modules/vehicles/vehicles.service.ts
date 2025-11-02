@@ -293,6 +293,7 @@ export class VehicleService {
     return ResponseDetail.ok(updatedVehicle);
   }
   async changeStatus(id: string, status: ChangeVehicleStatusDto): Promise<ResponseMsg> {
+    const statusAsString = status.status.toString();
     // Check if vehicle exists
     const existingVehicle = await this.vehicleRepository.findById(id);
     if (!existingVehicle) {
@@ -301,7 +302,7 @@ export class VehicleService {
     const updatedVehicle = await this.vehicleRepository.findByIdAndUpdate(
       id,
       {
-        status: status,
+        status: statusAsString,
       },
       { new: true },
     );
