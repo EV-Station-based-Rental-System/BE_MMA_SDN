@@ -32,6 +32,9 @@ export class Vehicle {
   @Prop({ type: String, unique: true, sparse: true, trim: true })
   vin_number?: string;
 
+  @Prop({ required: true, type: String, unique: true, trim: true, uppercase: true })
+  license_plate: string;
+
   @Prop({ type: String, trim: true })
   img_url?: string;
 

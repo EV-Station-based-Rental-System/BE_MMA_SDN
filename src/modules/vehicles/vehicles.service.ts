@@ -50,6 +50,15 @@ export class VehicleService {
       }
     }
 
+    // check license plate unique (required field)
+    if (!createVehicleDto.license_plate) {
+      throw new NotFoundException("License plate is required");
+    }
+    const existingLicensePlate = await this.vehicleRepository.findOne({ license_plate: createVehicleDto.license_plate.toUpperCase() });
+    if (existingLicensePlate) {
+      throw new NotFoundException("License plate already exists");
+    }
+
     // Upload image to ImageKit if file is provided
     let imageUrl: string | undefined;
     let image_kit_file_id: string | undefined;
@@ -108,6 +117,7 @@ export class VehicleService {
         battery_capacity_kwh: 1,
         range_km: 1,
         vin_number: 1,
+        license_plate: 1,
         img_url: 1,
         is_active: 1,
         current_battery_capacity_kwh: 1,

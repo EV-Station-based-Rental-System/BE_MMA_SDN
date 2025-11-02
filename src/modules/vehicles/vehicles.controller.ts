@@ -56,6 +56,7 @@ export class VehicleController {
         battery_capacity_kwh: { type: "number", example: 75 },
         range_km: { type: "number", example: 500 },
         vin_number: { type: "string", example: "5YJ3E1EA7KF317XXX" },
+        license_plate: { type: "string", example: "29A-12345", description: "Vehicle license plate"},
         station_id: { type: "string", example: "station_id" },
         price_per_hour: { type: "number", example: 50000 },
         price_per_day: { type: "number", example: 300000 },
@@ -63,7 +64,7 @@ export class VehicleController {
         label: { type: "string", example: "Front view", description: "Optional image label/description" },
         image: { type: "string", format: "binary", description: "Vehicle image file (jpg, jpeg, png, gif, webp) - Max 5MB" },
       },
-      required: ["make", "model", "model_year", "category", "station_id", "price_per_hour", "deposit_amount", "price_per_day", "vin_number"],
+      required: ["make", "model", "model_year", "category", "station_id", "price_per_hour", "deposit_amount", "price_per_day", "vin_number", "license_plate"],
     },
   })
   create(
@@ -140,6 +141,7 @@ export class VehicleController {
         battery_capacity_kwh: { type: "number", example: 75 },
         range_km: { type: "number", example: 500 },
         vin_number: { type: "string", example: "5YJ3E1EA7KF317XXX" },
+        license_plate: { type: "string", example: "29A-12345", description: "Vehicle license plate" },
         station_id: { type: "string", example: "station_id" },
         price_per_hour: { type: "number", example: 50000 },
         price_per_day: { type: "number", example: 300000 },
