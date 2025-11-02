@@ -15,11 +15,5 @@ export class Report {
 
   @Prop({ type: Number, default: 0 })
   damage_price: number;
-
-  @Prop({ required: true, type: Boolean, default: false })
-  is_over_deposit: boolean;
-
-  @Prop({ type: Number, default: 0 })
-  over_deposit_fee_amount: number;
 }
 export const ReportSchema = SchemaFactory.createForClass(Report);

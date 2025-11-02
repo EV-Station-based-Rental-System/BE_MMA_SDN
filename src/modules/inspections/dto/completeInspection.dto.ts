@@ -28,24 +28,4 @@ export class CompleteInspectionDto {
   @IsOptional()
   @IsNumber()
   damage_price?: number;
-
-  @ApiProperty({
-    description: "Thiệt hại có vượt quá tiền cọc không",
-    example: false,
-    required: false,
-    default: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  is_over_deposit?: boolean;
-
-  @ApiProperty({
-    description: "Số tiền vượt quá tiền cọc (nếu có)",
-    example: 0,
-    required: false,
-    default: 0,
-  })
-  @IsOptional()
-  @IsNumber()
-  over_deposit_fee_amount?: number;
 }
