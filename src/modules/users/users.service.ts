@@ -23,6 +23,9 @@ import { ResponseMsg } from "src/common/response/response-message";
 import { StaffPaginationDto } from "src/common/pagination/dto/staff/staff-pagination";
 import { Station } from "src/models/station.schema";
 import { Kycs } from "src/models/kycs.schema";
+import { applyPaginationMongo } from "src/common/pagination/applyPagination";
+import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
+import { FacetResult } from "src/common/utils/type";
 
 @Injectable()
 export class UsersService {
@@ -72,41 +75,33 @@ export class UsersService {
       { $project: { renter: 0 } },
     );
 
-    // apply filters (this will push $match / $addFields / $project etc)
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
 
-    // sorting - apply before facet so both branches are consistent (data uses sort; meta doesn't need sort but no harm)
     const allowedSortFields = ["full_name", "email", "phone", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
 
-    // Build facet manually to ensure meta.total is counted BEFORE pagination
-    const page = Math.max(1, Number(filters.page) || 1);
-    const take = Math.max(1, Number(filters.take) || 10);
-    const skip = (page - 1) * take;
-
+    // Project to remove unwanted fields - AFTER filter/sort, BEFORE pagination
     pipeline.push({
-      $facet: {
-        data: [
-          // apply sort again in data branch to be explicit (applySortingMongo already pushed $sort; repetition is safe but you can remove one)
-          // { $sort: ... } // if applySortingMongo already added $sort, not needed here
-          { $skip: skip },
-          { $limit: take },
-        ],
-        meta: [{ $count: "total" }],
+      $project: {
+        _id: 1,
+        email: 1,
+        full_name: 1,
+        phone: 1,
+        role: 1,
+        is_active: 1,
+        roleExtra: 1,
+        kycs: 1,
       },
     });
 
-    // After facet, transform result to expected shape
-    const result = await this.userRepository.aggregate(pipeline);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const facet = result[0] || { data: [], meta: [] };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const users = facet.data || [];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const total = facet.meta && facet.meta[0] && facet.meta[0].total ? facet.meta[0].total : 0;
+    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
+    applyFacetMongo(pipeline);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
-    return ResponseList.ok(buildPaginationResponse(users, { total, page, take }));
+    const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<UserWithRoleExtra>;
+    const renters = result[0]?.data || [];
+    const total = result[0]?.meta?.[0]?.total || 0;
+
+    return ResponseList.ok(buildPaginationResponse(renters, { total, page: filters.page, take: filters.take }));
   }
 
   async findAllStaff(filters: StaffPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
@@ -150,30 +145,30 @@ export class UsersService {
 
     applyCommonFiltersMongo(pipeline, filters, UserFieldMapping);
 
-    const allowedSortFields = ["full_name", "email", "phone", "created_at"];
+    const allowedSortFields = ["full_name", "email", "created_at"];
     applySortingMongo(pipeline, filters.sortBy, filters.sortOrder, allowedSortFields, "created_at");
 
-    const page = Math.max(1, Number(filters.page) || 1);
-    const take = Math.max(1, Number(filters.take) || 10);
-    const skip = (page - 1) * take;
-
+    // Project to remove unwanted fields - AFTER filter/sort, BEFORE pagination
     pipeline.push({
-      $facet: {
-        data: [{ $skip: skip }, { $limit: take }],
-        meta: [{ $count: "total" }],
+      $project: {
+        _id: 1,
+        email: 1,
+        full_name: 1,
+        phone: 1,
+        role: 1,
+        is_active: 1,
+        roleExtra: 1,
       },
     });
 
-    const result = await this.userRepository.aggregate(pipeline);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const facet = result[0] || { data: [], meta: [] };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const users = facet.data || [];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const total = facet.meta && facet.meta[0] && facet.meta[0].total ? facet.meta[0].total : 0;
+    applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
+    applyFacetMongo(pipeline);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
-    return ResponseList.ok(buildPaginationResponse(users, { total, page, take }));
+    const result = (await this.userRepository.aggregate(pipeline)) as FacetResult<UserWithRoleExtra>;
+    const staffs = result[0]?.data || [];
+    const total = result[0]?.meta?.[0]?.total || 0;
+
+    return ResponseList.ok(buildPaginationResponse(staffs, { total, page: filters.page, take: filters.take }));
   }
 
   async findOneRenter(id: string): Promise<ResponseDetail<UserWithRoleExtra>> {

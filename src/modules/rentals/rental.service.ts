@@ -5,7 +5,7 @@ import { Rental } from "src/models/rental.schema";
 import { Model, Types } from "mongoose";
 import { ResponseDetail } from "src/common/response/response-detail-create-update";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
-import { FacetResult, RentalAggregateResult, ReturnRentalMapping } from "src/common/utils/type";
+import { FacetResult, RentalAggregateResult } from "src/common/utils/type";
 import { RentalPaginationDto } from "src/common/pagination/dto/rental/rental-pagination";
 import { applyCommonFiltersMongo } from "src/common/pagination/applyCommonFilters";
 import { RentalFieldMapping } from "src/common/pagination/filters/rental-field-mapping";
@@ -26,7 +26,7 @@ export class RentalService {
     await createdRental.save();
   }
 
-  async getAllRentals(filter: RentalPaginationDto): Promise<ResponseList<ReturnRentalMapping>> {
+  async getAllRentals(filter: RentalPaginationDto): Promise<ResponseList<RentalAggregateResult>> {
     const pipeline: any[] = [];
     pipeline.push(
       // --- Join Booking ---
@@ -77,23 +77,14 @@ export class RentalService {
             },
             { $unwind: { path: "$renter", preserveNullAndEmptyArrays: true } },
 
-            // --- Join VehicleAtStation ---
+            // -- join Vehicle
             {
               $lookup: {
-                from: "vehicle_at_stations",
-                localField: "vehicle_at_station_id",
+                from: "vehicles",
+                localField: "vehicle_id",
                 foreignField: "_id",
-                as: "vehicle_at_station",
+                as: "vehicle",
                 pipeline: [
-                  {
-                    $lookup: {
-                      from: "vehicles",
-                      localField: "vehicle_id",
-                      foreignField: "_id",
-                      as: "vehicle",
-                    },
-                  },
-                  { $unwind: { path: "$vehicle", preserveNullAndEmptyArrays: true } },
                   {
                     $lookup: {
                       from: "stations",
@@ -102,25 +93,32 @@ export class RentalService {
                       as: "station",
                     },
                   },
-                  { $unwind: { path: "$station", preserveNullAndEmptyArrays: true } },
                   {
-                    $project: {
-                      _id: 1,
-                      vehicle: {
-                        _id: 1,
-                        name: 1,
-                        license_plate: 1,
-                      },
-                      station: {
-                        _id: 1,
-                        name: 1,
-                      },
+                    $addFields: {
+                      station: { $arrayElemAt: ["$station", 0] },
                     },
+                  },
+                  {
+                    $lookup: {
+                      from: "pricings",
+                      localField: "_id",
+                      foreignField: "vehicle_id",
+                      as: "pricing_all",
+                      pipeline: [{ $sort: { effective_from: -1 } }, { $limit: 1 }],
+                    },
+                  },
+                  {
+                    $addFields: {
+                      pricing: { $arrayElemAt: ["$pricing_all", 0] },
+                    },
+                  },
+                  {
+                    $project: { pricing_all: 0 },
                   },
                 ],
               },
             },
-            { $unwind: { path: "$vehicle_at_station", preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: "$vehicle", preserveNullAndEmptyArrays: true } },
 
             // --- Join Verified Staff ---
             {
@@ -176,7 +174,7 @@ export class RentalService {
                 verified_at: 1,
                 renter: 1,
                 verified_staff: 1,
-                vehicle_at_station: 1,
+                vehicle: 1,
               },
             },
           ],
@@ -253,16 +251,6 @@ export class RentalService {
           ],
         },
       },
-      {
-        $lookup: {
-          from: "vehicles",
-          localField: "vehicle_id",
-          foreignField: "_id",
-          as: "vehicle",
-          pipeline: [{ $project: { _id: 1, name: 1, license_plate: 1 } }],
-        },
-      },
-      { $unwind: { path: "$vehicle", preserveNullAndEmptyArrays: true } },
 
       // --- Join Contracts ---
       {
@@ -287,13 +275,7 @@ export class RentalService {
       { $unwind: { path: "$contract", preserveNullAndEmptyArrays: true } },
     );
     applyCommonFiltersMongo(pipeline, filter, RentalFieldMapping);
-    const allowedSortFields = [
-      "created_at",
-      "pickup_datetime",
-      "booking.rental_start_datetime",
-      "booking.expected_return_datetime",
-      "booking_total_booking_fee_amount",
-    ];
+    const allowedSortFields = ["created_at", "booking_total_booking_fee_amount", "status"];
     applySortingMongo(pipeline, filter.sortBy, filter.sortOrder, allowedSortFields, "created_at");
     applyPaginationMongo(pipeline, { page: filter.page, take: filter.take });
     applyFacetMongo(pipeline);
@@ -304,7 +286,7 @@ export class RentalService {
     const total = result[0]?.meta?.[0]?.total || 0;
     return ResponseList.ok(buildPaginationResponse(mappedResult, { total, page: filter.page, take: filter.take }));
   }
-  async getRentalById(id: string): Promise<ResponseDetail<ReturnRentalMapping>> {
+  async getRentalById(id: string): Promise<ResponseDetail<RentalAggregateResult>> {
     const pipeline: any[] = [];
     pipeline.push(
       { $match: { _id: new Types.ObjectId(id) } },
@@ -356,23 +338,14 @@ export class RentalService {
             },
             { $unwind: { path: "$renter", preserveNullAndEmptyArrays: true } },
 
-            // --- Join VehicleAtStation ---
+            // -- join Vehicle
             {
               $lookup: {
-                from: "vehicle_at_stations",
-                localField: "vehicle_at_station_id",
+                from: "vehicles",
+                localField: "vehicle_id",
                 foreignField: "_id",
-                as: "vehicle_at_station",
+                as: "vehicle",
                 pipeline: [
-                  {
-                    $lookup: {
-                      from: "vehicles",
-                      localField: "vehicle_id",
-                      foreignField: "_id",
-                      as: "vehicle",
-                    },
-                  },
-                  { $unwind: { path: "$vehicle", preserveNullAndEmptyArrays: true } },
                   {
                     $lookup: {
                       from: "stations",
@@ -381,25 +354,15 @@ export class RentalService {
                       as: "station",
                     },
                   },
-                  { $unwind: { path: "$station", preserveNullAndEmptyArrays: true } },
                   {
-                    $project: {
-                      _id: 1,
-                      vehicle: {
-                        _id: 1,
-                        name: 1,
-                        license_plate: 1,
-                      },
-                      station: {
-                        _id: 1,
-                        name: 1,
-                      },
+                    $addFields: {
+                      station: { $arrayElemAt: ["$station", 0] },
                     },
                   },
                 ],
               },
             },
-            { $unwind: { path: "$vehicle_at_station", preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: "$vehicle", preserveNullAndEmptyArrays: true } },
 
             // --- Join Verified Staff ---
             {
@@ -455,7 +418,7 @@ export class RentalService {
                 verified_at: 1,
                 renter: 1,
                 verified_staff: 1,
-                vehicle_at_station: 1,
+                vehicle: 1,
               },
             },
           ],
@@ -532,16 +495,6 @@ export class RentalService {
           ],
         },
       },
-      {
-        $lookup: {
-          from: "vehicles",
-          localField: "vehicle_id",
-          foreignField: "_id",
-          as: "vehicle",
-          pipeline: [{ $project: { _id: 1, name: 1, license_plate: 1 } }],
-        },
-      },
-      { $unwind: { path: "$vehicle", preserveNullAndEmptyArrays: true } },
 
       // --- Join Contracts ---
       {
@@ -573,77 +526,100 @@ export class RentalService {
     const mappedResult = this.ReturnRentalMapping(rental);
     return ResponseDetail.ok(mappedResult);
   }
-  private ReturnRentalMapping(data: RentalAggregateResult): ReturnRentalMapping {
+  private ReturnRentalMapping(data: RentalAggregateResult): RentalAggregateResult {
     return {
       _id: data._id,
       pickup_datetime: data.pickup_datetime,
       status: data.status,
       created_at: data.created_at,
-
       booking: {
-        _id: data.booking._id,
-        rental_start_datetime: data.booking.rental_start_datetime,
-        expected_return_datetime: data.booking.expected_return_datetime,
-        status: data.booking.status,
-        verification_status: data.booking.verification_status,
-        total_booking_fee_amount: data.booking.total_booking_fee_amount,
-        deposit_fee_amount: data.booking.deposit_fee_amount,
-        rental_fee_amount: data.booking.rental_fee_amount,
-        verified_at: data.booking.verified_at,
-
-        renter: {
-          _id: data.booking.renter._id,
-          address: data.booking.renter.address,
-          date_of_birth: data.booking.renter.date_of_birth,
-          user: {
-            _id: data.booking.renter.user._id,
-            email: data.booking.renter.user.email,
-            full_name: data.booking.renter.user.full_name,
-          },
-        },
-
-        verified_staff: data.booking.verified_staff
-          ? {
-              _id: data.booking.verified_staff._id,
-              employee_code: data.booking.verified_staff.employee_code,
-              position: data.booking.verified_staff.position,
-              user: {
-                _id: data.booking.verified_staff.user._id,
-                email: data.booking.verified_staff.user.email,
-                full_name: data.booking.verified_staff.user.full_name,
-              },
-            }
-          : null,
-      },
-
-      inspections:
-        data.inspections?.map((inspection) => ({
-          _id: inspection._id,
-          type: inspection.type,
-          inspected_at: inspection.inspected_at,
-          current_battery_capacity_kwh: inspection.current_battery_capacity_kwh,
-          current_mileage: inspection.current_mileage,
-
-          inspector: inspection.inspector
+        _id: data.booking?._id,
+        rental_start_datetime: data.booking?.rental_start_datetime,
+        expected_return_datetime: data.booking?.expected_return_datetime,
+        status: data.booking?.status,
+        verification_status: data.booking?.verification_status,
+        total_booking_fee_amount: data.booking?.total_booking_fee_amount,
+        deposit_fee_amount: data.booking?.deposit_fee_amount,
+        rental_fee_amount: data.booking?.rental_fee_amount,
+        verified_at: data.booking?.verified_at,
+        renter:
+          data.booking?.renter && data.booking.renter.user
             ? {
-                _id: inspection.inspector._id,
-                employee_code: inspection.inspector.employee_code,
-                position: inspection.inspector.position,
+                _id: data.booking.renter._id,
+                address: data.booking.renter.address,
+                date_of_birth: data.booking.renter.date_of_birth,
                 user: {
-                  _id: inspection.inspector.user._id,
-                  email: inspection.inspector.user.email,
-                  full_name: inspection.inspector.user.full_name,
+                  _id: data.booking.renter.user._id,
+                  full_name: data.booking.renter.user.full_name,
+                  email: data.booking.renter.user.email,
                 },
               }
             : null,
+        verified_staff:
+          data.booking?.verified_staff && data.booking.verified_staff.user
+            ? {
+                _id: data.booking.verified_staff._id,
+                employee_code: data.booking.verified_staff.employee_code,
+                position: data.booking.verified_staff.position,
+                user: {
+                  _id: data.booking.verified_staff.user._id,
+                  full_name: data.booking.verified_staff.user.full_name,
+                  email: data.booking.verified_staff.user.email,
+                },
+              }
+            : null,
+        vehicle: data.booking?.vehicle
+          ? {
+              _id: data.booking.vehicle._id,
+              make: data.booking.vehicle.make,
+              model: data.booking.vehicle.model,
+              model_year: data.booking.vehicle.model_year,
+              deposit_amount: data.booking.vehicle.deposit_amount,
+              price_per_hour: data.booking.vehicle.price_per_hour,
+              price_per_day: data.booking.vehicle.price_per_day,
+              station: data.booking.vehicle.station
+                ? {
+                    _id: data.booking.vehicle.station._id,
+                    name: data.booking.vehicle.station.name,
+                    address: data.booking.vehicle.station.address,
+                    is_active: data.booking.vehicle.station.is_active,
+                    latitude: data.booking.vehicle.station.latitude,
+                    longitude: data.booking.vehicle.station.longitude,
+                  }
+                : null,
+            }
+          : null,
+      },
+      inspections: Array.isArray(data.inspections)
+        ? data.inspections.map((inspection) => ({
+            _id: inspection._id,
+            type: inspection.type,
+            inspected_at: inspection.inspected_at,
+            current_battery_capacity_kwh: inspection.current_battery_capacity_kwh ?? 0,
+            current_mileage: inspection.current_mileage ?? 0,
+            inspector:
+              inspection.inspector && inspection.inspector.user
+                ? {
+                    _id: inspection.inspector._id,
+                    employee_code: inspection.inspector.employee_code,
+                    position: inspection.inspector.position,
+                    user: {
+                      _id: inspection.inspector.user._id,
+                      email: inspection.inspector.user.email,
+                      full_name: inspection.inspector.user.full_name,
+                    },
+                  }
+                : null,
+            report_photos: Array.isArray(inspection.report_photos)
+              ? inspection.report_photos.map((photo) => ({
+                  _id: photo._id,
+                  url: photo.url,
+                  label: photo.label,
+                }))
+              : [],
+          }))
+        : [],
 
-          report_photos:
-            inspection.report_photos?.map((photo) => ({
-              _id: photo._id,
-              url: photo.url,
-              label: photo.label,
-            })) || [],
-        })) || [],
       contract: data.contract
         ? {
             _id: data.contract._id,

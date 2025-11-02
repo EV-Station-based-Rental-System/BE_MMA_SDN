@@ -46,6 +46,15 @@ export class Vehicle {
 
   @Prop({ type: String, enum: Object.values(VehicleStatus), default: VehicleStatus.AVAILABLE })
   status: VehicleStatus;
+
+  @Prop({ required: true, type: Number })
+  price_per_hour: number;
+
+  @Prop({ type: Number })
+  price_per_day?: number;
+
+  @Prop({ required: true, type: Number, default: 0 })
+  deposit_amount: number;
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

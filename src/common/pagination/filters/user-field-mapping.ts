@@ -9,6 +9,11 @@ export const UserFieldMapping: Record<string, FilterField> = {
       return [{ email: regex }, { full_name: regex }, { phone_number: regex }];
     },
   },
+  statusKyc: {
+    field: "kycs.status",
+    type: "string",
+  },
+
   is_active: {
     field: "is_active",
     type: "boolean",

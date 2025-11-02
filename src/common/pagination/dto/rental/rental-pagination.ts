@@ -6,11 +6,18 @@ import { RentalStatus } from "src/common/enums/rental.enum";
 export class RentalPaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({
     description: "Tìm kiếm theo email hoặc full_name của renter",
-    example: "Nguyen",
   })
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: "Field to sort by",
+    example: "created_at | pickup_datetime | status",
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
 
   @ApiPropertyOptional({
     description: "Trạng thái rental (reserved, in_progress, completed, cancelled, late)",

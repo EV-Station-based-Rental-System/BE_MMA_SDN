@@ -49,7 +49,7 @@ export class KycsService {
     return ResponseDetail.ok(updatedKyc);
   }
 
-  async changeStatus(id: string, changeStatusDto: ChangeKycStatusDto): Promise<ResponseDetail<Kycs>> {
+  async changeStatus(id: string, changeStatusDto: ChangeKycStatusDto): Promise<ResponseMsg> {
     const updateData: Record<string, unknown> = {
       status: changeStatusDto.status,
     };
@@ -65,7 +65,7 @@ export class KycsService {
       throw new NotFoundException("KYC document not found");
     }
 
-    return ResponseDetail.ok(updatedKyc);
+    return ResponseMsg.ok("KYC status updated successfully");
   }
 
   async remove(id: string): Promise<ResponseMsg> {

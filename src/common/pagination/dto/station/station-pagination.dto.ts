@@ -12,6 +12,15 @@ export class StationPaginationDto extends BasePaginationDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: "Field to sort by",
+    example: "created_at | name",
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
   @ApiPropertyOptional({
     description: "Status of the Station (true = active)",
     example: true,

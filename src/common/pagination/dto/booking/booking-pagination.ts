@@ -7,11 +7,19 @@ import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
 export class BookingPaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({
     description: "Từ khóa tìm kiếm (full_name hoặc email của renter/staff)",
-    example: "nguyenvana@gmail.com",
+    example: "email | full_name ",
   })
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: "Field to sort by",
+    example: "total_booking_fee_amount | created_at | status",
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
 
   @ApiPropertyOptional({
     description: "Ngày bắt đầu lọc (format YYYY-MM-DD)",

@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsInt, IsOptional, Min, IsString, IsIn, Max } from "class-validator";
+import { IsInt, IsOptional, Min, IsIn, Max } from "class-validator";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class BasePaginationDto {
@@ -26,14 +26,6 @@ export class BasePaginationDto {
   @Min(1)
   @Max(100)
   take = 10;
-
-  @ApiPropertyOptional({
-    description: "Field to sort by",
-    example: "created_at",
-  })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
 
   @ApiPropertyOptional({
     description: "Sort direction",
