@@ -70,6 +70,7 @@ export type VehicleAggregateResult = {
   battery_capacity_kwh?: number;
   range_km?: number;
   vin_number?: string;
+  license_plate: string;
   img_url?: string;
   is_active: boolean;
   current_battery_capacity_kwh?: number;
@@ -90,6 +91,7 @@ export type VehicleEntity = {
   battery_capacity_kwh?: number;
   range_km?: number;
   vin_number?: string;
+  license_plate: string;
   img_url?: string;
   is_active: boolean;
   current_battery_capacity_kwh?: number;

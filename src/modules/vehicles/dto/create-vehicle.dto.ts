@@ -36,6 +36,10 @@ export class CreateVehicleDto {
   @IsString()
   vin_number: string;
 
+  @ApiProperty({ description: "License Plate / Biển số xe", example: "29A-12345", required: true })
+  @IsString()
+  license_plate: string;
+
   @ApiProperty({ description: "Station ID", example: "station_id" })
   @IsString()
   station_id: string;
