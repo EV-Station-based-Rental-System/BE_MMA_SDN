@@ -199,7 +199,8 @@ export type BookingEntity = {
   total_booking_fee_amount: number;
   deposit_fee_amount: number;
   rental_fee_amount: number;
-  verified_at: string;
+  created_at: Date;
+  verified_at?: Date;
   renter: RenterEntity | null;
   verified_staff: StaffEntity | null;
   vehicle: VehicleRentalInfo | null;
@@ -214,6 +215,8 @@ export type BookingAggregateResult = {
   total_booking_fee_amount: number;
   deposit_fee_amount: number;
   rental_fee_amount: number;
+  created_at: Date;
+  verified_at?: Date;
   renter: RenterEntity | null;
   verified_staff: StaffEntity | null;
   payment: PaymentEntity | null;

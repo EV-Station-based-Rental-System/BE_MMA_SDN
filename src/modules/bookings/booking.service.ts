@@ -38,6 +38,7 @@ import { applyFacetMongo } from "src/common/pagination/applyFacetMongo";
 import { ResponseList } from "src/common/response/response-list";
 import { buildPaginationResponse } from "src/common/pagination/pagination-response";
 import { ResponseMsg } from "src/common/response/response-message";
+import { BookingStatisticsDto, MonthlyRevenueDto, StatisticsPeriod } from "./dto/booking-statistics.dto";
 
 @Injectable()
 export class BookingService {
@@ -64,6 +65,8 @@ export class BookingService {
       total_booking_fee_amount: data.total_booking_fee_amount,
       deposit_fee_amount: data.deposit_fee_amount,
       rental_fee_amount: data.rental_fee_amount,
+      created_at: data.created_at,
+      verified_at: data.verified_at,
       renter:
         data.renter && data.renter.user
           ? {
@@ -557,6 +560,8 @@ export class BookingService {
         payment: 1,
         fee: 1,
         vehicle: 1,
+        created_at: 1,
+        verified_at: 1,
       },
     });
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
@@ -686,6 +691,8 @@ export class BookingService {
         payment: 1,
         fee: 1,
         vehicle: 1,
+        created_at: 1,
+        verified_at: 1,
       },
     });
     const result = await this.bookingRepository.aggregate(pipeline);
@@ -844,6 +851,8 @@ export class BookingService {
         payment: 1,
         fee: 1,
         vehicle: 1,
+        created_at: 1,
+        verified_at: 1,
       },
     });
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
@@ -854,5 +863,311 @@ export class BookingService {
     const total = result[0]?.meta?.[0]?.total || 0;
 
     return ResponseList.ok(buildPaginationResponse(mappedData, { total, page: filters.page, take: filters.take }));
+  }
+
+  // ==================== STATISTICS ====================
+
+  /**
+   * Get monthly revenue statistics
+   * Returns total revenue for each month in the specified year
+   */
+  async getMonthlyRevenue(dto: MonthlyRevenueDto): Promise<ResponseDetail<any>> {
+    const year = dto.year || new Date().getFullYear();
+    const startDate = new Date(year, 0, 1); // January 1st
+    const endDate = new Date(year, 11, 31, 23, 59, 59); // December 31st
+
+    const pipeline: any[] = [
+      {
+        $match: {
+          created_at: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          status: BookingStatus.VERIFIED, // Only count verified bookings
+        },
+      },
+      {
+        $group: {
+          _id: { $month: "$created_at" },
+          totalRevenue: { $sum: "$total_booking_fee_amount" },
+          totalBookings: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id",
+          totalRevenue: 1,
+          totalBookings: 1,
+        },
+      },
+      { $sort: { month: 1 } },
+    ];
+
+    const result = await this.bookingRepository.aggregate(pipeline);
+
+    // Fill in missing months with zero revenue
+    const monthlyData = Array.from({ length: 12 }, (_, i) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+      const monthData = result.find((r: any) => r.month === i + 1);
+      return {
+        month: i + 1,
+        monthName: new Date(year, i).toLocaleString("en-US", { month: "long" }),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+        totalRevenue: monthData?.totalRevenue || 0,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+        totalBookings: monthData?.totalBookings || 0,
+      };
+    });
+
+    return ResponseDetail.ok({
+      data: monthlyData,
+      year,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return
+      totalYearRevenue: monthlyData.reduce((sum, m) => sum + m.totalRevenue, 0),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return
+      totalYearBookings: monthlyData.reduce((sum, m) => sum + m.totalBookings, 0),
+    });
+  }
+
+  /**
+   * Get booking count statistics by period (day, week, month)
+   */
+  async getBookingStatistics(dto: BookingStatisticsDto): Promise<ResponseDetail<any>> {
+    const year = dto.year || new Date().getFullYear();
+    const month = dto.month || new Date().getMonth() + 1;
+
+    let pipeline: any[] = [];
+    let startDate: Date;
+    let endDate: Date;
+
+    switch (dto.period) {
+      case StatisticsPeriod.DAY: {
+        // Statistics by day for the specified month
+        startDate = new Date(year, month - 1, 1);
+        endDate = new Date(year, month, 0, 23, 59, 59); // Last day of month
+
+        pipeline = [
+          {
+            $match: {
+              created_at: {
+                $gte: startDate,
+                $lte: endDate,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: { $dayOfMonth: "$created_at" },
+              totalBookings: { $sum: 1 },
+              totalRevenue: { $sum: "$total_booking_fee_amount" },
+              verifiedBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.VERIFIED] }, 1, 0] },
+              },
+              pendingBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.PENDING_VERIFICATION] }, 1, 0] },
+              },
+              cancelledBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.CANCELLED] }, 1, 0] },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              day: "$_id",
+              totalBookings: 1,
+              totalRevenue: 1,
+              verifiedBookings: 1,
+              pendingBookings: 1,
+              cancelledBookings: 1,
+            },
+          },
+          { $sort: { day: 1 } },
+        ];
+
+        const dayResults = await this.bookingRepository.aggregate(pipeline);
+        const daysInMonth = new Date(year, month, 0).getDate();
+        const dailyData = Array.from({ length: daysInMonth }, (_, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          const dayData = dayResults.find((r) => r.day === i + 1);
+          return {
+            day: i + 1,
+            date: new Date(year, month - 1, i + 1).toISOString().split("T")[0],
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            totalBookings: dayData?.totalBookings || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            totalRevenue: dayData?.totalRevenue || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            verifiedBookings: dayData?.verifiedBookings || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            pendingBookings: dayData?.pendingBookings || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            cancelledBookings: dayData?.cancelledBookings || 0,
+          };
+        });
+
+        return ResponseDetail.ok({
+          period: "day",
+          year,
+          month,
+          data: dailyData,
+          summary: {
+            totalBookings: dailyData.reduce((sum: number, d) => sum + (d.totalBookings as number), 0),
+            totalRevenue: dailyData.reduce((sum: number, d) => sum + (d.totalRevenue as number), 0),
+            verifiedBookings: dailyData.reduce((sum: number, d) => sum + (d.verifiedBookings as number), 0),
+            pendingBookings: dailyData.reduce((sum: number, d) => sum + (d.pendingBookings as number), 0),
+            cancelledBookings: dailyData.reduce((sum: number, d) => sum + (d.cancelledBookings as number), 0),
+          },
+        });
+      }
+
+      case StatisticsPeriod.WEEK: {
+        // Statistics by week for the specified month
+        startDate = new Date(year, month - 1, 1);
+        endDate = new Date(year, month, 0, 23, 59, 59);
+
+        pipeline = [
+          {
+            $match: {
+              created_at: {
+                $gte: startDate,
+                $lte: endDate,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: { $week: "$created_at" },
+              totalBookings: { $sum: 1 },
+              totalRevenue: { $sum: "$total_booking_fee_amount" },
+              verifiedBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.VERIFIED] }, 1, 0] },
+              },
+              pendingBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.PENDING_VERIFICATION] }, 1, 0] },
+              },
+              cancelledBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.CANCELLED] }, 1, 0] },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              week: "$_id",
+              totalBookings: 1,
+              totalRevenue: 1,
+              verifiedBookings: 1,
+              pendingBookings: 1,
+              cancelledBookings: 1,
+            },
+          },
+          { $sort: { week: 1 } },
+        ];
+
+        const weekResults = await this.bookingRepository.aggregate(pipeline);
+
+        return ResponseDetail.ok({
+          period: "week",
+          year,
+          month,
+          data: weekResults,
+          summary: {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+            totalBookings: weekResults.reduce((sum: number, w: any) => sum + (w.totalBookings as number), 0),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+            totalRevenue: weekResults.reduce((sum: number, w: any) => sum + (w.totalRevenue as number), 0),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+            verifiedBookings: weekResults.reduce((sum: number, w: any) => sum + (w.verifiedBookings as number), 0),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+            pendingBookings: weekResults.reduce((sum: number, w: any) => sum + (w.pendingBookings as number), 0),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+            cancelledBookings: weekResults.reduce((sum: number, w: any) => sum + (w.cancelledBookings as number), 0),
+          },
+        });
+      }
+
+      case StatisticsPeriod.MONTH: {
+        // Statistics by month for the specified year
+        startDate = new Date(year, 0, 1);
+        endDate = new Date(year, 11, 31, 23, 59, 59);
+
+        pipeline = [
+          {
+            $match: {
+              created_at: {
+                $gte: startDate,
+                $lte: endDate,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: { $month: "$created_at" },
+              totalBookings: { $sum: 1 },
+              totalRevenue: { $sum: "$total_booking_fee_amount" },
+              verifiedBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.VERIFIED] }, 1, 0] },
+              },
+              pendingBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.PENDING_VERIFICATION] }, 1, 0] },
+              },
+              cancelledBookings: {
+                $sum: { $cond: [{ $eq: ["$status", BookingStatus.CANCELLED] }, 1, 0] },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              month: "$_id",
+              totalBookings: 1,
+              totalRevenue: 1,
+              verifiedBookings: 1,
+              pendingBookings: 1,
+              cancelledBookings: 1,
+            },
+          },
+          { $sort: { month: 1 } },
+        ];
+
+        const monthResults = await this.bookingRepository.aggregate(pipeline);
+        const monthlyData = Array.from({ length: 12 }, (_, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          const monthData = monthResults.find((r) => r.month === i + 1);
+          return {
+            month: i + 1,
+            monthName: new Date(year, i).toLocaleString("en-US", { month: "long" }),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            totalBookings: monthData?.totalBookings || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            totalRevenue: monthData?.totalRevenue || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            verifiedBookings: monthData?.verifiedBookings || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            pendingBookings: monthData?.pendingBookings || 0,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            cancelledBookings: monthData?.cancelledBookings || 0,
+          };
+        });
+
+        return ResponseDetail.ok({
+          period: "month",
+          year,
+          data: monthlyData,
+          summary: {
+            totalBookings: monthlyData.reduce((sum: number, m) => sum + (m.totalBookings as number), 0),
+            totalRevenue: monthlyData.reduce((sum: number, m) => sum + (m.totalRevenue as number), 0),
+            verifiedBookings: monthlyData.reduce((sum: number, m) => sum + (m.verifiedBookings as number), 0),
+            pendingBookings: monthlyData.reduce((sum: number, m) => sum + (m.pendingBookings as number), 0),
+            cancelledBookings: monthlyData.reduce((sum: number, m) => sum + (m.cancelledBookings as number), 0),
+          },
+        });
+      }
+
+      default:
+        throw new BadRequestException("Invalid period specified");
+    }
   }
 }

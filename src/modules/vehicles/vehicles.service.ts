@@ -127,6 +127,7 @@ export class VehicleService {
         price_per_day: 1,
         deposit_amount: 1,
         station: 1,
+        created_at: 1,
       },
     });
     applyPaginationMongo(pipeline, { page: filters.page, take: filters.take });
@@ -183,7 +184,9 @@ export class VehicleService {
           price_per_hour: 1,
           price_per_day: 1,
           deposit_amount: 1,
+          license_plate: 1,
           station: 1,
+          created_at: 1,
         },
       },
     );

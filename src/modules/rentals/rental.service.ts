@@ -175,6 +175,7 @@ export class RentalService {
                 renter: 1,
                 verified_staff: 1,
                 vehicle: 1,
+                created_at: 1,
               },
             },
           ],
@@ -277,6 +278,19 @@ export class RentalService {
     applyCommonFiltersMongo(pipeline, filter, RentalFieldMapping);
     const allowedSortFields = ["created_at", "booking_total_booking_fee_amount", "status"];
     applySortingMongo(pipeline, filter.sortBy, filter.sortOrder, allowedSortFields, "created_at");
+
+    pipeline.push({
+      $project: {
+        _id: 1,
+        pickup_datetime: 1,
+        status: 1,
+        created_at: 1,
+        booking: 1,
+        inspections: 1,
+        contract: 1,
+      },
+    });
+
     applyPaginationMongo(pipeline, { page: filter.page, take: filter.take });
     applyFacetMongo(pipeline);
 
@@ -518,6 +532,19 @@ export class RentalService {
       },
       { $unwind: { path: "$contract", preserveNullAndEmptyArrays: true } },
     );
+
+    pipeline.push({
+      $project: {
+        _id: 1,
+        pickup_datetime: 1,
+        status: 1,
+        created_at: 1,
+        booking: 1,
+        inspections: 1,
+        contract: 1,
+      },
+    });
+
     const result = await this.rentalRepository.aggregate(pipeline);
     const rental = result[0] as RentalAggregateResult;
     if (!rental) {
@@ -541,6 +568,7 @@ export class RentalService {
         total_booking_fee_amount: data.booking?.total_booking_fee_amount,
         deposit_fee_amount: data.booking?.deposit_fee_amount,
         rental_fee_amount: data.booking?.rental_fee_amount,
+        created_at: data.booking.created_at,
         verified_at: data.booking?.verified_at,
         renter:
           data.booking?.renter && data.booking.renter.user
