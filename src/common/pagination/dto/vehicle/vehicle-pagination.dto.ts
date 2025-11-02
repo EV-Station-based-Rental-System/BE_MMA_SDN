@@ -7,8 +7,8 @@ import { VehicleStatus } from "src/common/enums/vehicle.enum";
 
 export class VehiclePaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({
-    description: "Search term to filter results",
-    example: "make | model",
+    description: "Search term to filter results by make, model, or status",
+    example: "make | model | status",
   })
   @IsOptional()
   @IsString()
