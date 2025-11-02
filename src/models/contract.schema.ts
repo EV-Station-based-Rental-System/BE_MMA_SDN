@@ -11,5 +11,8 @@ export class Contract {
 
   @Prop({ required: true, type: String })
   document_url: string;
+
+  @Prop({ type: String })
+  image_kit_file_id?: string;
 }
 export const ContractSchema = SchemaFactory.createForClass(Contract);

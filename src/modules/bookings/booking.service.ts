@@ -11,7 +11,7 @@ import { KycStatus } from "src/common/enums/kyc.enum";
 import { VehicleStatus } from "src/common/enums/vehicle.enum";
 import { BadRequestException } from "src/common/exceptions/bad-request.exception";
 import { VehicleService } from "../vehicles/vehicles.service";
-import { calculateRentalDays } from "src/common/utils/helper";
+import { calculateRentalDays, calculateRentalHours } from "src/common/utils/helper";
 import { FeeService } from "../fees/fee.service";
 import { FeeType } from "src/common/enums/fee.enum";
 import { CreateFeeDto } from "../fees/dto/fee.dto";
@@ -24,7 +24,7 @@ import { Role } from "src/common/enums/role.enum";
 import { UsersService } from "../users/users.service";
 import { UserWithRenterRole, UserWithStaffRole } from "src/common/interfaces/user.interface";
 import { Staff } from "src/models/staff.schema";
-import { BookingStatus, BookingVerificationStatus } from "src/common/enums/booking.enum";
+import { BookingStatus, BookingVerificationStatus, RentalUntil } from "src/common/enums/booking.enum";
 import { ChangeStatusBookingDto } from "./dto/changeStatus.dto";
 import { RentalService } from "../rentals/rental.service";
 import { User } from "src/models/user.schema";
@@ -212,8 +212,10 @@ export class BookingService {
     vehicleId: string,
     rental_start: Date,
     expected_return: Date,
+    rental_unit: RentalUntil,
   ): Promise<{
-    rental_days: number;
+    rental_hours?: number;
+    rental_days?: number;
     total_booking_fee_amount: number;
     deposit_fee_amount: number;
     rental_fee_amount: number;
@@ -239,14 +241,31 @@ export class BookingService {
       throw new BadRequestException("Expected return time must be after rental start time");
     }
 
-    // Calculate fees (rental_fee = price_per_day * days, NOT days * rental_fee)
-    const rentalDays = calculateRentalDays(startTime, endTime);
+    // --- ✅ Xác định hình thức tính ---
+
+    let rental_fee_amount = 0;
+    let rental_days: number | undefined;
+    let rental_hours: number | undefined;
+
+    // --- Theo giờ ---
+    if (rental_unit === RentalUntil.HOURS) {
+      rental_hours = calculateRentalHours(startTime, endTime);
+      rental_fee_amount = vehicleData.price_per_hour * rental_hours;
+    }
+    // --- Theo ngày ---
+    else if (rental_unit === RentalUntil.DAYS) {
+      rental_days = calculateRentalDays(startTime, endTime);
+      rental_fee_amount = vehicleData.price_per_day * rental_days;
+    } else {
+      throw new BadRequestException("Invalid rental unit");
+    }
+
     const deposit_fee_amount = vehicleData.deposit_amount;
-    const rental_fee_amount = vehicleData.price_per_day * rentalDays;
     const total_booking_fee_amount = rental_fee_amount + deposit_fee_amount;
 
     return {
-      rental_days: rentalDays,
+      rental_hours,
+      rental_days,
       total_booking_fee_amount,
       deposit_fee_amount,
       rental_fee_amount,
@@ -338,6 +357,7 @@ export class BookingService {
       createBookingDto.vehicle_id,
       new Date(createBookingDto.rental_start_datetime),
       new Date(createBookingDto.expected_return_datetime),
+      createBookingDto.rental_until,
     );
     // Step 4: check calculated total amount matches client sent amount
     if (vehicleData.total_booking_fee_amount !== createBookingDto.total_amount) {
@@ -357,6 +377,7 @@ export class BookingService {
       total_booking_fee_amount: vehicleData.total_booking_fee_amount,
       deposit_fee_amount: vehicleData.deposit_fee_amount,
       rental_fee_amount: vehicleData.rental_fee_amount,
+      rental_until: createBookingDto.rental_until,
       status: createBookingDto.payment_method === PaymentMethod.CASH ? BookingStatus.VERIFIED : BookingStatus.PENDING_VERIFICATION,
     });
     await newBooking.save();
@@ -369,7 +390,7 @@ export class BookingService {
       booking_id: newBooking._id.toString(),
       amount: vehicleData.rental_fee_amount,
       type: FeeType.RENTAL_FEE,
-      description: `Rental fee for ${vehicleData.rental_days} days`,
+      description: `${createBookingDto.rental_until === RentalUntil.HOURS ? "Hourly" : "Daily"} rental fee for booking`,
       currency: "VND",
     };
     await this.feeService.create(rentalFeeRecord);
@@ -379,7 +400,7 @@ export class BookingService {
       booking_id: newBooking._id.toString(),
       amount: vehicleData.deposit_fee_amount,
       type: FeeType.DEPOSIT_FEE,
-      description: `Deposit fee for booking`,
+      description: `${createBookingDto.rental_until === RentalUntil.HOURS ? "Hourly" : "Daily"} deposit fee for booking`,
       currency: "VND",
     };
     await this.feeService.create(depositFeeRecord);
@@ -397,7 +418,7 @@ export class BookingService {
     return ResponseDetail.ok({ payUrl: paymentCode.payUrl });
   }
 
-   async confirmBooking(id: string, user: StaffJwtUserPayload, changeStatus: ChangeStatusBookingDto): Promise<ResponseMsg> {
+  async confirmBooking(id: string, user: StaffJwtUserPayload, changeStatus: ChangeStatusBookingDto): Promise<ResponseMsg> {
     // Step 1: Validate staff exists
     const staffUser = await this.checkStaffExists(user._id);
     // Step 2: Find booking

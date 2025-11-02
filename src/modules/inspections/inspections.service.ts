@@ -89,7 +89,7 @@ export class InspectionsService {
     }
 
     // Xác định folder dựa vào inspection type
-    let uploadResult: ResponseDetail<{ url: string }>;
+    let uploadResult: ResponseDetail<{ url: string; fileId: string }>;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const fileExt = (file.mimetype as string).split("/")[1];
     const fileName = `${inspectionId}_${label || "photo"}_${Date.now()}.${fileExt}`;
@@ -110,6 +110,7 @@ export class InspectionsService {
     const newPhoto = new this.reportsPhotoRepository({
       inspection_id: inspectionId,
       url: uploadResult.data?.url || "",
+      file_kit_id: uploadResult.data?.fileId || "",
       label: label || "",
     });
     await newPhoto.save();

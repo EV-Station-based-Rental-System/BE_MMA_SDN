@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
-import { BookingStatus, BookingVerificationStatus } from "src/common/enums/booking.enum";
+import { BookingStatus, BookingVerificationStatus, RentalUntil } from "src/common/enums/booking.enum";
 @Schema({ timestamps: { createdAt: "created_at", updatedAt: false } })
 export class Booking {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Renter", required: true, index: true })
@@ -48,5 +48,13 @@ export class Booking {
 
   @Prop({ required: true, type: Number, default: 0 })
   rental_fee_amount: number;
+
+  @Prop({
+    required: true,
+    enum: Object.values(RentalUntil),
+    default: RentalUntil.DAYS,
+    type: String,
+  })
+  rental_until: RentalUntil;
 }
 export const BookingSchema = SchemaFactory.createForClass(Booking);

@@ -10,3 +10,8 @@ export enum BookingVerificationStatus {
   REJECTED_MISMATCH = "rejected_mismatch",
   REJECTED_OTHER = "rejected_other",
 }
+
+export enum RentalUntil {
+  HOURS = "hours",
+  DAYS = "days",
+}
