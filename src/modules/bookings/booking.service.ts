@@ -397,7 +397,7 @@ export class BookingService {
     return ResponseDetail.ok({ payUrl: paymentCode.payUrl });
   }
 
-  async confirmBooking(id: string, user: StaffJwtUserPayload, changeStatus: ChangeStatusBookingDto): Promise<ResponseDetail<Booking>> {
+   async confirmBooking(id: string, user: StaffJwtUserPayload, changeStatus: ChangeStatusBookingDto): Promise<ResponseMsg> {
     // Step 1: Validate staff exists
     const staffUser = await this.checkStaffExists(user._id);
     // Step 2: Find booking
@@ -417,7 +417,7 @@ export class BookingService {
     // Step 5: Save booking
     await booking.save();
 
-    return ResponseDetail.ok(booking);
+    return ResponseMsg.ok("Booking verification status updated successfully");
   }
 
   async getAllBookings(filters: BookingPaginationDto): Promise<ResponseList<BookingAggregateResult>> {
