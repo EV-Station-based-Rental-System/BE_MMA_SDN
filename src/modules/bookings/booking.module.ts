@@ -7,7 +7,6 @@ import { Payment, PaymentSchema } from "src/models/payment.schema";
 import { Fee, FeeSchema } from "src/models/fee.schema";
 import { Vehicle, VehicleSchema } from "src/models/vehicle.schema";
 import { Station, StationSchema } from "src/models/station.schema";
-import { Pricing, PricingSchema } from "src/models/pricings.schema";
 import { FeeModule } from "../fees/fee.module";
 import { PaymentModule } from "../payments/payment.module";
 import { MomoModule } from "../payments/momo/momo.module";
@@ -28,7 +27,6 @@ import { VehicleModule } from "../vehicles/vehicles.module";
       { name: Fee.name, schema: FeeSchema },
       { name: Vehicle.name, schema: VehicleSchema },
       { name: Station.name, schema: StationSchema },
-      { name: Pricing.name, schema: PricingSchema },
     ]),
     forwardRef(() => CashModule),
     VehicleModule,

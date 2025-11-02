@@ -37,4 +37,22 @@ export class CreateVehicleDto {
   @IsOptional()
   @IsString()
   img_url?: string;
+
+  @ApiProperty({ description: "Station ID", example: "station_id", required: false })
+  @IsOptional()
+  @IsString()
+  station_id?: string;
+
+  @ApiProperty({ description: "Price per Hour", example: 50000 })
+  @IsNumber()
+  price_per_hour: number;
+
+  @ApiProperty({ description: "Price per Day", example: 300000, required: false })
+  @IsOptional()
+  @IsNumber()
+  price_per_day?: number;
+
+  @ApiProperty({ description: "Deposit Amount", example: 500000, default: 0 })
+  @IsNumber()
+  deposit_amount: number;
 }

@@ -23,7 +23,7 @@ import { Booking, BookingSchema } from "../src/models/booking.schema";
 import { Rental, RentalSchema } from "../src/models/rental.schema";
 import { Payment, PaymentSchema } from "../src/models/payment.schema";
 import { Fee, FeeSchema } from "../src/models/fee.schema";
-import { Pricing, PricingSchema } from "../src/models/pricings.schema";
+// import { Pricing, PricingSchema } from "../src/models/pricings.schema";
 import { Kycs, KycsSchema } from "../src/models/kycs.schema";
 import { Inspection, InspectionSchema } from "../src/models/inspections.schema";
 import { Report, ReportSchema } from "../src/models/report.schema";
@@ -118,7 +118,7 @@ class MockDataGenerator {
   private readonly RentalModel = (mongoose.models[Rental.name] as mongoose.Model<Rental>) || mongoose.model<Rental>(Rental.name, RentalSchema);
   private readonly PaymentModel = (mongoose.models[Payment.name] as mongoose.Model<Payment>) || mongoose.model<Payment>(Payment.name, PaymentSchema);
   private readonly FeeModel = (mongoose.models[Fee.name] as mongoose.Model<Fee>) || mongoose.model<Fee>(Fee.name, FeeSchema);
-  private readonly PricingModel = (mongoose.models[Pricing.name] as mongoose.Model<Pricing>) || mongoose.model<Pricing>(Pricing.name, PricingSchema);
+  // private readonly PricingModel = (mongoose.models[Pricing.name] as mongoose.Model<Pricing>) || mongoose.model<Pricing>(Pricing.name, PricingSchema);
   private readonly KycsModel = (mongoose.models[Kycs.name] as mongoose.Model<Kycs>) || mongoose.model<Kycs>(Kycs.name, KycsSchema);
   private readonly InspectionModel =
     (mongoose.models[Inspection.name] as mongoose.Model<Inspection>) || mongoose.model<Inspection>(Inspection.name, InspectionSchema);
@@ -170,7 +170,7 @@ class MockDataGenerator {
     await this.generateStations();
     await this.generateStaff();
     await this.generateVehicles();
-    await this.generatePricings();
+    // await this.generatePricings();
 
     await this.generateBookings();
     await this.generateRentals();
@@ -620,32 +620,32 @@ class MockDataGenerator {
     console.log(`Generated ${this.ids.fees.length} fees`);
   }
 
-  private async generatePricings(): Promise<void> {
-    console.log("Generating pricings...");
-    const sampleVehicles = faker.helpers.shuffle(this.ids.vehicles).slice(0, 30);
+  // private async generatePricings(): Promise<void> {
+  //   console.log("Generating pricings...");
+  //   const sampleVehicles = faker.helpers.shuffle(this.ids.vehicles).slice(0, 30);
 
-    for (const vehicleId of sampleVehicles) {
-      const effectiveFrom = faker.date.past({ years: 1 });
-      const effectiveTo = this.bool(0.3) ? faker.date.soon({ days: faker.number.int({ min: 30, max: 180 }), refDate: effectiveFrom }) : undefined;
+  //   for (const vehicleId of sampleVehicles) {
+  //     const effectiveFrom = faker.date.past({ years: 1 });
+  //     const effectiveTo = this.bool(0.3) ? faker.date.soon({ days: faker.number.int({ min: 30, max: 180 }), refDate: effectiveFrom }) : undefined;
 
-      const pricingDoc = new this.PricingModel({
-        vehicle_id: vehicleId,
-        price_per_hour: this.money(45_000, 210_000),
-        price_per_day: this.bool(0.65) ? this.money(350_000, 1_200_000) : undefined,
-        effective_from: effectiveFrom,
-        effective_to: effectiveTo,
-        deposit_amount: this.money(500_000, 3_000_000),
-        late_return_fee_per_hour: this.bool(0.7) ? this.money(10_000, 60_000) : undefined,
-        mileage_limit_per_day: this.bool(0.5) ? faker.number.int({ min: 80, max: 400 }) : undefined,
-        excess_mileage_fee: this.bool(0.5) ? this.money(1_000, 12_000) : undefined,
-      } as Partial<Pricing>);
+  //     const pricingDoc = new this.PricingModel({
+  //       vehicle_id: vehicleId,
+  //       price_per_hour: this.money(45_000, 210_000),
+  //       price_per_day: this.bool(0.65) ? this.money(350_000, 1_200_000) : undefined,
+  //       effective_from: effectiveFrom,
+  //       effective_to: effectiveTo,
+  //       deposit_amount: this.money(500_000, 3_000_000),
+  //       late_return_fee_per_hour: this.bool(0.7) ? this.money(10_000, 60_000) : undefined,
+  //       mileage_limit_per_day: this.bool(0.5) ? faker.number.int({ min: 80, max: 400 }) : undefined,
+  //       excess_mileage_fee: this.bool(0.5) ? this.money(1_000, 12_000) : undefined,
+  //     } as Partial<Pricing>);
 
-      const saved = await pricingDoc.save();
-      this.ids.pricings.push(saved._id);
-    }
+  //     const saved = await pricingDoc.save();
+  //     this.ids.pricings.push(saved._id);
+  //   }
 
-    console.log(`Generated ${this.ids.pricings.length} pricings`);
-  }
+  //   console.log(`Generated ${this.ids.pricings.length} pricings`);
+  // }
 
   private async generateKycs(): Promise<void> {
     console.log("Generating KYC records...");

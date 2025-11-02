@@ -16,6 +16,13 @@ export class VehiclePaginationDto extends BasePaginationDto {
     description: "Year of the vehicle model",
     example: 2021,
   })
+  @ApiPropertyOptional({
+    description: "Field to sort by",
+    example: "created_at | model_year",
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
