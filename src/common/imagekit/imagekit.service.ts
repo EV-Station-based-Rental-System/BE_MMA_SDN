@@ -8,6 +8,7 @@ export enum ImageFolder {
   AFTER = "BE_SDN_MMA/after",
   BEFORE = "BE_SDN_MMA/before",
   VEHICLE = "BE_SDN_MMA/vehicle",
+  KYC = "BE_SDN_MMA/kyc",
 }
 
 @Injectable()
@@ -46,6 +47,11 @@ export class ImagekitService {
 
   async uploadVehicleImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string; fileId: string }>> {
     const result = await this.uploadToFolder(fileBuffer, fileName, ImageFolder.VEHICLE);
+    return ResponseDetail.ok(result);
+  }
+
+  async uploadKycDocumentImage(fileBuffer: Buffer, fileName: string): Promise<ResponseDetail<{ url: string }>> {
+    const result = await this.uploadToFolder(fileBuffer, fileName, ImageFolder.KYC);
     return ResponseDetail.ok(result);
   }
 

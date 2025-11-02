@@ -19,8 +19,12 @@ export class Kycs {
   type: KycType;
 
   @ApiProperty({ type: String, description: "Document identification number" })
-  @Prop({ required: true, type: String })
+  @Prop({ type: String })
   document_number: string;
+
+  @ApiProperty({ type: String, description: "Document img url" })
+  @Prop({ type: String })
+  document_img_url: string;
 
   @ApiProperty({ type: Date, required: false, description: "Document expiry date" })
   @Prop({ type: Date })
