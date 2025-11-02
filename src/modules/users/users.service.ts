@@ -183,20 +183,36 @@ export class UsersService {
         },
       },
       {
+        $addFields: {
+          roleExtra: { $arrayElemAt: ["$renter", 0] },
+        },
+      },
+      {
         $lookup: {
           from: this.kycsRepository.collection.name,
-          localField: "renter._id",
+          localField: "roleExtra._id",
           foreignField: "renter_id",
           as: "kycs",
         },
       },
       {
         $addFields: {
-          roleExtra: { $arrayElemAt: ["$renter", 0] },
           kycs: { $arrayElemAt: ["$kycs", 0] },
         },
       },
-      { $project: { renter: 0 } },
+      {
+        $project: {
+          _id: 1,
+          email: 1,
+          full_name: 1,
+          phone: 1,
+          role: 1,
+          is_active: 1,
+          created_at: 1,
+          roleExtra: 1,
+          kycs: 1,
+        },
+      },
     ]);
 
     if (users.length === 0) throw new NotFoundException("Renter not found");
