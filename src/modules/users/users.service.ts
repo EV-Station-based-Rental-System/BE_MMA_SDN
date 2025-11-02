@@ -37,7 +37,7 @@ export class UsersService {
     @InjectModel(Booking.name) private bookingRepository: Model<Booking>,
     @InjectModel(Station.name) private stationRepository: Model<Station>,
     @InjectModel(Kycs.name) private kycsRepository: Model<Kycs>,
-  ) {}
+  ) { }
 
   async findAllUser(filters: UserPaginationDto): Promise<ResponseList<UserWithRoleExtra>> {
     const pipeline: any[] = [];
@@ -197,7 +197,9 @@ export class UsersService {
       },
       {
         $addFields: {
-          kycs: { $arrayElemAt: ["$kycs", 0] },
+          kycs: {
+            $ifNull: [{ $arrayElemAt: ["$kycs", 0] }, null],
+          },
         },
       },
       {
@@ -318,8 +320,14 @@ export class UsersService {
       { new: true, upsert: true },
     );
 
-    (user as UserWithRoleExtra).roleExtra = renter;
-    return ResponseDetail.ok(user as UserWithRoleExtra);
+    // Get kycs if exists
+    const kycs = await this.kycsRepository.findOne({ renter_id: renter?._id });
+
+    const userWithRoleExtra = user as UserWithRoleExtra;
+    userWithRoleExtra.roleExtra = renter;
+    userWithRoleExtra.kycs = kycs || null;
+
+    return ResponseDetail.ok(userWithRoleExtra);
   }
 
   async updateStaff(id: string, updateStaffDto: UpdateStaffDto): Promise<ResponseDetail<UserWithRoleExtra> | null> {
