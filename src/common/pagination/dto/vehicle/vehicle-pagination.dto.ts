@@ -7,23 +7,25 @@ import { VehicleStatus } from "src/common/enums/vehicle.enum";
 
 export class VehiclePaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({
-    description: "Search term to filter results by make, model, or status",
-    example: "make | model | status",
+    description: "Search term to filter results",
+    example: "make | model",
   })
   @IsOptional()
   @IsString()
   search?: string;
+
   @ApiPropertyOptional({
     description: "Year of the vehicle model",
     example: 2021,
   })
   @ApiPropertyOptional({
     description: "Field to sort by",
-    example: "created_at | model_year | status",
+    example: "created_at | model_year",
   })
   @IsOptional()
   @IsString()
   sortBy?: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
@@ -34,17 +36,30 @@ export class VehiclePaginationDto extends BasePaginationDto {
     example: true,
   })
   @IsOptional()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  @Transform(({ value }) => toBoolean(value))
+  @Transform(({ value }): boolean | undefined => {
+    if (typeof value === "boolean") {
+      return value;
+    }
+    if (typeof value === "string") {
+      return toBoolean(value);
+    }
+    return undefined;
+  })
   @IsBoolean()
   is_active?: boolean;
 
   @ApiPropertyOptional({
-    description: "Filter by vehicle status",
+    description: "Operational status of the vehicle",
     enum: VehicleStatus,
     example: VehicleStatus.AVAILABLE,
   })
   @IsOptional()
+  @Transform(({ value }): VehicleStatus | undefined => {
+    if (typeof value === "string") {
+      return value.toLowerCase() as VehicleStatus;
+    }
+    return undefined;
+  })
   @IsEnum(VehicleStatus)
   status?: VehicleStatus;
 }
