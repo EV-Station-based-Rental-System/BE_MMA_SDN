@@ -1,8 +1,9 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
-import { IsOptional, IsNumber, IsBoolean, IsString } from "class-validator";
+import { IsOptional, IsNumber, IsBoolean, IsString, IsEnum } from "class-validator";
 import { BasePaginationDto } from "../basePagination.dto";
 import { toBoolean } from "src/common/utils/helper";
+import { VehicleStatus } from "src/common/enums/vehicle.enum";
 
 export class VehiclePaginationDto extends BasePaginationDto {
   @ApiPropertyOptional({
@@ -18,7 +19,7 @@ export class VehiclePaginationDto extends BasePaginationDto {
   })
   @ApiPropertyOptional({
     description: "Field to sort by",
-    example: "created_at | model_year",
+    example: "created_at | model_year | status",
   })
   @IsOptional()
   @IsString()
@@ -37,4 +38,13 @@ export class VehiclePaginationDto extends BasePaginationDto {
   @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   is_active?: boolean;
+
+  @ApiPropertyOptional({
+    description: "Filter by vehicle status",
+    enum: VehicleStatus,
+    example: VehicleStatus.AVAILABLE,
+  })
+  @IsOptional()
+  @IsEnum(VehicleStatus)
+  status?: VehicleStatus;
 }
