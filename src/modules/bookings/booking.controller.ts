@@ -15,6 +15,8 @@ import { Booking } from "src/models/booking.schema";
 import { BookingListResponse } from "./dto/booking-response.dto";
 import { ResponseList } from "src/common/response/response-list";
 import { ResponseMsg } from "src/common/response/response-message";
+import { BookingStatisticsDto, MonthlyRevenueDto } from "./dto/booking-statistics.dto";
+import { ResponseDetail } from "src/common/response/response-detail-create-update";
 
 @ApiExtraModels(Booking)
 @Controller("bookings")
@@ -101,5 +103,84 @@ export class BookingController {
   @ApiErrorResponses()
   cancelBooking(@Param("id") id: string): Promise<ResponseMsg> {
     return this.bookingService.cancelBooking(id);
+  }
+
+  // ==================== STATISTICS ENDPOINTS ====================
+
+  @Get("statistics/monthly-revenue")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN)
+  @ApiOkResponse({
+    description: "Monthly revenue statistics",
+    schema: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            data: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  month: { type: "number" },
+                  monthName: { type: "string" },
+                  totalRevenue: { type: "number" },
+                  totalBookings: { type: "number" },
+                },
+              },
+            },
+            year: { type: "number" },
+            totalYearRevenue: { type: "number" },
+            totalYearBookings: { type: "number" },
+          },
+        },
+      },
+    },
+  })
+  @ApiErrorResponses()
+  @ApiQuery({ name: "year", required: false, type: Number, example: 2025 })
+  getMonthlyRevenue(@Query() dto: MonthlyRevenueDto): Promise<ResponseDetail<any>> {
+    return this.bookingService.getMonthlyRevenue(dto);
+  }
+
+  @Get("statistics/booking-count")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN)
+  @ApiOkResponse({
+    description: "Booking count statistics by period (day/week/month)",
+    schema: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            period: { type: "string", enum: ["day", "week", "month"] },
+            year: { type: "number" },
+            month: { type: "number" },
+            data: { type: "array", items: { type: "object" } },
+            summary: {
+              type: "object",
+              properties: {
+                totalBookings: { type: "number" },
+                totalRevenue: { type: "number" },
+                verifiedBookings: { type: "number" },
+                pendingBookings: { type: "number" },
+                cancelledBookings: { type: "number" },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiErrorResponses()
+  @ApiQuery({ name: "period", required: true, enum: ["day", "week", "month"], example: "month" })
+  @ApiQuery({ name: "year", required: false, type: Number, example: 2025 })
+  @ApiQuery({ name: "month", required: false, type: Number, example: 11 })
+  getBookingStatistics(@Query() dto: BookingStatisticsDto): Promise<ResponseDetail<any>> {
+    return this.bookingService.getBookingStatistics(dto);
   }
 }
