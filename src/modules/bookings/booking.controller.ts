@@ -68,16 +68,6 @@ export class BookingController {
     return this.bookingService.getAllBookings({ page, take: Math.min(take, 100), ...restFilters });
   }
 
-  @Get(":id")
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.STAFF, Role.ADMIN, Role.RENTER)
-  @ApiOkResponse({ description: "Booking details", type: SwaggerResponseDetailDto(Booking) })
-  @ApiErrorResponses()
-  async getBookingById(@Param("id") id: string) {
-    return this.bookingService.getBookingById(id);
-  }
-
   @Get("history-renter")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -85,12 +75,22 @@ export class BookingController {
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
   @ApiErrorResponses()
-  async getBookingsByRenter(
+  getBookingsByRenter(
     @Query() filters: BookingPaginationDto,
     @Req() req: { user: RenterJwtUserPayload },
   ): Promise<ResponseList<BookingAggregateResult>> {
     const { page = 1, take = 10, ...restFilters } = filters;
-    return await this.bookingService.getBookingByRenter({ page, take: Math.min(take, 100), ...restFilters }, req.user);
+    return this.bookingService.getBookingByRenter({ page, take: Math.min(take, 100), ...restFilters }, req.user);
+  }
+
+  @Get(":id")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN, Role.RENTER)
+  @ApiOkResponse({ description: "Booking details", type: SwaggerResponseDetailDto(Booking) })
+  @ApiErrorResponses()
+  getBookingById(@Param("id") id: string) {
+    return this.bookingService.getBookingById(id);
   }
 
   @Patch("cancel/:id")
@@ -99,7 +99,7 @@ export class BookingController {
   @Roles(Role.RENTER)
   @ApiOkResponse({ description: "Booking cancelled", type: ResponseMsg })
   @ApiErrorResponses()
-  async cancelBooking(@Param("id") id: string): Promise<ResponseMsg> {
-    return await this.bookingService.cancelBooking(id);
+  cancelBooking(@Param("id") id: string): Promise<ResponseMsg> {
+    return this.bookingService.cancelBooking(id);
   }
 }

@@ -53,8 +53,8 @@ export class StationController {
   @ApiOkResponse({ description: "Station updated", type: SwaggerResponseDetailDto(Station) })
   @ApiErrorResponses()
   @ApiBody({ type: UpdateStationDto })
-  async update(@Param("id") id: string, @Body() updateStationDto: UpdateStationDto) {
-    return await this.stationService.update(id, updateStationDto);
+  update(@Param("id") id: string, @Body() updateStationDto: UpdateStationDto) {
+    return this.stationService.update(id, updateStationDto);
   }
 
   @Patch("soft-delete/:id")

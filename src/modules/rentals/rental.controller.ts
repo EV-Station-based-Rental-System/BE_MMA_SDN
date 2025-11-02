@@ -25,7 +25,7 @@ export class RentalController {
   @ApiErrorResponses()
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "take", required: false, type: Number, example: 10 })
-  async getAllRentals(@Query() filter: RentalPaginationDto) {
+  getAllRentals(@Query() filter: RentalPaginationDto) {
     const { page = 1, take = 10, ...restFilters } = filter;
     return this.rentalService.getAllRentals({
       page,
@@ -43,7 +43,7 @@ export class RentalController {
     // type: SwaggerResponseDetailDto(ReturnRentalMapping),
   })
   @ApiErrorResponses()
-  async getRentalById(@Param("id") rentalId: string) {
+  getRentalById(@Param("id") rentalId: string) {
     return this.rentalService.getRentalById(rentalId);
   }
 }
