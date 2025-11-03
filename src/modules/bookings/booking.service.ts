@@ -373,6 +373,7 @@ export class BookingService {
       throw new BadRequestException("Failed to initialize payment");
     }
     // Step 6: Create booking record with PENDING_VERIFICATION status
+    // Both CASH and BANK_TRANSFER start with PENDING_VERIFICATION
     const newBooking = new this.bookingRepository({
       renter_id: renterUser.roleExtra._id,
       vehicle_id: createBookingDto.vehicle_id,
@@ -382,7 +383,7 @@ export class BookingService {
       deposit_fee_amount: vehicleData.deposit_fee_amount,
       rental_fee_amount: vehicleData.rental_fee_amount,
       rental_until: createBookingDto.rental_until,
-      status: createBookingDto.payment_method === PaymentMethod.CASH ? BookingStatus.VERIFIED : BookingStatus.PENDING_VERIFICATION,
+      status: BookingStatus.PENDING_VERIFICATION,
     });
     await newBooking.save();
 
