@@ -25,6 +25,7 @@ import { ResetPasswordDto } from "./dto/resetPassword.dto";
 import { ConflictException } from "src/common/exceptions/conflict.exception";
 import { ResponseMsg } from "src/common/response/response-message";
 import { Station } from "src/models/station.schema";
+import { OAuth2Client } from "google-auth-library";
 
 @Injectable()
 export class AuthService {
@@ -247,5 +248,144 @@ export class AuthService {
     user.password = newPasswordHash;
     await user.save();
     return ResponseMsg.ok("Reset password successfully");
+  }
+
+  // Login or register using Google ID token
+  async loginWithGoogle(idToken: string) {
+    if (!idToken) {
+      throw new ForbiddenException("Missing id_token");
+    }
+
+    // Initialize Google OAuth2 client
+    const googleClientIds = [
+      this.configService.get<string>("GOOGLE_WEB_CLIENT_ID"),
+      this.configService.get<string>("GOOGLE_IOS_CLIENT_ID"),
+      this.configService.get<string>("GOOGLE_ANDROID_CLIENT_ID"),
+      this.configService.get<string>("GOOGLE_EXPO_CLIENT_ID"),
+    ].filter((id): id is string => typeof id === "string" && id.length > 0); // Remove undefined/empty values
+
+    const client = new OAuth2Client();
+
+    // Verify the token with Google
+    let email: string;
+    let full_name: string;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: googleClientIds.length > 0 ? googleClientIds : undefined, // Accept any audience if no client IDs configured
+      });
+      const payload = ticket.getPayload();
+
+      if (!payload) {
+        throw new ForbiddenException("Invalid Google ID token payload");
+      }
+
+      // Verify token is not expired
+      if (payload.exp && payload.exp < Date.now() / 1000) {
+        throw new ForbiddenException("Google ID token has expired");
+      }
+
+      email = payload.email || "";
+      full_name = payload.name || payload.email || "Google User";
+
+      if (!email) {
+        throw new ForbiddenException("Google token does not contain email");
+      }
+
+      // Check if email is verified by Google
+      if (!payload.email_verified) {
+        throw new ForbiddenException("Google email is not verified");
+      }
+    } catch (error) {
+      console.error("Google token verification error:", error);
+      throw new ForbiddenException("Invalid or expired Google ID token");
+    }
+
+    // Find or create user
+    let user = await this.userRepository.findOne({ email });
+    if (!user) {
+      // Create a new user with RENTER role
+      const randomPassword = (Math.random() + 1).toString(36).substring(2, 10);
+      const newUser = new this.userRepository({
+        email,
+        password: await hashPassword(randomPassword), // Random password for OAuth users
+        full_name,
+        role: Role.RENTER,
+        is_active: true,
+        phone: "", // Can be updated by user later
+      });
+      await newUser.save();
+
+      // Create associated renter profile
+      const newRenter = new this.renterRepository({
+        user_id: newUser._id,
+        address: "",
+        date_of_birth: null,
+        risk_score: 0,
+      });
+      await newRenter.save();
+
+      user = newUser;
+    }
+
+    // Check if account is active
+    if (!user.is_active) {
+      throw new ForbiddenException("Account is disabled");
+    }
+
+    // Build JWT payload similar to login flow
+    let userPayload: BaseJwtUserPayload | RenterJwtUserPayload | StaffJwtUserPayload | AdminJwtUserPayload = {
+      _id: user._id.toString(),
+      email: user.email,
+      full_name: user.full_name,
+      role: user.role,
+    };
+
+    // Add role-specific fields
+    switch (user.role) {
+      case Role.RENTER: {
+        const renter = await this.renterRepository.findOne({ user_id: user._id });
+        if (renter) {
+          userPayload = {
+            ...userPayload,
+            address: renter.address,
+            date_of_birth: renter.date_of_birth,
+            risk_score: renter.risk_score,
+          } as RenterJwtUserPayload;
+        }
+        break;
+      }
+
+      case Role.STAFF: {
+        const staff = await this.staffRepository.findOne({ user_id: user._id });
+        if (staff) {
+          userPayload = {
+            ...userPayload,
+            employee_code: staff.employee_code,
+            position: staff.position,
+            hire_date: staff.hire_date,
+          } as StaffJwtUserPayload;
+        }
+        break;
+      }
+
+      case Role.ADMIN: {
+        const admin = await this.adminRepository.findOne({ user_id: user._id });
+        if (admin) {
+          userPayload = {
+            ...userPayload,
+            title: admin.title,
+            notes: admin.notes,
+            hire_date: admin.hire_date,
+          } as AdminJwtUserPayload;
+        }
+        break;
+      }
+
+      default:
+        break;
+    }
+
+    return { data: this.generateToken(userPayload) };
   }
 }
