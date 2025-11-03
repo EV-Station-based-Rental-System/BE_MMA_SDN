@@ -98,7 +98,7 @@ export class BookingController {
   @Patch("cancel/:id")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.RENTER)
+  @Roles(Role.RENTER, Role.STAFF, Role.ADMIN)
   @ApiOkResponse({ description: "Booking cancelled", type: ResponseMsg })
   @ApiErrorResponses()
   cancelBooking(@Param("id") id: string): Promise<ResponseMsg> {
