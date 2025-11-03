@@ -16,6 +16,7 @@ import { BookingService } from "src/modules/bookings/booking.service";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { StaffJwtUserPayload } from "src/common/utils/type";
 import { BookingVerificationStatus } from "src/common/enums/booking.enum";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class CashService extends AbstractPaymentService {
@@ -25,12 +26,14 @@ export class CashService extends AbstractPaymentService {
     @InjectModel(Booking.name) bookingRepository: Model<Booking>,
     @InjectModel(Renter.name) renterRepository: Model<Renter>,
     @InjectModel(User.name) userRepository: Model<User>,
-    @Inject(MailService) emailService: MailService,
+
+    emailService: MailService,
+    configService: ConfigService,
 
     @Inject(forwardRef(() => BookingService))
     private readonly bookingService: BookingService,
   ) {
-    super(vehicleRepository, paymentRepository, bookingRepository, renterRepository, userRepository, emailService);
+    super(vehicleRepository, paymentRepository, bookingRepository, renterRepository, userRepository, configService, emailService);
   }
   create() {
     return { orderId: `CASH_${Date.now()}`, payUrl: "Payment Cash Success waiting for confirmation from staff" };

@@ -11,6 +11,7 @@ import { BookingStatus } from "src/common/enums/booking.enum";
 import { Renter } from "src/models/renter.schema";
 import { User } from "src/models/user.schema";
 import { InternalServerErrorException } from "src/common/exceptions/internal-server-error.exception";
+import { ConfigService } from "@nestjs/config";
 
 export abstract class AbstractPaymentService {
   constructor(
@@ -20,6 +21,7 @@ export abstract class AbstractPaymentService {
     @InjectModel(Renter.name) protected readonly renterRepository: Model<Renter>,
     @InjectModel(User.name) protected readonly userRepository: Model<User>,
 
+    protected readonly configService: ConfigService,
     protected readonly emailService: MailService,
   ) {}
 
@@ -113,7 +115,7 @@ export abstract class AbstractPaymentService {
     });
   }
 
-  async handleReturnSuccess(payment: Payment): Promise<void> {
+  async handleReturnSuccess(payment: Payment) {
     // Validate transaction code exists
     if (!payment.transaction_code) {
       throw new NotFoundException("Payment transaction code not found");
@@ -153,9 +155,13 @@ export abstract class AbstractPaymentService {
     } catch (error: any) {
       throw new InternalServerErrorException("Failed to send confirmation email: " + (error instanceof Error ? error.message : "Unknown error"));
     }
+
+    return `${this.configService.get<string>("momo.redirect_fe")}?bookingId=${booking._id.toString()}&status=success&totalAmount=${booking.total_booking_fee_amount}`;
   }
 
-  async handleReturnFail(): Promise<void> {}
+  handleReturnFail() {
+    return `${this.configService.get<string>("momo.redirect_fe")}?status=fail`;
+  }
 
   async handleSendEmail(
     payment: Payment & {

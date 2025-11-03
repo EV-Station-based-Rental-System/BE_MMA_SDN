@@ -28,5 +28,6 @@ export default () => ({
     partnerCode: process.env.MOMO_PARTNER_CODE,
     queryUrl: process.env.MOMO_QUERY_URL,
     requestCreate: process.env.MOMO_REQUEST_CREATE,
+    redirect_fe: process.env.MOMO_REDIRECT_FE_URL,
   },
 });
