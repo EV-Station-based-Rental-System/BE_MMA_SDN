@@ -153,7 +153,9 @@ export abstract class AbstractPaymentService {
     try {
       await this.handleSendEmail(paymentWithDetails, booking);
     } catch (error: any) {
-      throw new InternalServerErrorException("Failed to send confirmation email: " + (error instanceof Error ? error.message : "Unknown error"));
+      // Log error but don't throw - email failure shouldn't rollback the payment
+      console.error("Failed to send confirmation email:", error instanceof Error ? error.message : "Unknown error");
+      // In production, you should use a proper logger service here
     }
 
     return `${this.configService.get<string>("momo.redirect_fe")}?bookingId=${booking._id.toString()}&status=success&totalAmount=${booking.total_booking_fee_amount}`;

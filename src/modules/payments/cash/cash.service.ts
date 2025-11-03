@@ -15,7 +15,6 @@ import { ResponseMsg } from "src/common/response/response-message";
 import { BookingService } from "src/modules/bookings/booking.service";
 import { NotFoundException } from "src/common/exceptions/not-found.exception";
 import { StaffJwtUserPayload } from "src/common/utils/type";
-import { BookingVerificationStatus } from "src/common/enums/booking.enum";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
@@ -39,7 +38,8 @@ export class CashService extends AbstractPaymentService {
     return { orderId: `CASH_${Date.now()}`, payUrl: "Payment Cash Success waiting for confirmation from staff" };
   }
 
-  async confirmPaymentByCash(paymentId: string, user: StaffJwtUserPayload): Promise<ResponseMsg> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async confirmPaymentByCash(paymentId: string, _user: StaffJwtUserPayload): Promise<ResponseMsg> {
     // Get payment by transaction code (orderId)
     const payment = await this.getPaymentById(paymentId);
     if (payment.status !== PaymentStatus.PENDING) {
@@ -62,15 +62,10 @@ export class CashService extends AbstractPaymentService {
       throw new NotFoundException("Booking ID not found");
     }
 
-    // Tạo changeStatus cho cash
-    const changeStatus = {
-      verification_status: BookingVerificationStatus.APPROVED,
-      cancel_reason: undefined,
-    };
-
-    await this.bookingService.confirmBooking(booking._id.toString(), user, changeStatus);
-    // Update payment status to SUCCESS
+    // Update payment status to PAID and booking status to VERIFIED
+    // Staff will still need to approve the booking separately via confirmBooking endpoint
     await this.handleReturnSuccess(payment);
-    return ResponseMsg.ok("Cash payment confirmed successfully");
+
+    return ResponseMsg.ok("Cash payment confirmed successfully. Booking is now VERIFIED and awaiting staff approval.");
   }
 }

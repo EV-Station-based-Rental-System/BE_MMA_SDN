@@ -130,4 +130,64 @@ export class MomoService extends AbstractPaymentService {
       return this.handleReturnFail();
     }
   }
+
+  async handleIPN(body: { [key: string]: string }) {
+    // IPN (Instant Payment Notification) from MoMo server
+    // This is the same logic as handleReturn but returns JSON response
+    const {
+      partnerCode,
+      orderId,
+      requestId,
+      amount,
+      orderInfo,
+      orderType,
+      transId,
+      resultCode,
+      message,
+      payType,
+      responseTime,
+      extraData,
+      signature,
+    } = body;
+
+    try {
+      const accessKey = this.configService.get<string>("momo.accessKey");
+      const secretKey = this.configService.get<string>("momo.secretKey");
+      if (!accessKey || !secretKey) {
+        console.error("Momo configuration is missing");
+        return { status: "error", message: "Configuration error" };
+      }
+
+      const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&message=${message}&orderId=${orderId}&orderInfo=${orderInfo}&orderType=${orderType}&partnerCode=${partnerCode}&payType=${payType}&requestId=${requestId}&responseTime=${responseTime}&resultCode=${resultCode}&transId=${transId}`;
+
+      const computedSignature = crypto.createHmac("sha256", secretKey).update(rawSignature).digest("hex");
+
+      if (computedSignature !== signature) {
+        console.error("Invalid MoMo signature");
+        return { status: "error", message: "Invalid signature" };
+      }
+
+      // Get payment by transaction code (orderId)
+      const payment = await this.getPaymentByTransactionCode(orderId);
+
+      // Check if payment already paid
+      if (payment.status !== PaymentStatus.PENDING) {
+        console.log(`Payment ${orderId} already processed`);
+        return { status: "success", message: "Payment already processed" };
+      }
+
+      if (Number(resultCode) === 0) {
+        // Payment success
+        await this.handleReturnSuccess(payment);
+        return { status: "success", message: "Payment processed successfully" };
+      } else {
+        // Payment failed
+        console.log(`Payment ${orderId} failed with resultCode: ${resultCode}`);
+        return { status: "success", message: "Payment failed notification received" };
+      }
+    } catch (error) {
+      console.error("Error processing MoMo IPN:", error instanceof Error ? error.message : "Unknown error");
+      return { status: "error", message: "Internal error" };
+    }
+  }
 }
