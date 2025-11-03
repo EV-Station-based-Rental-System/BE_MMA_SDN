@@ -23,13 +23,12 @@ export class MomoService extends AbstractPaymentService {
     @InjectModel(User.name) userRepository: Model<User>,
 
     emailService: MailService,
-
-    private readonly configService: ConfigService,
+    configService: ConfigService,
   ) {
-    super(vehicleRepository, paymentRepository, bookingRepository, renterRepository, userRepository, emailService);
+    super(vehicleRepository, paymentRepository, bookingRepository, renterRepository, userRepository, configService, emailService);
   }
 
-  async create(total: string) {
+  async create(total: string): Promise<{ orderId: string; payUrl: string }> {
     const accessKey = this.configService.get<string>("momo.accessKey");
     const secretKey = this.configService.get<string>("momo.secretKey");
     const partnerCode = this.configService.get<string>("momo.partnerCode");
@@ -42,7 +41,7 @@ export class MomoService extends AbstractPaymentService {
     const requestId = partnerCode + new Date().getTime();
     const orderId = requestId;
     const orderInfo = "Momo payment";
-    const requestType = "payWithMethod";
+    const requestType = "captureWallet";
     const extraData = "";
     const autoCapture = true;
     const amount = parseInt(total);
@@ -73,8 +72,12 @@ export class MomoService extends AbstractPaymentService {
         headers: { "Content-Type": "application/json" },
         timeout: 30000,
       });
-
-      return result.data as { orderId: string; payUrl: string };
+      return {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        orderId: result.data.orderId as string,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        payUrl: result.data.deeplink as string,
+      };
     } catch (error: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       throw new InternalServerErrorException("Failed to create Momo payment: " + (error?.response?.data || error?.message));

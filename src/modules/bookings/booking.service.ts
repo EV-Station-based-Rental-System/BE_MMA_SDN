@@ -366,6 +366,7 @@ export class BookingService {
     if (vehicleData.total_booking_fee_amount !== createBookingDto.total_amount) {
       throw new BadRequestException("Total amount mismatch. Please refresh and try again.");
     }
+
     // Step 5: Initialize payment gateway (use backend calculated amount)
     const paymentCode = await this.getPaymentCode(createBookingDto);
     if (!paymentCode || !paymentCode.orderId || !paymentCode.payUrl) {
