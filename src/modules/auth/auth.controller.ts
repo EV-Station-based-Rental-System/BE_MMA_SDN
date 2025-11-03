@@ -4,6 +4,7 @@ import { LocalGuard } from "src/common/guards/local.guard";
 import { StaffJwtUserPayload, AdminJwtUserPayload, RenterJwtUserPayload } from "src/common/utils/type";
 
 import { RenterDto } from "./dto/renter.dto";
+import { GoogleDto } from "./dto/google.dto";
 import { LoginDto } from "./dto/login.dto";
 import { StaffDto } from "./dto/staff.dto";
 import { AdminDto } from "./dto/admin.dto";
@@ -118,5 +119,33 @@ export class AuthController {
   @ApiBody({ type: ResetPasswordDto })
   async resetPassword(@Body() body: ResetPasswordDto) {
     return this.authService.resetPassword(body);
+  }
+
+  // =====================
+  // GOOGLE LOGIN
+  // Client should send Google ID token (id_token) obtained from Google SDK
+  // =====================
+  @Post("google")
+  @ApiCreatedResponse({
+    description: "Google login successful. Returns JWT access token. Creates new user if email does not exist.",
+    schema: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          properties: {
+            access_token: { type: "string" },
+          },
+        },
+      },
+    },
+  })
+  @ApiErrorResponses()
+  @ApiBody({
+    type: GoogleDto,
+    description: "Google ID token obtained from Google OAuth flow on the client",
+  })
+  async googleLogin(@Body() body: GoogleDto) {
+    return this.authService.loginWithGoogle(body.id_token);
   }
 }
